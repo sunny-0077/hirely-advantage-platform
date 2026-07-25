@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { TOOL_META } from "@/lib/toolMeta";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
