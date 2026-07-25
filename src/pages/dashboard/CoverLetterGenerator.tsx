@@ -9,7 +9,9 @@ import {
   Trash2,
   RefreshCw,
   Maximize2,
+  Mail,
 } from "lucide-react";
+import { EmptyState, PreviewCoverLetter } from "@/components/dashboard/EmptyState";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
