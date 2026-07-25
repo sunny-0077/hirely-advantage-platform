@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight, Sparkles } from "lucide-react";
+import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight, Sparkles, FileText } from "lucide-react";
+import { EmptyState, PreviewScoreCard } from "@/components/dashboard/EmptyState";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 
