@@ -1,10 +1,14 @@
 // Job-specific gap analysis — resume vs job description.
 // Returns markdown text from Lovable AI Gateway.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
 
 const SYSTEM_PROMPT = `You are an expert hiring consultant and resume strategist with 15+ years of experience working at top recruiting firms and as an in-house talent lead at Fortune 500 companies. You have reviewed over 50,000 resumes and understand exactly how recruiters and hiring managers evaluate candidates.
 
