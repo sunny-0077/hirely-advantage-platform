@@ -262,29 +262,13 @@ const CoverLetterGenerator = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
-          Cover Letter Generator
-        </p>
-      </div>
-      <h1 className="mt-2 text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
-        One letter, perfectly{" "}
-        <span
-          style={{
-            background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          tuned
-        </span>
-        .
-      </h1>
-      <p className="mt-3 text-[14px] text-foreground/60 tracking-tight max-w-2xl">
-        Paste or upload a job description, fill in your details, pick a tone, and we'll draft a
-        properly structured cover letter you can edit before downloading.
-      </p>
+      <PageHeader
+        eyebrow="Cover Letter Generator"
+        title="One letter, perfectly tuned."
+        description="Paste or upload a job description, fill in your details, pick a tone, and we'll draft a properly structured cover letter you can edit before downloading."
+        statusLabel="Tailored to a specific role"
+      />
+
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left: input */}
