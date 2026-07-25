@@ -129,19 +129,13 @@ const ResumeBuilder = () => {
   if (picking || !doc) {
     return (
       <div className="max-w-6xl mx-auto">
-        <header className="mb-6">
-          <div className="text-[11px] uppercase tracking-[0.22em] text-foreground/45 mb-1.5">
-            Resume Builder
-          </div>
-          <h1 className="text-[28px] md:text-[34px] font-semibold tracking-tight text-foreground">
-            Pick an ATS-safe template.
-          </h1>
-          <p className="text-foreground/60 mt-2 max-w-2xl text-[14px] leading-relaxed">
-            Every template here is single-column, no graphics, no tables — built to be parsed
-            cleanly by every major ATS. Pick one to start; you can switch later without losing
-            content.
-          </p>
-        </header>
+        <PageHeader
+          eyebrow="Resume Builder"
+          title="Pick an ATS-safe template."
+          description="Every template here is single-column, no graphics, no tables — built to be parsed cleanly by every major ATS. Pick one to start; you can switch later without losing content."
+          statusLabel="ATS-safe templates only"
+        />
+
 
         <TemplatePicker value="" onPick={pickTemplate} />
 
