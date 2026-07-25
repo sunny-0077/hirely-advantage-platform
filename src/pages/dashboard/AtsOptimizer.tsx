@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ACCEPTED_EXTS,
