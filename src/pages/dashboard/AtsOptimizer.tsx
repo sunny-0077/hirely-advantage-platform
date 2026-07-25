@@ -4,7 +4,6 @@ import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, L
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { TOOL_META } from "@/lib/toolMeta";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ACCEPTED_EXTS,
@@ -153,8 +152,6 @@ export default function AtsOptimizer() {
         title="Beat the bots — without keyword stuffing."
         description="Upload your resume, paste the job description, and we'll find the missing keywords that matter — only suggesting edits your real experience supports."
         statusLabel="Keyword match against your JD"
-        icon={TOOL_META["/app/ats-optimizer"].icon}
-        iconColor={TOOL_META["/app/ats-optimizer"].color}
       />
 
 

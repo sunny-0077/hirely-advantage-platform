@@ -4,7 +4,6 @@ import GapResult from "@/components/dashboard/gap/GapResult";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { TOOL_META } from "@/lib/toolMeta";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ACCEPTED_EXTS,
@@ -80,8 +79,6 @@ export default function AtsParseSim() {
         title="See your resume through the recruiter's robot."
         description="We simulate Workday, Greenhouse, Lever, iCIMS and Taleo — and report exactly what they extracted, what they misread, and what they silently dropped."
         statusLabel="Simulates 5 major ATS engines"
-        icon={TOOL_META["/app/ats-parse-sim"].icon}
-        iconColor={TOOL_META["/app/ats-parse-sim"].color}
       />
 
 

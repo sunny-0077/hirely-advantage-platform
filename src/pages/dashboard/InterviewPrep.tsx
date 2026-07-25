@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { TOOL_META } from "@/lib/toolMeta";
 
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { useAuth } from "@/hooks/useAuth";
@@ -283,8 +282,6 @@ const InterviewPrep = () => {
         title="Practice under pressure. Walk in fluent."
         description="Type your answer. We score it on clarity, confidence, length, metrics, STAR structure, and keyword relevance — then rewrite a stronger version you can actually use."
         statusLabel="Scored on STAR, clarity & metrics"
-        icon={TOOL_META["/app/interview-prep"].icon}
-        iconColor={TOOL_META["/app/interview-prep"].color}
       />
 
 
