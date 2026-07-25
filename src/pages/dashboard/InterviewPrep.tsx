@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { TOOL_META } from "@/lib/toolMeta";
 
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { useAuth } from "@/hooks/useAuth";
