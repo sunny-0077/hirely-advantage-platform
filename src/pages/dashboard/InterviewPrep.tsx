@@ -277,30 +277,13 @@ const InterviewPrep = () => {
 
   return (
     <div className="w-full max-w-[1760px] mx-auto xl:-ml-4 2xl:-ml-8">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
-          Interview Prep
-        </p>
-        <div className="flex items-center gap-2 flex-wrap" />
+      <PageHeader
+        eyebrow="Interview Prep"
+        title="Practice under pressure. Walk in fluent."
+        description="Type your answer. We score it on clarity, confidence, length, metrics, STAR structure, and keyword relevance — then rewrite a stronger version you can actually use."
+        statusLabel="Scored on STAR, clarity & metrics"
+      />
 
-      </div>
-      <h1 className="mt-2 text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
-        Practice under pressure.{" "}
-        <span
-          style={{
-            background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          Walk in fluent.
-        </span>
-      </h1>
-      <p className="mt-3 text-[14px] text-foreground/60 tracking-tight max-w-2xl">
-        Type your answer. We score it on clarity, confidence, length, metrics, STAR structure, and
-        keyword relevance — then rewrite a stronger version you can actually use.
-      </p>
 
       <div className="mt-6">
         <SegmentedTabs
