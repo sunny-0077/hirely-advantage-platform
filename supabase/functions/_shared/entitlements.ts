@@ -192,25 +192,14 @@ export async function incrementUsage(
   const col = COUNTER_COLUMN[feature];
   if (!col) return;
   const admin = adminClient();
-  const period = periodStartIso();
-
-  await admin
-    .from("usage_counters")
-    .upsert(
-      { user_id: userId, period_start: period },
-      { onConflict: "user_id,period_start", ignoreDuplicates: true },
-    );
-
-  const { data: row } = await admin
-    .from("usage_counters")
-    .select(`id, ${col}`)
-    .eq("user_id", userId)
-    .eq("period_start", period)
-    .maybeSingle();
-  if (!row) return;
-  const current = (row as Record<string, number | string>)[col] as number ?? 0;
-  await admin
-    .from("usage_counters")
-    .update({ [col]: current + delta })
-    .eq("id", (row as { id: string }).id);
+  const { error } = await admin.rpc("increment_usage_counter", {
+    _user_id: userId,
+    _column: col,
+    _delta: delta,
+  });
+  if (error) {
+    // Log but don't fail the user's request over a counter bump.
+    console.error("increment_usage_counter failed", feature, error);
+  }
 }
+

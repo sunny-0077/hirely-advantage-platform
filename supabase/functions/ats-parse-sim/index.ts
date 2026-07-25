@@ -1,9 +1,13 @@
 // ATS parse simulator — reports what an ATS extracts vs. misses.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
 
 const SYSTEM_PROMPT = `You are an ATS (Applicant Tracking System) simulation engine. Your job is to parse a resume exactly as a real ATS system would — with all its limitations, misreadings, and failures — and then report back what was successfully extracted versus what was missed or misread.
 
@@ -60,6 +64,32 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = userData.user.id;
+
+    const gate = await checkEntitlement(userId, "analyses");
+    if (!gate.ok) {
+      return new Response(JSON.stringify({
+        error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "analyses",
+      }), { status: gate.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const { resume_text } = await req.json();
     if (!resume_text || typeof resume_text !== "string" || resume_text.length < 80) {
       return new Response(JSON.stringify({ error: "resume_text required" }), {
@@ -67,9 +97,15 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    if (resume_text.length > 50000) {
+      return new Response(JSON.stringify({ error: "resume_text too long" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+
 
     const userPrompt = `RESUME:\n${resume_text}\n\nSimulate the ATS parse and return the full report as instructed.`;
 
@@ -109,9 +145,12 @@ Deno.serve(async (req) => {
     const data = await resp.json();
     const markdown = data?.choices?.[0]?.message?.content ?? "";
 
+    await incrementUsage(userId, "analyses");
+
     return new Response(JSON.stringify({ markdown }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
     console.error("ats-parse-sim error", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {

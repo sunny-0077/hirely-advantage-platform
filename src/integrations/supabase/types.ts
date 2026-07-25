@@ -726,6 +726,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_usage_counter: {
+        Args: { _column: string; _delta?: number; _user_id: string }
+        Returns: number
+      }
     }
     Enums: {
       app_plan: "free" | "pro" | "advanced" | "teams"
