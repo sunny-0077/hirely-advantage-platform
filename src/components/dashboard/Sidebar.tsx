@@ -76,7 +76,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
+              "group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
                 ? "text-foreground font-medium bg-card/60"
                 : "text-foreground/60 hover:text-foreground hover:bg-card/40",
@@ -84,7 +84,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
           }
         >
           <span className="flex items-center gap-2.5">
-            <Icon className="w-4 h-4 opacity-70" />
+            <Icon className="w-4 h-4 opacity-70 transition-transform duration-200 group-hover:-rotate-12" />
             {label}
           </span>
           <span className="text-[10px] tracking-[0.14em] uppercase text-foreground/35 px-1.5 py-0.5 rounded-full bg-foreground/[0.04] border border-foreground/[0.06]">
