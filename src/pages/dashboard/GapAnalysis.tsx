@@ -3,6 +3,7 @@ import { Loader2, Upload, FileText, X, Sparkles, ScanSearch, Target, Clock } fro
 import GapResult from "@/components/dashboard/gap/GapResult";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -110,19 +111,13 @@ export default function GapAnalysis() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium flex items-center gap-2">
-          <ScanSearch className="w-3.5 h-3.5" />
-          Job Gap Analysis
-        </p>
-        <h1 className="mt-2 text-[28px] sm:text-[32px] leading-tight font-medium tracking-tight text-foreground">
-          The honest gap between you and the role.
-        </h1>
-        <p className="mt-2 text-[13.5px] text-foreground/60 max-w-2xl">
-          Paste a job description, tell us the target role and your seniority — we'll map every
-          requirement to evidence in your resume, line by line.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Job Gap Analysis"
+        title="The honest gap between you and the role."
+        description="Paste a job description, tell us the target role and your seniority — we'll map every requirement to evidence in your resume, line by line."
+        statusLabel="Evidence-mapped, line by line"
+      />
+
 
       <div className="grid md:grid-cols-2 gap-5">
         <SectionCard className="p-0 overflow-hidden">

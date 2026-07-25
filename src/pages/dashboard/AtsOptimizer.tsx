@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ACCEPTED_EXTS,
@@ -146,20 +147,13 @@ export default function AtsOptimizer() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium flex items-center gap-2">
-          <Target className="w-3.5 h-3.5" />
-          ATS Keyword Optimizer
-        </p>
-        <h1 className="mt-2 text-[28px] sm:text-[32px] leading-tight font-medium tracking-tight text-foreground">
-          Beat the bots — without keyword stuffing.
-        </h1>
-        <p className="mt-2 text-[13.5px] text-foreground/60 max-w-2xl">
-          Upload your resume, paste the job description, and we'll find the missing
-          keywords that matter — only suggesting edits your real experience supports.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="ATS Keyword Optimizer"
+        title="Beat the bots — without keyword stuffing."
+        description="Upload your resume, paste the job description, and we'll find the missing keywords that matter — only suggesting edits your real experience supports."
+        statusLabel="Keyword match against your JD"
+      />
+
 
       {!ent.loading && !allowed && (
         <SectionCard className="flex items-center gap-4">

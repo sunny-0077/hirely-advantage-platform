@@ -3,6 +3,7 @@ import { Loader2, Upload, FileText, X, Sparkles, ScanLine } from "lucide-react";
 import GapResult from "@/components/dashboard/gap/GapResult";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ACCEPTED_EXTS,
@@ -73,19 +74,13 @@ export default function AtsParseSim() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium flex items-center gap-2">
-          <ScanLine className="w-3.5 h-3.5" />
-          ATS Parse Simulator
-        </p>
-        <h1 className="mt-2 text-[28px] sm:text-[32px] leading-tight font-medium tracking-tight text-foreground">
-          See your resume through the recruiter's robot.
-        </h1>
-        <p className="mt-2 text-[13.5px] text-foreground/60 max-w-2xl">
-          We simulate Workday, Greenhouse, Lever, iCIMS and Taleo — and report exactly
-          what they extracted, what they misread, and what they silently dropped.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="ATS Parse Simulator"
+        title="See your resume through the recruiter's robot."
+        description="We simulate Workday, Greenhouse, Lever, iCIMS and Taleo — and report exactly what they extracted, what they misread, and what they silently dropped."
+        statusLabel="Simulates 5 major ATS engines"
+      />
+
 
       <SectionCard className="p-0 overflow-hidden">
         <button
