@@ -3,6 +3,7 @@ import { Loader2, Upload, FileText, X, Sparkles, ScanSearch, Target, Clock } fro
 import GapResult from "@/components/dashboard/gap/GapResult";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { supabase } from "@/integrations/supabase/client";
 import {
