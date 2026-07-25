@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -9,6 +10,9 @@ interface PlaceholderPageProps {
   description: string;
   statusLabel?: string;
   icon?: LucideIcon;
+  preview?: ReactNode;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 const PlaceholderPage = ({
@@ -17,6 +21,9 @@ const PlaceholderPage = ({
   description,
   statusLabel,
   icon = Sparkles,
+  preview,
+  emptyTitle,
+  emptyDescription,
 }: PlaceholderPageProps) => (
   <div className="max-w-6xl mx-auto space-y-6">
     <PageHeader
@@ -27,9 +34,9 @@ const PlaceholderPage = ({
     />
     <EmptyState
       icon={icon}
-      title="We're building this next"
-      description={description}
-      preview={<PreviewList />}
+      title={emptyTitle ?? "We're building this next"}
+      description={emptyDescription ?? description}
+      preview={preview ?? <PreviewList />}
     />
   </div>
 );
