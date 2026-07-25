@@ -117,6 +117,8 @@ export default function GapAnalysis() {
         title="The honest gap between you and the role."
         description="Paste a job description, tell us the target role and your seniority — we'll map every requirement to evidence in your resume, line by line."
         statusLabel="Evidence-mapped, line by line"
+        icon={TOOL_META["/app/gap-analysis"].icon}
+        iconColor={TOOL_META["/app/gap-analysis"].color}
       />
 
 
