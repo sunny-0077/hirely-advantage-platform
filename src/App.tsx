@@ -19,6 +19,7 @@ import AtsParseSim from "./pages/dashboard/AtsParseSim.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
+import { Briefcase, Send, Bookmark } from "lucide-react";
 
 const queryClient = new QueryClient();
 
