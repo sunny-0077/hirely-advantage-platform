@@ -80,6 +80,8 @@ export default function AtsParseSim() {
         title="See your resume through the recruiter's robot."
         description="We simulate Workday, Greenhouse, Lever, iCIMS and Taleo — and report exactly what they extracted, what they misread, and what they silently dropped."
         statusLabel="Simulates 5 major ATS engines"
+        icon={TOOL_META["/app/ats-parse-sim"].icon}
+        iconColor={TOOL_META["/app/ats-parse-sim"].color}
       />
 
 
