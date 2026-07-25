@@ -349,6 +349,15 @@ const CompareResumes = () => {
         </div>
       </SectionCard>
 
+      {!comparison && (!aId || !bId) && (
+        <EmptyState
+          icon={GitCompare}
+          title="Upload two resumes to compare"
+          description="Drop in Resume A and Resume B — we'll grade them head-to-head and tell you which one is more likely to get the interview."
+          preview={<PreviewCompare />}
+        />
+      )}
+
       {comparison && <ComparisonResult comparison={comparison} />}
     </div>
   );
