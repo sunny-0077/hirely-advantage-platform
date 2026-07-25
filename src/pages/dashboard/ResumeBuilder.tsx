@@ -135,6 +135,8 @@ const ResumeBuilder = () => {
           title="Pick an ATS-safe template."
           description="Every template here is single-column, no graphics, no tables — built to be parsed cleanly by every major ATS. Pick one to start; you can switch later without losing content."
           statusLabel="ATS-safe templates only"
+          icon={TOOL_META["/app/resume-builder"].icon}
+          iconColor={TOOL_META["/app/resume-builder"].color}
         />
 
 
