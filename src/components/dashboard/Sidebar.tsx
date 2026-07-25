@@ -1,20 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine } from "lucide-react";
+import { Briefcase, Send, Bookmark, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
 import { useEntitlements } from "@/hooks/useEntitlements";
+import { ToolIcon } from "@/components/dashboard/ToolIcon";
+import { TOOL_META, SUITE_ROUTES } from "@/lib/toolMeta";
 
-const suite = [
-  { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
-  { to: "/app/resume-builder", label: "Resume Builder", icon: FilePlus2 },
-  { to: "/app/compare", label: "Compare Resumes", icon: GitCompare },
-  { to: "/app/ats-optimizer", label: "ATS Keyword Optimizer", icon: Target },
-  { to: "/app/gap-analysis", label: "Job Gap Analysis", icon: ScanSearch },
-  { to: "/app/ats-parse-sim", label: "ATS Parse Simulator", icon: ScanLine },
-  { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
-  { to: "/app/interview-prep", label: "Interview Prep", icon: Mic },
-];
+const suite = SUITE_ROUTES.map((to) => ({ to, ...TOOL_META[to] }));
 
 const tracking = [
   { to: "/app/applications", label: "Applications", icon: Briefcase },
@@ -37,14 +30,14 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
 
     <SectionLabel>Suite</SectionLabel>
     <nav className="flex flex-col gap-0.5 mb-5">
-      {suite.map(({ to, label, icon: Icon }) => (
+      {suite.map(({ to, label, icon, color }) => (
         <NavLink
           key={to}
           to={to}
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "group flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13.5px] tracking-tight transition-colors",
+              "group flex items-center gap-2.5 px-2 py-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
                 ? "bg-card/70 text-foreground font-medium shadow-[0_1px_0_hsl(0_0%_100%/1)_inset,0_1px_2px_hsl(var(--slate-ink)/0.06)]"
                 : "text-foreground/55 hover:text-foreground hover:bg-card/40",
@@ -55,12 +48,17 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
             <>
               <span
                 className={cn(
-                  "w-1.5 h-1.5 rounded-full transition-colors",
+                  "w-1.5 h-1.5 rounded-full transition-colors shrink-0",
                   isActive ? "bg-[hsl(200_100%_55%)]" : "bg-transparent",
                 )}
               />
-              <Icon className="w-4 h-4 opacity-70 transition-transform duration-200 group-hover:-rotate-12" />
-              {label}
+              <ToolIcon
+                icon={icon}
+                color={color}
+                size="sm"
+                className="transition-transform duration-200 group-hover:-rotate-12"
+              />
+              <span className="truncate">{label}</span>
             </>
           )}
         </NavLink>

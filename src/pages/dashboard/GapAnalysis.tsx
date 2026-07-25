@@ -4,6 +4,7 @@ import GapResult from "@/components/dashboard/gap/GapResult";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { TOOL_META } from "@/lib/toolMeta";
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -116,6 +117,8 @@ export default function GapAnalysis() {
         title="The honest gap between you and the role."
         description="Paste a job description, tell us the target role and your seniority — we'll map every requirement to evidence in your resume, line by line."
         statusLabel="Evidence-mapped, line by line"
+        icon={TOOL_META["/app/gap-analysis"].icon}
+        iconColor={TOOL_META["/app/gap-analysis"].color}
       />
 
 

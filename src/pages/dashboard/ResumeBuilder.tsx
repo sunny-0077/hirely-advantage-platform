@@ -13,6 +13,7 @@ import { exportDocx } from "@/lib/resumeBuilder/exportDocx";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { TOOL_META } from "@/lib/toolMeta";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -135,6 +136,8 @@ const ResumeBuilder = () => {
           title="Pick an ATS-safe template."
           description="Every template here is single-column, no graphics, no tables — built to be parsed cleanly by every major ATS. Pick one to start; you can switch later without losing content."
           statusLabel="ATS-safe templates only"
+          icon={TOOL_META["/app/resume-builder"].icon}
+          iconColor={TOOL_META["/app/resume-builder"].color}
         />
 
 
