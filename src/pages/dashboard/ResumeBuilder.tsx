@@ -12,6 +12,7 @@ import { exportPdf } from "@/lib/resumeBuilder/exportPdf";
 import { exportDocx } from "@/lib/resumeBuilder/exportDocx";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
