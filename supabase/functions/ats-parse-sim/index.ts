@@ -1,9 +1,13 @@
 // ATS parse simulator — reports what an ATS extracts vs. misses.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
 
 const SYSTEM_PROMPT = `You are an ATS (Applicant Tracking System) simulation engine. Your job is to parse a resume exactly as a real ATS system would — with all its limitations, misreadings, and failures — and then report back what was successfully extracted versus what was missed or misread.
 
