@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ToolIcon, type ToolColor } from "@/components/dashboard/ToolIcon";
 
 interface PageHeaderProps {
   eyebrow?: string;
   title: string;
   description?: string;
   statusLabel?: string;
+  icon?: LucideIcon;
+  iconColor?: ToolColor;
   className?: string;
 }
 
@@ -18,6 +22,8 @@ export function PageHeader({
   title,
   description,
   statusLabel,
+  icon,
+  iconColor,
   className,
 }: PageHeaderProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -37,20 +43,25 @@ export function PageHeader({
         className,
       )}
     >
-      <div className="min-w-0">
-        {eyebrow && (
-          <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/40 font-medium">
-            {eyebrow}
-          </p>
+      <div className="min-w-0 flex items-start gap-3.5">
+        {icon && iconColor && (
+          <ToolIcon icon={icon} color={iconColor} size="md" className="mt-0.5" />
         )}
-        <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.15] mt-1.5">
-          {title}
-        </h1>
-        {description && (
-          <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-2xl">
-            {description}
-          </p>
-        )}
+        <div className="min-w-0">
+          {eyebrow && (
+            <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/40 font-medium">
+              {eyebrow}
+            </p>
+          )}
+          <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.15] mt-1.5">
+            {title}
+          </h1>
+          {description && (
+            <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-2xl">
+              {description}
+            </p>
+          )}
+        </div>
       </div>
 
       {statusLabel && (
