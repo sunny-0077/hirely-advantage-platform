@@ -20,6 +20,11 @@ import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Briefcase, Send, Bookmark } from "lucide-react";
+import {
+  PreviewApplications,
+  PreviewOutreach,
+  PreviewSaved,
+} from "@/components/dashboard/EmptyState";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +57,7 @@ const App = () => (
                   eyebrow="Applications"
                   title="Every conversation, in one place."
                   description="Track every role you've applied to — status, last touch, and what to do next. Filling out soon."
+                  preview={<PreviewApplications />}
                 />
               }
             />
@@ -63,6 +69,7 @@ const App = () => (
                   eyebrow="Outreach"
                   title="Cold DMs that warm up fast."
                   description="LinkedIn pings, recruiter follow-ups, and warm intros — all drafted, sent, and tracked from here."
+                  preview={<PreviewOutreach />}
                 />
               }
             />
@@ -74,6 +81,7 @@ const App = () => (
                   eyebrow="Saved roles"
                   title="The shortlist."
                   description="Roles you starred and want to come back to. We'll prep tailored materials when you're ready."
+                  preview={<PreviewSaved />}
                 />
               }
             />
