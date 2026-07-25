@@ -256,9 +256,12 @@ Deno.serve(async (req) => {
     const data = await resp.json();
     const markdown = data?.choices?.[0]?.message?.content ?? "";
 
+    await incrementUsage(userId, "analyses");
+
     return new Response(JSON.stringify({ markdown }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (e) {
     console.error("gap-analysis error", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
