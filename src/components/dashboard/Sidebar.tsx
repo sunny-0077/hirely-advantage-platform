@@ -1,20 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine } from "lucide-react";
+import { Briefcase, Send, Bookmark, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
 import { useEntitlements } from "@/hooks/useEntitlements";
+import { ToolIcon } from "@/components/dashboard/ToolIcon";
+import { TOOL_META, SUITE_ROUTES } from "@/lib/toolMeta";
 
-const suite = [
-  { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
-  { to: "/app/resume-builder", label: "Resume Builder", icon: FilePlus2 },
-  { to: "/app/compare", label: "Compare Resumes", icon: GitCompare },
-  { to: "/app/ats-optimizer", label: "ATS Keyword Optimizer", icon: Target },
-  { to: "/app/gap-analysis", label: "Job Gap Analysis", icon: ScanSearch },
-  { to: "/app/ats-parse-sim", label: "ATS Parse Simulator", icon: ScanLine },
-  { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
-  { to: "/app/interview-prep", label: "Interview Prep", icon: Mic },
-];
+const suite = SUITE_ROUTES.map((to) => ({ to, ...TOOL_META[to] }));
 
 const tracking = [
   { to: "/app/applications", label: "Applications", icon: Briefcase },
