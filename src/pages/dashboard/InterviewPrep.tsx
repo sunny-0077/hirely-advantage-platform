@@ -5,6 +5,7 @@ import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { useAuth } from "@/hooks/useAuth";
