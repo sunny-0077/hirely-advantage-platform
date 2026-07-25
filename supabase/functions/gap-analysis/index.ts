@@ -163,6 +163,32 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = userData.user.id;
+
+    const gate = await checkEntitlement(userId, "analyses");
+    if (!gate.ok) {
+      return new Response(JSON.stringify({
+        error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "analyses",
+      }), { status: gate.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const { resume_text, job_description, target_role, years_experience } = await req.json();
     if (!resume_text || !job_description) {
       return new Response(JSON.stringify({ error: "resume_text and job_description required" }), {
@@ -170,13 +196,20 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    if (typeof resume_text !== "string" || typeof job_description !== "string" ||
+        resume_text.length > 50000 || job_description.length > 20000) {
+      return new Response(JSON.stringify({ error: "Input too long or invalid" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const role = typeof target_role === "string" ? target_role.trim() : "";
+    const role = typeof target_role === "string" ? target_role.trim().slice(0, 200) : "";
     const yoeRaw = typeof years_experience === "number" ? years_experience : Number(years_experience);
     const yoe = Number.isFinite(yoeRaw) ? Math.max(0, Math.min(60, Math.floor(yoeRaw))) : null;
+
 
     const contextLines: string[] = [];
     if (role) contextLines.push(`TARGET ROLE: ${role}`);
