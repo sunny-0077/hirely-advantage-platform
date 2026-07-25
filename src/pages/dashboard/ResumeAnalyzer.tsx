@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight, Sparkles } from "lucide-react";
+import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight, Sparkles, FileText } from "lucide-react";
+import { EmptyState, PreviewScoreCard } from "@/components/dashboard/EmptyState";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 
@@ -348,16 +349,16 @@ const ResumeAnalyzer = () => {
       </div>
 
       {!latest && !loading && (
-        <SectionCard className="mt-5">
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-            No analysis yet
-          </p>
-          <p className="mt-2 text-[18px] tracking-tight text-foreground/75">
-            Upload your resume above and we'll review it like a hiring manager —
-            extract skills, score ATS compatibility, and surface the top fixes.
-          </p>
-        </SectionCard>
+        <div className="mt-5">
+          <EmptyState
+            icon={FileText}
+            title="No analysis yet"
+            description="Upload your resume above and we'll review it like a hiring manager — extract skills, score ATS compatibility, and surface the top fixes."
+            preview={<PreviewScoreCard />}
+          />
+        </div>
       )}
+
 
       {/* SCORE TAB — scan-first: hero, then act, then optional deep dives */}
       {tab === "score" && latest && (

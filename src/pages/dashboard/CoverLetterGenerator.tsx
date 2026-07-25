@@ -9,7 +9,9 @@ import {
   Trash2,
   RefreshCw,
   Maximize2,
+  Mail,
 } from "lucide-react";
+import { EmptyState, PreviewCoverLetter } from "@/components/dashboard/EmptyState";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -484,74 +486,88 @@ const CoverLetterGenerator = () => {
           </div>
 
           <div className="relative border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
-            <LetterSheet
-              doc={doc}
-              update={update}
-              hasLetter={hasLetter}
-              isEmpty={!hasLetter}
-              typo={typo}
-              compact
-            />
-            <DraftingOverlay active={generating} />
+            {!hasLetter && !generating ? (
+              <EmptyState
+                icon={Mail}
+                title="No cover letter yet"
+                description="Paste the job description on the left, pick a tone and length, then generate a tailored letter that maps your resume to the role."
+                preview={<PreviewCoverLetter />}
+                ctaLabel={jd.trim().length < 40 ? "Paste a job description to start" : "Generate letter"}
+                onCta={jd.trim().length < 40 ? undefined : generate}
+              />
+            ) : (
+              <>
+                <LetterSheet
+                  doc={doc}
+                  update={update}
+                  hasLetter={hasLetter}
+                  isEmpty={!hasLetter}
+                  typo={typo}
+                  compact
+                />
+                <DraftingOverlay active={generating} />
 
-            {/* Action bar */}
-            <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
-              <button
-                onClick={onDownloadPdf}
-                disabled={!hasLetter}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
-                  hasLetter
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : "bg-foreground/10 text-foreground/40 cursor-not-allowed",
-                )}
-              >
-                <Download className="w-3.5 h-3.5" />
-                PDF
-              </button>
-              <button
-                onClick={onDownloadDocx}
-                disabled={!hasLetter}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
-                  hasLetter
-                    ? "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
-                    : "border-foreground/[0.06] text-foreground/30 cursor-not-allowed",
-                )}
-              >
-                <Download className="w-3.5 h-3.5" />
-                DOCX
-              </button>
-              <button
-                onClick={onDownloadTxt}
-                disabled={!hasLetter}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
-                  hasLetter
-                    ? "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
-                    : "border-foreground/[0.06] text-foreground/30 cursor-not-allowed",
-                )}
-              >
-                <Download className="w-3.5 h-3.5" />
-                Plain text (ATS)
-              </button>
-              <div className="ml-auto">
-                <button
-                  onClick={onCopy}
-                  disabled={!hasLetter}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
-                    hasLetter
-                      ? "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05]"
-                      : "text-foreground/30 cursor-not-allowed",
-                  )}
-                >
-                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
-            </div>
+                {/* Action bar */}
+                <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={onDownloadPdf}
+                    disabled={!hasLetter}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
+                      hasLetter
+                        ? "bg-foreground text-background hover:bg-foreground/90"
+                        : "bg-foreground/10 text-foreground/40 cursor-not-allowed",
+                    )}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    PDF
+                  </button>
+                  <button
+                    onClick={onDownloadDocx}
+                    disabled={!hasLetter}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
+                      hasLetter
+                        ? "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
+                        : "border-foreground/[0.06] text-foreground/30 cursor-not-allowed",
+                    )}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    DOCX
+                  </button>
+                  <button
+                    onClick={onDownloadTxt}
+                    disabled={!hasLetter}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
+                      hasLetter
+                        ? "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
+                        : "border-foreground/[0.06] text-foreground/30 cursor-not-allowed",
+                    )}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Plain text (ATS)
+                  </button>
+                  <div className="ml-auto">
+                    <button
+                      onClick={onCopy}
+                      disabled={!hasLetter}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
+                        hasLetter
+                          ? "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05]"
+                          : "text-foreground/30 cursor-not-allowed",
+                      )}
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
+
         </SectionCard>
       </div>
 

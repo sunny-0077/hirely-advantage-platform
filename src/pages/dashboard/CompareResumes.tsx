@@ -16,6 +16,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
 import { UsageMeter } from "@/components/dashboard/UsageMeter";
+import { EmptyState, PreviewCompare } from "@/components/dashboard/EmptyState";
 import {
   ACCEPTED_EXTS,
   ACCEPTED_MIME,
@@ -347,6 +348,15 @@ const CompareResumes = () => {
           </span>
         </div>
       </SectionCard>
+
+      {!comparison && (!aId || !bId) && (
+        <EmptyState
+          icon={GitCompare}
+          title="Upload two resumes to compare"
+          description="Drop in Resume A and Resume B — we'll grade them head-to-head and tell you which one is more likely to get the interview."
+          preview={<PreviewCompare />}
+        />
+      )}
 
       {comparison && <ComparisonResult comparison={comparison} />}
     </div>
