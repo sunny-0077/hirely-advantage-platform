@@ -268,6 +268,8 @@ const CoverLetterGenerator = () => {
         title="One letter, perfectly tuned."
         description="Paste or upload a job description, fill in your details, pick a tone, and we'll draft a properly structured cover letter you can edit before downloading."
         statusLabel="Tailored to a specific role"
+        icon={TOOL_META["/app/cover-letter"].icon}
+        iconColor={TOOL_META["/app/cover-letter"].color}
       />
 
 
