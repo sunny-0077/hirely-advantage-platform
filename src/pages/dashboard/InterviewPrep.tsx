@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { QuestionBank } from "@/components/dashboard/interview/QuestionBank";
+import { StarChecklistOverlay } from "@/components/dashboard/interview/StarChecklistOverlay";
 
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { useAuth } from "@/hooks/useAuth";
@@ -407,6 +409,10 @@ const InterviewPrep = () => {
               </div>
             </div>
           </SectionCard>
+
+          <div className="xl:col-span-10 xl:col-start-2">
+            <QuestionBank currentType={qType} onPick={(t) => setQType(t)} />
+          </div>
         </div>
       )}
 
@@ -621,6 +627,10 @@ const InterviewPrep = () => {
             )}
           </div>
         </div>
+      )}
+
+      {tab === "practice" && resumeId && practiceStarted && (
+        <StarChecklistOverlay answer={answer} />
       )}
 
       {tab === "history" && (
