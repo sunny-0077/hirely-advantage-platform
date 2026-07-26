@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { cn } from "@/lib/utils";
+import GapInsights from "@/components/dashboard/gap/GapInsights";
 
 type Section = {
   key: string;
@@ -389,6 +390,8 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
         </div>
         <ArrowDown className="w-4 h-4 text-foreground/40 shrink-0" />
       </div>
+
+      <GapInsights markdown={markdown} />
 
       {sorted.map((s, i) => (
         <SectionBlock key={`${s.key}-${i}`} section={s} />
