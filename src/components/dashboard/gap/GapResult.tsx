@@ -391,6 +391,8 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
         <ArrowDown className="w-4 h-4 text-foreground/40 shrink-0" />
       </div>
 
+      <GapInsights markdown={markdown} />
+
       {sorted.map((s, i) => (
         <SectionBlock key={`${s.key}-${i}`} section={s} />
       ))}
