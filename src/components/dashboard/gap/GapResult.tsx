@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { cn } from "@/lib/utils";
+import GapInsights from "@/components/dashboard/gap/GapInsights";
 
 type Section = {
   key: string;
