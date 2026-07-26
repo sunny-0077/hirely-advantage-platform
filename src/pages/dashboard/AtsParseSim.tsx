@@ -168,7 +168,12 @@ export default function AtsParseSim() {
         )}
       </div>
 
-      {markdown && <GapResult markdown={markdown} preserveOrder />}
+      {markdown && (
+        <>
+          <ParseCompareView originalText={resumeText} markdown={markdown} />
+          <GapResult markdown={markdown} preserveOrder />
+        </>
+      )}
     </div>
   );
 }
