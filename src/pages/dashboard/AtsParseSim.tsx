@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Loader2, Upload, FileText, X, Sparkles, ScanLine } from "lucide-react";
 import GapResult from "@/components/dashboard/gap/GapResult";
+import ParseCompareView from "@/components/dashboard/ats/ParseCompareView";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -167,7 +168,12 @@ export default function AtsParseSim() {
         )}
       </div>
 
-      {markdown && <GapResult markdown={markdown} preserveOrder />}
+      {markdown && (
+        <>
+          <ParseCompareView originalText={resumeText} markdown={markdown} />
+          <GapResult markdown={markdown} preserveOrder />
+        </>
+      )}
     </div>
   );
 }
