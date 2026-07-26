@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Loader2, Upload, FileText, X, Check, AlertTriangle, Sparkles, Lock, ShieldCheck, ShieldAlert, Plus, Flame, Star } from "lucide-react";
+
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -307,8 +308,32 @@ function ResultsView({ result }: { result: Result }) {
   const total = result.jd_keywords.length;
   const found = result.jd_keywords.filter((k) => k.found_in_resume).length;
   const missing = result.jd_keywords.filter((k) => !k.found_in_resume);
+  const matchPct = total === 0 ? 100 : Math.round((found / total) * 100);
 
-  // Keyword Safety Score — % of suggested keywords backed by real resume evidence.
+  // Session tracker — keywords the user has marked as added to their resume.
+  const [added, setAdded] = useState<string[]>([]);
+  const [customKw, setCustomKw] = useState("");
+  const addKeyword = (kw: string) => {
+    const clean = kw.trim();
+    if (!clean) return;
+    setAdded((prev) =>
+      prev.some((k) => k.toLowerCase() === clean.toLowerCase()) ? prev : [...prev, clean],
+    );
+  };
+  const removeAdded = (kw: string) =>
+    setAdded((prev) => prev.filter((k) => k !== kw));
+  const isAdded = (kw: string) =>
+    added.some((k) => k.toLowerCase() === kw.toLowerCase());
+
+  // Effective match after user-marked additions
+  const effectiveFound = useMemo(() => {
+    return result.jd_keywords.filter(
+      (k) => k.found_in_resume || isAdded(k.keyword),
+    ).length;
+  }, [result.jd_keywords, added]);
+  const effectivePct = total === 0 ? 100 : Math.round((effectiveFound / total) * 100);
+
+  // Safety
   const sugTotal = result.suggestions.length;
   const sugAdd = result.suggestions.filter((s) => s.recommendation === "add").length;
   const sugSkip = sugTotal - sugAdd;
@@ -316,37 +341,44 @@ function ResultsView({ result }: { result: Result }) {
   const safetyTone: "good" | "warn" | "risk" =
     safety >= 85 ? "good" : safety >= 60 ? "warn" : "risk";
 
+  // Group missing by importance
+  const missingCritical = missing.filter((k) => k.importance === "must_have");
+  const missingNice = missing.filter((k) => k.importance === "nice_to_have");
+  const matched = result.jd_keywords.filter((k) => k.found_in_resume);
+
   return (
     <div className="space-y-4">
-      {/* Top row: score + safety side-by-side */}
+      {/* Top row: match ring + safety */}
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4">
-        {/* Score before/after */}
-        <SectionCard tone="dark" className="p-6 sm:p-7 relative overflow-hidden">
+        <SectionCard className="p-6 sm:p-7 relative overflow-hidden">
           <div
-            className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-60"
-            style={{ background: "radial-gradient(closest-side, rgba(140,110,220,0.35), transparent)" }}
+            className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-70"
+            style={{ background: "radial-gradient(closest-side, rgba(251,146,60,0.28), transparent)" }}
           />
-          <div className="relative">
-            <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
-              Match score
-            </p>
-            <div className="mt-3 flex items-end gap-8 flex-wrap">
-              <ScorePill label="Now" value={result.match_before} tone="muted" />
-              <div className="flex items-end pb-3 text-white/35 text-[22px]">→</div>
-              <ScorePill label="After fixes" value={result.match_after} tone="bright" />
-            </div>
-            <p className="mt-4 text-[13px] text-white/80 leading-relaxed max-w-xl">
-              {result.summary}
-            </p>
-            <div className="mt-5 grid grid-cols-3 gap-3 text-[12px]">
-              <Stat label="Scanned" value={String(total)} />
-              <Stat label="Found" value={`${found}`} accent="ok" />
-              <Stat label="Missing" value={`${missing.length}`} accent={missing.length ? "warn" : "ok"} />
+          <div className="relative flex items-start gap-6 flex-wrap">
+            <MatchRing value={matchPct} projected={effectivePct} />
+            <div className="flex-1 min-w-[220px]">
+              <p className="text-[10.5px] tracking-[0.22em] uppercase text-orange-600 font-semibold">
+                Keyword match
+              </p>
+              <p className="mt-1.5 text-[16px] leading-snug font-medium tracking-tight text-foreground">
+                {matchPct}% of JD keywords appear in your resume
+                {effectivePct > matchPct && (
+                  <span className="text-orange-600 font-semibold"> · {effectivePct}% after edits</span>
+                )}
+              </p>
+              <p className="mt-2 text-[12.5px] text-foreground/65 leading-relaxed max-w-lg">
+                {result.summary}
+              </p>
+              <div className="mt-4 grid grid-cols-3 gap-2 max-w-md">
+                <MiniStat label="Scanned" value={total} />
+                <MiniStat label="Matched" value={found} tone="ok" />
+                <MiniStat label="Missing" value={missing.length} tone={missing.length ? "warn" : "ok"} />
+              </div>
             </div>
           </div>
         </SectionCard>
 
-        {/* Safety */}
         <SafetyCard
           score={safety}
           tone={safetyTone}
@@ -356,16 +388,45 @@ function ResultsView({ result }: { result: Result }) {
         />
       </div>
 
-      {/* Keyword grid */}
+      {/* Tag cloud */}
       <SectionCard className="p-6 sm:p-7">
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/55 font-medium">
-          Resume vs job description
-        </p>
-        <div className="mt-4 grid sm:grid-cols-2 gap-3">
-          <KeywordColumn title="Found in your resume" tone="ok"
-            items={result.jd_keywords.filter((k) => k.found_in_resume)} />
-          <KeywordColumn title="Missing keywords" tone="warn"
-            items={result.jd_keywords.filter((k) => !k.found_in_resume)} />
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/55 font-semibold">
+            Keyword cloud
+          </p>
+          <p className="text-[11px] text-foreground/50">
+            Click a missing keyword once you've added it to your resume.
+          </p>
+        </div>
+
+        <div className="mt-5 space-y-5">
+          <TagGroup
+            title="Matched"
+            icon={<Check className="w-3.5 h-3.5" />}
+            tone="matched"
+            keywords={matched}
+            count={matched.length}
+          />
+          <TagGroup
+            title="Missing — critical"
+            icon={<Flame className="w-3.5 h-3.5" />}
+            tone="critical"
+            keywords={missingCritical}
+            count={missingCritical.length}
+            interactive
+            isAdded={isAdded}
+            onToggle={(k) => (isAdded(k) ? removeAdded(k) : addKeyword(k))}
+          />
+          <TagGroup
+            title="Missing — nice to have"
+            icon={<Star className="w-3.5 h-3.5" />}
+            tone="nice"
+            keywords={missingNice}
+            count={missingNice.length}
+            interactive
+            isAdded={isAdded}
+            onToggle={(k) => (isAdded(k) ? removeAdded(k) : addKeyword(k))}
+          />
         </div>
       </SectionCard>
 
@@ -414,6 +475,21 @@ function ResultsView({ result }: { result: Result }) {
                         >
                           {add ? "Add naturally" : "Skip — no real evidence"}
                         </span>
+                        {add && (
+                          <button
+                            type="button"
+                            onClick={() => addKeyword(s.keyword)}
+                            disabled={isAdded(s.keyword)}
+                            className={cn(
+                              "ml-auto text-[10.5px] font-semibold px-2.5 py-1 rounded-full transition-colors",
+                              isAdded(s.keyword)
+                                ? "bg-emerald-500/15 text-emerald-700 cursor-default"
+                                : "bg-orange-500 text-white hover:bg-orange-600",
+                            )}
+                          >
+                            {isAdded(s.keyword) ? "✓ Added" : "Mark as added"}
+                          </button>
+                        )}
                       </div>
                       {add && (
                         <p className="mt-1.5 text-[12.5px] text-foreground/75">
@@ -468,6 +544,246 @@ function ResultsView({ result }: { result: Result }) {
           </ul>
         </SectionCard>
       )}
+
+      {/* Sticky "Added this session" strip */}
+      <div className="sticky bottom-4 z-20">
+        <div className="rounded-2xl border border-orange-500/25 bg-gradient-to-br from-orange-50/95 via-white/95 to-white/95 dark:from-orange-950/40 dark:via-background/95 dark:to-background/95 backdrop-blur-xl shadow-[0_20px_60px_-25px_rgba(251,146,60,0.35)] p-4 sm:p-5">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5" />
+              </span>
+              <div>
+                <p className="text-[10.5px] tracking-[0.2em] uppercase text-orange-700 dark:text-orange-300 font-semibold">
+                  Added this session
+                </p>
+                <p className="text-[11.5px] text-foreground/60">
+                  {added.length === 0
+                    ? "Track keywords as you incorporate them into your resume."
+                    : `${added.length} keyword${added.length === 1 ? "" : "s"} · match ${matchPct}% → ${effectivePct}%`}
+                </p>
+              </div>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addKeyword(customKw);
+                setCustomKw("");
+              }}
+              className="ml-auto flex items-center gap-2"
+            >
+              <input
+                value={customKw}
+                onChange={(e) => setCustomKw(e.target.value)}
+                placeholder="Add keyword…"
+                className="text-[12.5px] px-3 py-1.5 rounded-full bg-white/70 dark:bg-background/60 border border-orange-500/25 text-foreground placeholder:text-foreground/40 outline-none focus:border-orange-500/60 transition-colors w-40"
+              />
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add
+              </button>
+            </form>
+          </div>
+          {added.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {added.map((k) => (
+                <span
+                  key={k}
+                  className="group inline-flex items-center gap-1.5 text-[11.5px] font-medium px-2.5 py-1 rounded-full bg-orange-500/12 border border-orange-500/30 text-orange-800 dark:text-orange-200"
+                >
+                  {k}
+                  <button
+                    type="button"
+                    onClick={() => removeAdded(k)}
+                    className="opacity-60 group-hover:opacity-100 transition-opacity"
+                    aria-label={`Remove ${k}`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MatchRing({ value, projected }: { value: number; projected: number }) {
+  const r = 46;
+  const c = 2 * Math.PI * r;
+  const offset = c - (value / 100) * c;
+  return (
+    <div className="relative w-[140px] h-[140px] shrink-0">
+      <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+        <defs>
+          <linearGradient id="atsOrangeRing" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#fb923c" />
+            <stop offset="100%" stopColor="#f97316" />
+          </linearGradient>
+          {projected > value && (
+            <linearGradient id="atsOrangeRingGhost" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#fdba74" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#fb923c" stopOpacity="0.55" />
+            </linearGradient>
+          )}
+        </defs>
+        <circle cx="60" cy="60" r={r} className="stroke-foreground/[0.08]" strokeWidth="9" fill="none" />
+        {projected > value && (
+          <circle
+            cx="60"
+            cy="60"
+            r={r}
+            stroke="url(#atsOrangeRingGhost)"
+            strokeWidth="9"
+            strokeLinecap="round"
+            strokeDasharray={c}
+            strokeDashoffset={c - (projected / 100) * c}
+            fill="none"
+          />
+        )}
+        <circle
+          cx="60"
+          cy="60"
+          r={r}
+          stroke="url(#atsOrangeRing)"
+          strokeWidth="9"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          fill="none"
+          className="transition-all duration-700"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-[32px] font-semibold tracking-tight text-foreground leading-none">
+          {value}
+          <span className="text-[14px] text-foreground/45 font-medium">%</span>
+        </span>
+        <span className="text-[9.5px] tracking-[0.2em] uppercase text-foreground/50 mt-1.5 font-semibold">
+          Match
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MiniStat({ label, value, tone }: { label: string; value: number; tone?: "ok" | "warn" }) {
+  const toneClass =
+    tone === "ok" ? "text-emerald-600" : tone === "warn" ? "text-orange-600" : "text-foreground";
+  return (
+    <div className="rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] px-3 py-2">
+      <p className="text-[9.5px] tracking-[0.18em] uppercase text-foreground/50 font-semibold">{label}</p>
+      <p className={cn("mt-0.5 text-[18px] font-semibold tracking-tight tabular-nums", toneClass)}>{value}</p>
+    </div>
+  );
+}
+
+function TagGroup({
+  title,
+  icon,
+  tone,
+  keywords,
+  count,
+  interactive,
+  isAdded,
+  onToggle,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  tone: "matched" | "critical" | "nice";
+  keywords: Keyword[];
+  count: number;
+  interactive?: boolean;
+  isAdded?: (kw: string) => boolean;
+  onToggle?: (kw: string) => void;
+}) {
+  const palette = {
+    matched: {
+      chip: "bg-emerald-500/12 border-emerald-500/30 text-emerald-800 dark:text-emerald-200",
+      chipMust: "ring-emerald-500/40",
+      badge: "bg-emerald-500/15 text-emerald-700",
+      header: "text-emerald-700 dark:text-emerald-300",
+    },
+    critical: {
+      chip: "bg-rose-500/12 border-rose-500/35 text-rose-800 dark:text-rose-200",
+      chipMust: "ring-rose-500/50",
+      badge: "bg-rose-500/15 text-rose-700",
+      header: "text-rose-700 dark:text-rose-300",
+    },
+    nice: {
+      chip: "bg-amber-500/12 border-amber-500/35 text-amber-800 dark:text-amber-200",
+      chipMust: "ring-amber-500/40",
+      badge: "bg-amber-500/15 text-amber-700",
+      header: "text-amber-700 dark:text-amber-300",
+    },
+  }[tone];
+
+  // Group by category
+  const byCat = keywords.reduce<Record<string, Keyword[]>>((acc, k) => {
+    (acc[k.category] ||= []).push(k);
+    return acc;
+  }, {});
+  const cats = Object.keys(byCat) as Keyword["category"][];
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className={cn("w-6 h-6 rounded-lg flex items-center justify-center", palette.badge)}>
+          {icon}
+        </span>
+        <p className={cn("text-[12px] font-semibold tracking-tight", palette.header)}>{title}</p>
+        <span className={cn("text-[10.5px] font-semibold px-2 py-0.5 rounded-full", palette.badge)}>
+          {count}
+        </span>
+      </div>
+      {keywords.length === 0 ? (
+        <p className="text-[12px] text-foreground/45 pl-8">None.</p>
+      ) : (
+        <div className="pl-8 space-y-2.5">
+          {cats.map((cat) => (
+            <div key={cat}>
+              <p className="text-[9.5px] tracking-[0.2em] uppercase text-foreground/45 font-semibold mb-1.5">
+                {CATEGORY_LABEL[cat]}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {byCat[cat].map((k) => {
+                  const marked = interactive && isAdded?.(k.keyword);
+                  const sizeClass =
+                    k.importance === "must_have"
+                      ? "text-[12.5px] px-3 py-1.5 font-semibold ring-1 ring-inset"
+                      : "text-[11.5px] px-2.5 py-1";
+                  return (
+                    <button
+                      key={k.keyword}
+                      type="button"
+                      onClick={interactive ? () => onToggle?.(k.keyword) : undefined}
+                      disabled={!interactive}
+                      title={`${CATEGORY_LABEL[k.category]} · ${k.importance.replace("_", " ")}`}
+                      className={cn(
+                        "rounded-full border transition-all",
+                        palette.chip,
+                        k.importance === "must_have" && palette.chipMust,
+                        sizeClass,
+                        interactive && "hover:scale-[1.03] cursor-pointer",
+                        marked &&
+                          "!bg-orange-500/20 !border-orange-500/50 !text-orange-800 dark:!text-orange-200 line-through opacity-75",
+                      )}
+                    >
+                      {marked && "✓ "}
+                      {k.keyword}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -517,7 +833,6 @@ function SafetyCard({
   return (
     <SectionCard>
       <div className="flex items-start gap-5 flex-wrap">
-        {/* Ring */}
         <div className="relative w-[76px] h-[76px] shrink-0">
           <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
             <circle
@@ -580,118 +895,3 @@ function SafetyCard({
   );
 }
 
-function ScorePill({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: "muted" | "bright";
-}) {
-  return (
-    <div>
-      <p className="text-[10px] tracking-[0.18em] uppercase text-white/55 font-medium">{label}</p>
-      <p
-        className={cn(
-          "mt-1 text-[44px] leading-none font-semibold tracking-tight",
-          tone === "bright"
-            ? "bg-gradient-to-br from-white to-violet-200 bg-clip-text text-transparent drop-shadow-[0_2px_12px_rgba(180,150,255,0.35)]"
-            : "text-white/55",
-        )}
-      >
-        {Math.round(value)}
-        <span className="text-[16px] text-white/45 ml-0.5 font-medium">%</span>
-      </p>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent?: "ok" | "warn";
-}) {
-  const accentClass =
-    accent === "ok"
-      ? "text-emerald-300"
-      : accent === "warn"
-      ? "text-amber-300"
-      : "text-white";
-  return (
-    <div className="rounded-xl bg-white/[0.06] border border-white/10 px-3.5 py-2.5 backdrop-blur-sm">
-      <p className="text-[10px] tracking-[0.18em] uppercase text-white/55 font-medium">{label}</p>
-      <p className={cn("mt-0.5 text-[18px] font-semibold tracking-tight", accentClass)}>{value}</p>
-    </div>
-  );
-}
-
-function KeywordColumn({
-  title,
-  tone,
-  items,
-}: {
-  title: string;
-  tone: "ok" | "warn";
-  items: Keyword[];
-}) {
-  const isOk = tone === "ok";
-  return (
-    <div
-      className={cn(
-        "rounded-2xl border p-4 sm:p-5",
-        isOk
-          ? "border-emerald-500/25 bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02]"
-          : "border-amber-500/25 bg-gradient-to-br from-amber-500/[0.08] to-amber-500/[0.02]",
-      )}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <span
-          className={cn(
-            "w-6 h-6 rounded-lg flex items-center justify-center",
-            isOk ? "bg-emerald-500/15 text-emerald-700" : "bg-amber-500/15 text-amber-700",
-          )}
-        >
-          {isOk ? <Check className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
-        </span>
-        <p className="text-[12px] font-semibold tracking-tight text-foreground">
-          {title}
-        </p>
-        <span
-          className={cn(
-            "ml-auto text-[11px] font-medium px-2 py-0.5 rounded-full",
-            isOk ? "bg-emerald-500/15 text-emerald-700" : "bg-amber-500/15 text-amber-700",
-          )}
-        >
-          {items.length}
-        </span>
-      </div>
-      {items.length === 0 ? (
-        <p className="text-[12px] text-foreground/50">None.</p>
-      ) : (
-        <div className="flex flex-wrap gap-1.5">
-          {items.map((k) => (
-            <span
-              key={k.keyword}
-              title={`${CATEGORY_LABEL[k.category]} · ${k.importance.replace("_", " ")}`}
-              className={cn(
-                "text-[11.5px] px-2.5 py-1 rounded-full border transition-colors",
-                isOk
-                  ? "bg-emerald-500/12 border-emerald-500/30 text-emerald-800"
-                  : "bg-amber-500/12 border-amber-500/30 text-amber-800",
-                k.importance === "must_have" && "font-semibold ring-1 ring-inset",
-                k.importance === "must_have" && (isOk ? "ring-emerald-500/30" : "ring-amber-500/30"),
-              )}
-            >
-              {k.keyword}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
