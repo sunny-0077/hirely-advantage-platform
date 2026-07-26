@@ -16,7 +16,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
 import { UsageMeter } from "@/components/dashboard/UsageMeter";
-import { EmptyState, PreviewCompare } from "@/components/dashboard/EmptyState";
+import { CompareScorePanel } from "@/components/dashboard/CompareScorePanel";
 import {
   ACCEPTED_EXTS,
   ACCEPTED_MIME,
