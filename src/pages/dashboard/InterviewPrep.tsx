@@ -409,6 +409,10 @@ const InterviewPrep = () => {
               </div>
             </div>
           </SectionCard>
+
+          <div className="xl:col-span-10 xl:col-start-2">
+            <QuestionBank currentType={qType} onPick={(t) => setQType(t)} />
+          </div>
         </div>
       )}
 
@@ -623,6 +627,10 @@ const InterviewPrep = () => {
             )}
           </div>
         </div>
+      )}
+
+      {tab === "practice" && resumeId && practiceStarted && (
+        <StarChecklistOverlay answer={answer} />
       )}
 
       {tab === "history" && (

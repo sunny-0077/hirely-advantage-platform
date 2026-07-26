@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
+import { VoiceWaveform } from "@/components/dashboard/interview/VoiceWaveform";
+import { MockScorecard } from "@/components/dashboard/interview/MockScorecard";
 
 type Difficulty = "easy" | "medium" | "hard" | "stress";
 type Focus = "behavioral" | "technical" | "case" | "mixed";
@@ -449,6 +451,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <VoiceWaveform active={sending} />
               <TimerPill remainingSec={remainingSec} totalSec={totalSec} active={session.status === "active"} />
               {session.status === "active" && (
                 <button
@@ -531,7 +534,12 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
           )}
         </SectionCard>
 
-        {finished && <DebriefCard session={session} />}
+        {finished && (
+          <>
+            <MockScorecard overall={session.overall_score ?? 0} turns={turns} />
+            <DebriefCard session={session} />
+          </>
+        )}
       </div>
 
       <div className="lg:col-span-4 space-y-4">
