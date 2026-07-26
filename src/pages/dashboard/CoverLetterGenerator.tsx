@@ -21,6 +21,8 @@ import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 import { LetterSheet } from "@/components/dashboard/cover-letter/LetterSheet";
 import { FullscreenToolbar } from "@/components/dashboard/cover-letter/FullscreenToolbar";
 import { DraftingOverlay } from "@/components/dashboard/cover-letter/DraftingOverlay";
+import { CoverLetterLibrary } from "@/components/dashboard/cover-letter/CoverLetterLibrary";
+import { LetterStats } from "@/components/dashboard/cover-letter/LetterStats";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
@@ -57,6 +59,7 @@ const CoverLetterGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [libraryKey, setLibraryKey] = useState(0);
   const [typo, setTypo] = useState<TypoSettings>({
     font: "times",
     fontSize: 14,
@@ -217,6 +220,7 @@ const CoverLetterGenerator = () => {
         date: d.date || todayLong(),
       }));
       setHasLetter(true);
+      setLibraryKey((k) => k + 1);
       ent.refresh();
       toast.success("Cover letter ready — edit before downloading.");
     } catch (e) {
@@ -334,17 +338,17 @@ const CoverLetterGenerator = () => {
                     disabled={generating}
                     onClick={() => setTone(t.value)}
                     className={cn(
-                      "rounded-lg px-2.5 py-2 text-left transition-colors border",
+                      "rounded-full px-3 py-1.5 text-left transition-all border",
                       tone === t.value
-                        ? "bg-foreground text-background border-foreground"
-                        : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
+                        ? "bg-violet-500/12 border-violet-500/40 ring-1 ring-violet-500/25 text-violet-800 shadow-[0_1px_2px_rgba(124,58,237,0.15)]"
+                        : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/75 hover:bg-foreground/[0.06] hover:border-foreground/[0.12]",
                     )}
                   >
                     <p className="text-[12.5px] font-medium tracking-tight">{t.label}</p>
                     <p
                       className={cn(
                         "text-[11px] tracking-tight",
-                        tone === t.value ? "text-background/60" : "text-foreground/50",
+                        tone === t.value ? "text-violet-700/70" : "text-foreground/50",
                       )}
                     >
                       {t.hint}
@@ -507,6 +511,8 @@ const CoverLetterGenerator = () => {
                 />
                 <DraftingOverlay active={generating} />
 
+                {hasLetter && <LetterStats text={doc.body} />}
+
                 {/* Action bar */}
                 <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
                   <button
@@ -570,6 +576,8 @@ const CoverLetterGenerator = () => {
 
         </SectionCard>
       </div>
+
+      <CoverLetterLibrary userId={user?.id} refreshKey={libraryKey} />
 
       {/* Fullscreen letter editor */}
       {fullscreen && (
