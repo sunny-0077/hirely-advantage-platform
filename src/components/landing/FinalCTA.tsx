@@ -1,12 +1,15 @@
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "./Reveal";
+import { useParallax } from "@/hooks/useParallax";
 
 export const FinalCTA = () => {
+  const parallaxRef = useParallax<HTMLDivElement>(0.05);
   return (
     <section id="cta" className="px-4 py-28">
       <div className="mx-auto max-w-5xl">
         <Reveal>
-          <div className="glass-strong rounded-[2rem] p-10 md:p-16 text-center relative overflow-hidden">
+          <div ref={parallaxRef} className="reveal-parallax glass-strong rounded-[2rem] p-10 md:p-16 text-center relative overflow-hidden">
+
             <h2 className="font-display text-4xl md:text-6xl font-semibold text-foreground leading-[1.05]">
               Your next role is <span className="text-gradient">closer than you think.</span>
             </h2>
