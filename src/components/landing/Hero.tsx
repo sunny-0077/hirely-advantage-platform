@@ -109,7 +109,17 @@ const MockupCard = () => {
   );
 };
 
+const ParallaxMockup = () => {
+  const ref = useParallax<HTMLDivElement>(0.06);
+  return (
+    <div ref={ref} className="reveal-parallax">
+      <MockupCard />
+    </div>
+  );
+};
+
 export const Hero = () => {
+
   return (
     <section className="relative pt-32 pb-24 px-4 lg:px-12 overflow-hidden">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
