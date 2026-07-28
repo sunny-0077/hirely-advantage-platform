@@ -193,8 +193,9 @@ export const Hero = () => {
 
         {/* Right: mockup */}
         <Reveal delay={300}>
-          <MockupCard />
+          <ParallaxMockup />
         </Reveal>
+
       </div>
     </section>
   );
