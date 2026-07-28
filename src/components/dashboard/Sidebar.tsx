@@ -47,8 +47,8 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
             cn(
               "group flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
-                ? "bg-card/70 text-foreground font-medium shadow-[0_1px_0_hsl(0_0%_100%/1)_inset,0_1px_2px_hsl(var(--slate-ink)/0.06)]"
-                : "text-foreground/55 hover:text-foreground hover:bg-card/40",
+                ? "bg-card/90 text-foreground font-semibold shadow-[0_1px_0_hsl(0_0%_100%/0.8)_inset,0_2px_6px_hsl(var(--slate-ink)/0.12)] border border-foreground/[0.08]"
+                : "text-foreground/80 hover:text-foreground hover:bg-card/60",
             )
           }
         >
@@ -57,13 +57,14 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
               <span
                 className={cn(
                   "w-1.5 h-1.5 rounded-full transition-colors",
-                  isActive ? "bg-[hsl(200_100%_55%)]" : "bg-transparent",
+                  isActive ? "bg-[hsl(200_100%_45%)]" : "bg-transparent",
                 )}
               />
-              <Icon className="w-4 h-4 opacity-70 transition-transform duration-200 group-hover:-rotate-12" />
+              <Icon className="w-4 h-4 opacity-90 transition-transform duration-200 group-hover:-rotate-12" />
               {label}
             </>
           )}
+
         </NavLink>
       ))}
     </nav>
