@@ -7,11 +7,12 @@
 @layer base {
   :root {
     /* Brand canvas */
-    --pearl: 236 22% 93%;               /* darker canvas */
-    --ethereal-blue: 213 70% 84%;
-    --soft-lilac: 270 60% 86%;
-    --warm-blush: 350 65% 86%;
-    --dawn-orange: 28 75% 86%;
+    --pearl: 210 25% 98.5%;
+    --ethereal-blue: 213 100% 92%;
+    --soft-lilac: 270 85% 94%;
+    --warm-blush: 350 90% 94%;
+    --dawn-orange: 28 100% 92%;
+
     --slate-ink: 226 19% 13%;           /* #1A1D27 */
     --slate-ink-soft: 226 14% 32%;
     --slate-ink-mute: 226 10% 48%;
