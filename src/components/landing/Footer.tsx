@@ -17,19 +17,19 @@ export const Footer = () => {
           <div className="md:col-span-2">
             <LogoLockup size="text-xl" />
 
-            <p className="mt-4 text-sm text-foreground/60 max-w-xs leading-relaxed">
+            <p className="mt-4 text-[14px] text-foreground/60 max-w-xs leading-[1.55]">
               Reverse-engineering the hiring process for the world's most ambitious candidates.
             </p>
           </div>
           {cols.map((c) => (
             <div key={c.title}>
-              <p className="text-xs font-medium uppercase tracking-[0.15em] text-foreground/50 mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50 mb-4">
                 {c.title}
               </p>
               <ul className="space-y-2.5">
                 {c.links.map((l) => (
                   <li key={l}>
-                    <a href="#" className="text-sm text-foreground/75 hover:text-foreground transition-colors">
+                    <a href="#" className="text-[14px] text-foreground/70 hover:text-foreground transition-colors">
                       {l}
                     </a>
                   </li>
@@ -39,8 +39,8 @@ export const Footer = () => {
           ))}
         </div>
         <div className="mt-12 pt-6 border-t border-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-foreground/50">© 2026 Hirely AI. All rights reserved.</p>
-          <p className="text-xs text-foreground/50">Crafted for top-tier candidates.</p>
+          <p className="text-[12px] text-foreground/50">© 2026 Hirely AI. All rights reserved.</p>
+          <p className="text-[12px] text-foreground/50">Crafted for top-tier candidates.</p>
         </div>
       </div>
     </footer>

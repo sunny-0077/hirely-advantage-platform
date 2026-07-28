@@ -121,12 +121,12 @@ const ParallaxMockup = () => {
 export const Hero = () => {
 
   return (
-    <section className="relative pt-32 pb-24 px-4 lg:px-12 overflow-hidden">
+    <section className="relative pt-32 pb-28 md:pb-32 px-4 lg:px-12 overflow-hidden">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
-        <div className="flex flex-col gap-9 text-center lg:text-left">
+        <div className="flex flex-col gap-8 text-center lg:text-left">
           <Reveal delay={120}>
-            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-7xl">
+            <h1 className="font-display text-[44px] sm:text-6xl lg:text-7xl font-semibold leading-[1.02] text-foreground text-balance">
               From Ignored to
               <br />
               <span className="relative inline-block">
@@ -138,7 +138,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={240}>
-            <p className="text-lg lg:text-xl text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-[17px] lg:text-[19px] text-foreground/60 max-w-[48ch] mx-auto lg:mx-0 leading-[1.55]">
               Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get{" "}
               <span className="relative inline-block font-semibold text-foreground">
                 more interviews
@@ -151,14 +151,14 @@ export const Hero = () => {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
               <AppTransitionLink
                 to="/app"
-                className="group inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_hsl(var(--slate-ink)/0.4)]"
+                className="group inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full text-[15px] font-medium tracking-[-0.01em] hover:opacity-90 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_hsl(var(--slate-ink)/0.4)]"
               >
                 Get My Resume Score
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </AppTransitionLink>
               <a
                 href="#features"
-                className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white/40 backdrop-blur-md border border-foreground/10 text-foreground text-sm font-medium hover:bg-white/70 transition-colors"
+                className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white/40 backdrop-blur-md border border-foreground/10 text-foreground text-[15px] font-medium tracking-[-0.01em] hover:bg-white/70 transition-colors"
               >
                 <span className="size-6 rounded-full bg-white shadow-sm flex items-center justify-center">
                   <Play className="w-3 h-3 text-foreground fill-foreground ml-0.5" />

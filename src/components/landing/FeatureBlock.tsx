@@ -22,24 +22,24 @@ export const FeatureBlock = ({
   reverse,
 }: FeatureBlockProps) => {
   return (
-    <div className="px-4 py-20 md:py-28">
-      <div className="mx-auto max-w-6xl grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+    <div className="px-4 py-24 md:py-32">
+      <div className="mx-auto max-w-6xl grid md:grid-cols-2 gap-14 md:gap-20 items-center">
         <Reveal className={cn("order-2", reverse ? "md:order-2" : "md:order-1")}>
-          <div className="flex items-center gap-3 mb-5">
-            <span className="font-display text-sm text-foreground/50">0{index}</span>
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-foreground/50">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="font-display text-sm font-medium text-foreground/45 tabular-nums">0{index}</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/50">
               {eyebrow}
             </span>
           </div>
-          <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground leading-[1.08]">
+          <h3 className="font-display text-[30px] md:text-4xl lg:text-[46px] font-semibold text-foreground leading-[1.06] text-balance">
             {title}
           </h3>
-          <p className="mt-5 text-lg text-foreground/65 leading-relaxed">{description}</p>
-          <ul className="mt-8 space-y-3">
+          <p className="mt-6 text-[17px] md:text-[18px] text-foreground/60 leading-[1.55] max-w-[52ch]">{description}</p>
+          <ul className="mt-8 space-y-3.5">
             {bullets.map((b, i) => (
               <li key={i} className="flex items-start gap-3 text-foreground/80">
-                <span className="mt-2 w-1.5 h-1.5 rounded-full bg-foreground/40 shrink-0" />
-                <span className="text-[15px] leading-relaxed">{b}</span>
+                <span className="mt-[9px] w-1.5 h-1.5 rounded-full bg-foreground/35 shrink-0" />
+                <span className="text-[15px] leading-[1.55]">{b}</span>
               </li>
             ))}
           </ul>

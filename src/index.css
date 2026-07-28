@@ -81,14 +81,35 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
     font-feature-settings: 'cv11', 'ss01', 'ss03';
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    letter-spacing: -0.005em;
+    letter-spacing: -0.011em;
+    line-height: 1.55;
   }
   .font-display {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.022em;
     font-feature-settings: 'ss01', 'cv11';
   }
+  /* iOS-style optical sizing — larger display copy gets tighter tracking */
+  .font-display.text-3xl,
+  .font-display.text-4xl { letter-spacing: -0.028em; }
+  .font-display.text-5xl { letter-spacing: -0.034em; }
+  .font-display.text-6xl { letter-spacing: -0.04em; }
+  .font-display.text-7xl,
+  .font-display.text-8xl { letter-spacing: -0.045em; }
+  @media (min-width: 768px) {
+    .font-display.md\:text-4xl,
+    .font-display.md\:text-5xl { letter-spacing: -0.034em; }
+    .font-display.md\:text-6xl { letter-spacing: -0.04em; }
+  }
+  @media (min-width: 1024px) {
+    .font-display.lg\:text-5xl { letter-spacing: -0.034em; }
+    .font-display.lg\:text-6xl { letter-spacing: -0.04em; }
+    .font-display.lg\:text-7xl { letter-spacing: -0.045em; }
+  }
+  /* iOS-tuned body rhythm helper */
+  .body-lead { line-height: 1.55; letter-spacing: -0.011em; }
 }
 
 @layer components {

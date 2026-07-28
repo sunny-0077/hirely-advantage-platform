@@ -21,7 +21,7 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <section className="px-4 py-28">
+    <section className="px-4 py-28 md:py-32">
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           eyebrow="Loved by candidates"
@@ -30,13 +30,13 @@ export const Testimonials = () => {
         <div className="grid md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
             <Reveal key={i} delay={i * 120}>
-              <div className="glass-strong rounded-3xl p-7 h-full flex flex-col">
-                <p className="font-display text-lg text-foreground leading-relaxed flex-1">
+              <div className="glass-strong rounded-3xl p-8 h-full flex flex-col">
+                <p className="font-display text-[18px] text-foreground leading-[1.5] flex-1 text-balance">
                   "{t.quote}"
                 </p>
                 <div className="mt-6 pt-6 border-t border-foreground/10">
-                  <p className="font-medium text-sm text-foreground">{t.name}</p>
-                  <p className="text-xs text-foreground/55 mt-0.5">{t.role}</p>
+                  <p className="font-medium text-[14px] text-foreground tracking-[-0.005em]">{t.name}</p>
+                  <p className="text-[12.5px] text-foreground/55 mt-0.5">{t.role}</p>
                 </div>
               </div>
             </Reveal>
