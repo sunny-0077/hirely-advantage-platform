@@ -23,8 +23,9 @@ const tracking = [
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/35 px-2 mb-1.5 font-medium">
+  <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/55 px-2 mb-1.5 font-semibold">
     {children}
+
   </p>
 );
 
