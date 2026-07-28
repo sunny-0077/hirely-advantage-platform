@@ -187,7 +187,7 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
 
   const wrapperClass =
     variant === "landing"
-      ? "px-4 py-24 md:py-28"
+      ? "px-4 py-28 md:py-32"
       : "py-2";
 
   return (

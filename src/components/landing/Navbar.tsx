@@ -36,7 +36,7 @@ export const Navbar = () => {
             <li key={l.href}>
               <a
                 href={l.href}
-                className="text-sm text-foreground/70 hover:text-foreground transition-colors"
+                className="text-[14px] font-medium tracking-[-0.005em] text-foreground/65 hover:text-foreground transition-colors"
               >
                 {l.label}
               </a>
@@ -46,7 +46,7 @@ export const Navbar = () => {
 
         <AppTransitionLink
           to="/app"
-          className="text-sm font-medium text-background bg-foreground px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
+          className="text-[14px] font-medium tracking-[-0.01em] text-background bg-foreground px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
         >
           Get Started
         </AppTransitionLink>
