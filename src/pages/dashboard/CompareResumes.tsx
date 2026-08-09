@@ -349,36 +349,31 @@ const CompareResumes = () => {
         </div>
       </SectionCard>
 
-      <CompareScorePanel
-        a={
-          comparison
-            ? {
-                overall: comparison.resume_a.overall_score,
-                ats: comparison.resume_a.ats_score,
-                keyword: comparison.resume_a.relevance_score,
-                impact: comparison.resume_a.impact_score,
-                formatting: Math.round(
-                  (comparison.resume_a.ats_score + comparison.resume_a.impact_score) / 2,
-                ),
-              }
-            : null
-        }
-        b={
-          comparison
-            ? {
-                overall: comparison.resume_b.overall_score,
-                ats: comparison.resume_b.ats_score,
-                keyword: comparison.resume_b.relevance_score,
-                impact: comparison.resume_b.impact_score,
-                formatting: Math.round(
-                  (comparison.resume_b.ats_score + comparison.resume_b.impact_score) / 2,
-                ),
-              }
-            : null
-        }
-        labelA={comparison?.resume_a.label ?? resumes[0]?.file_name}
-        labelB={comparison?.resume_b.label ?? resumes[1]?.file_name}
-      />
+      {comparison && (
+        <CompareScorePanel
+          a={{
+            overall: comparison.resume_a.overall_score,
+            ats: comparison.resume_a.ats_score,
+            keyword: comparison.resume_a.relevance_score,
+            impact: comparison.resume_a.impact_score,
+            formatting: Math.round(
+              (comparison.resume_a.ats_score + comparison.resume_a.impact_score) / 2,
+            ),
+          }}
+          b={{
+            overall: comparison.resume_b.overall_score,
+            ats: comparison.resume_b.ats_score,
+            keyword: comparison.resume_b.relevance_score,
+            impact: comparison.resume_b.impact_score,
+            formatting: Math.round(
+              (comparison.resume_b.ats_score + comparison.resume_b.impact_score) / 2,
+            ),
+          }}
+          labelA={comparison.resume_a.label ?? resumes[0]?.file_name}
+          labelB={comparison.resume_b.label ?? resumes[1]?.file_name}
+        />
+      )}
+
 
       {comparison && <ComparisonResult comparison={comparison} />}
     </div>
