@@ -170,21 +170,39 @@ const Auth = () => {
       <div className="w-full max-w-[520px]">
 
         <div className="text-center mb-9">
-          <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
+          <p
+            key={`k-${mode}`}
+            className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold animate-fade-in"
+          >
             {mode === "signin" ? "Welcome back" : "Get started"}
           </p>
-          <h1 className="mt-2.5 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em]">
+          <h1
+            key={`h-${mode}`}
+            className="mt-2.5 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] animate-fade-in"
+          >
             {mode === "signin" ? "Sign in to continue." : "Create your account."}
           </h1>
         </div>
 
-        <div className="rounded-[28px] bg-[hsl(0_0%_100%)] border border-[hsl(250_16%_86%)] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10">
-          {mode === "signin" && (
-            <>
+        <div
+          className="rounded-[28px] bg-[hsl(0_0%_100%)] border border-[hsl(250_16%_86%)] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10 overflow-hidden motion-safe:transition-[height] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={cardHeight ? { height: cardHeight } : undefined}
+        >
+          <div ref={cardInnerRef}>
+          <div
+            className="grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{
+              gridTemplateRows: mode === "signin" ? "1fr" : "0fr",
+              opacity: mode === "signin" ? 1 : 0,
+            }}
+            aria-hidden={mode !== "signin"}
+          >
+            <div className="overflow-hidden min-h-0">
               <button
                 type="button"
                 onClick={handleGoogle}
-                disabled={loading}
+                disabled={loading || mode !== "signin"}
+                tabIndex={mode === "signin" ? 0 : -1}
                 className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-full border border-[hsl(250_14%_80%)] text-[15.5px] font-semibold hover:bg-[hsl(250_20%_96%)] transition-colors disabled:opacity-50"
               >
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
@@ -201,11 +219,11 @@ const Auth = () => {
                 <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/50 font-medium">or</span>
                 <div className="h-px flex-1 bg-[hsl(250_14%_84%)]" />
               </div>
-            </>
-          )}
-
+            </div>
+          </div>
 
           <form onSubmit={handleEmail} className="space-y-3.5">
+
             {mode === "signup" && (
               <input
                 type="text"
