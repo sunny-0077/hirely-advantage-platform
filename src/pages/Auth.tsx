@@ -152,16 +152,23 @@ const Auth = () => {
           "radial-gradient(1100px 520px at 50% -12%, hsl(258 55% 87%), transparent 70%), linear-gradient(180deg, hsl(250 24% 94%), hsl(250 18% 90%))",
       }}
     >
+      <Link
+        to="/"
+        className="group fixed top-6 left-6 z-20 inline-flex items-center gap-3 pl-1.5 pr-5 py-1.5 rounded-full bg-[hsl(0_0%_100%/0.72)] backdrop-blur-xl border border-[hsl(0_0%_100%/0.9)] shadow-[0_12px_30px_-12px_hsl(252_46%_8%/0.28)] hover:shadow-[0_18px_40px_-14px_hsl(252_46%_8%/0.35)] hover:bg-[hsl(0_0%_100%/0.92)] transition-all duration-300"
+      >
+        <span className="grid place-items-center w-9 h-9 rounded-full bg-foreground text-background transition-transform duration-300 group-hover:-translate-x-0.5">
+          <ArrowLeft className="w-[17px] h-[17px] transition-transform duration-300 group-hover:-translate-x-0.5" />
+        </span>
+        <span className="flex flex-col leading-none text-left">
+          <span className="text-[9.5px] tracking-[0.2em] uppercase text-foreground/45 font-semibold">
+            Hirely AI
+          </span>
+          <span className="mt-1 text-[13.5px] font-semibold text-foreground/85">Back to home</span>
+        </span>
+      </Link>
+
       <div className="w-full max-w-[520px]">
-        <div className="mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(0_0%_100%/0.7)] border border-[hsl(250_14%_82%)] text-[13.5px] font-medium text-foreground/70 hover:text-foreground hover:bg-[hsl(0_0%_100%)] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to home
-          </Link>
-        </div>
+
         <div className="text-center mb-9">
           <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
             {mode === "signin" ? "Welcome back" : "Get started"}
