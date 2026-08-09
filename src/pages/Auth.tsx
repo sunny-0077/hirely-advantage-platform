@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const returnPath = getSafeReturnPath(params.get("next"));
 
   useEffect(() => {
@@ -151,6 +153,15 @@ const Auth = () => {
       }}
     >
       <div className="w-full max-w-[520px]">
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(0_0%_100%/0.7)] border border-[hsl(250_14%_82%)] text-[13.5px] font-medium text-foreground/70 hover:text-foreground hover:bg-[hsl(0_0%_100%)] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to home
+          </Link>
+        </div>
         <div className="text-center mb-9">
           <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
             {mode === "signin" ? "Welcome back" : "Get started"}
