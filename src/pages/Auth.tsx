@@ -223,17 +223,27 @@ const Auth = () => {
           </div>
 
           <form onSubmit={handleEmail} className="space-y-3.5">
+            <div
+              className="grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
+              style={{
+                gridTemplateRows: mode === "signup" ? "1fr" : "0fr",
+                opacity: mode === "signup" ? 1 : 0,
+              }}
+              aria-hidden={mode !== "signup"}
+            >
+              <div className="overflow-hidden min-h-0">
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={100}
+                  tabIndex={mode === "signup" ? 0 : -1}
+                  className="w-full px-4 py-4 mb-3.5 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+                />
+              </div>
+            </div>
 
-            {mode === "signup" && (
-              <input
-                type="text"
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={100}
-                className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
-              />
-            )}
             <input
               type="email"
               placeholder="Email"
