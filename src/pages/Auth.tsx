@@ -292,7 +292,9 @@ const Auth = () => {
               {mode === "signin" ? "Create an account" : "Sign in"}
             </button>
           </p>
+          </div>
         </div>
+
 
       </div>
     </div>
