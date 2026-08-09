@@ -62,28 +62,14 @@ export const LogoMark = ({
 };
 
 /**
- * Hirely AI wordmark lockup:
- *   [mark] hirely · ai
+ * Hirely wordmark lockup:
+ *   [mark] hirely
  */
 export const LogoLockup = ({ className, size = "text-xl", showMark = true }: LogoProps) => {
   return (
     <span className={cn("inline-flex items-center gap-2 tracking-[-0.03em]", className)}>
       {showMark && <LogoMark size={24} />}
-      <span className="inline-flex items-baseline">
-        <span className={cn("font-semibold text-foreground", size)}>hirely</span>
-        <span
-          aria-hidden="true"
-          className={cn("ml-0.5 font-semibold bg-clip-text text-transparent", size)}
-          style={{
-            backgroundImage: "linear-gradient(120deg, hsl(220 90% 60%), hsl(200 100% 55%))",
-          }}
-        >
-          ·
-        </span>
-        <span className="ml-1.5 font-semibold tracking-[0.22em] text-foreground/45 uppercase text-xs">
-          ai
-        </span>
-      </span>
+      <span className={cn("font-semibold text-foreground", size)}>hirely</span>
     </span>
   );
 };
