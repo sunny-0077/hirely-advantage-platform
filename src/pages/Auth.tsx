@@ -143,7 +143,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-[radial-gradient(1200px_520px_at_50%_-10%,hsl(258_45%_90%),transparent),hsl(250_20%_96%)]">
+    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-[radial-gradient(1200px_520px_at_50%_-10%,hsl(258_45%_88%),transparent),hsl(250_22%_93%)]">
       <div className="w-full max-w-[520px]">
         <div className="text-center mb-9">
           <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
@@ -154,12 +154,12 @@ const Auth = () => {
           </h1>
         </div>
 
-        <div className="rounded-[28px] bg-card border-2 border-foreground/[0.10] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10">
+        <div className="rounded-[28px] bg-[hsl(0_0%_100%)] border border-[hsl(250_16%_86%)] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10">
           <button
             type="button"
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-full border-2 border-foreground/[0.16] text-[15.5px] font-semibold hover:bg-foreground/[0.06] transition-colors disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-full border border-[hsl(250_14%_80%)] text-[15.5px] font-semibold hover:bg-[hsl(250_20%_96%)] transition-colors disabled:opacity-50"
           >
 
             <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
@@ -172,9 +172,9 @@ const Auth = () => {
           </button>
 
           <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-foreground/20" />
+            <div className="h-px flex-1 bg-[hsl(250_14%_84%)]" />
             <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/50 font-medium">or</span>
-            <div className="h-px flex-1 bg-foreground/20" />
+            <div className="h-px flex-1 bg-[hsl(250_14%_84%)]" />
           </div>
 
           <form onSubmit={handleEmail} className="space-y-3.5">
@@ -185,7 +185,7 @@ const Auth = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={100}
-                className="w-full px-4 py-4 rounded-2xl bg-background border-2 border-foreground/[0.14] text-[15.5px] placeholder:text-foreground/50 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+                className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
               />
             )}
             <input
@@ -195,7 +195,7 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               maxLength={255}
               required
-              className="w-full px-4 py-4 rounded-2xl bg-background border-2 border-foreground/[0.14] text-[15.5px] placeholder:text-foreground/50 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+              className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
             />
             <input
               type="password"
@@ -204,7 +204,7 @@ const Auth = () => {
               onChange={(e) => setPassword(e.target.value)}
               maxLength={72}
               required
-              className="w-full px-4 py-4 rounded-2xl bg-background border-2 border-foreground/[0.14] text-[15.5px] placeholder:text-foreground/50 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+              className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
             />
             <button
               type="submit"
