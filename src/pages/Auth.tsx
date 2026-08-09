@@ -34,7 +34,20 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const cardInnerRef = useRef<HTMLDivElement>(null);
+  const [cardHeight, setCardHeight] = useState<number | undefined>(undefined);
   const returnPath = getSafeReturnPath(params.get("next"));
+
+  useLayoutEffect(() => {
+    const el = cardInnerRef.current;
+    if (!el) return;
+    const measure = () => setCardHeight(el.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [mode]);
+
 
   useEffect(() => {
     const applyPendingAndGo = async (userId: string) => {
