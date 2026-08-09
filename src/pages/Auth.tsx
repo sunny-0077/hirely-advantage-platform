@@ -203,15 +203,26 @@ const Auth = () => {
               required
               className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              maxLength={72}
-              required
-              className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                maxLength={72}
+                required
+                className="w-full px-4 py-4 pr-14 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl text-foreground/55 hover:text-foreground hover:bg-foreground/[0.06] transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
