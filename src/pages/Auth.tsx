@@ -308,7 +308,9 @@ const Auth = () => {
             </button>
           </p>
           </div>
+          </div>
         </div>
+
 
 
       </div>
