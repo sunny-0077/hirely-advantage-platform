@@ -39,7 +39,7 @@ export const Footer = () => {
           ))}
         </div>
         <div className="mt-12 pt-6 border-t border-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[12px] text-foreground/50">© 2026 Hirely AI. All rights reserved.</p>
+          <p className="text-[12px] text-foreground/50">© 2026 Hirely. All rights reserved.</p>
           <p className="text-[12px] text-foreground/50">Crafted for top-tier candidates.</p>
         </div>
       </div>
