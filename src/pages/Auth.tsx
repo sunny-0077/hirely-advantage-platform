@@ -197,11 +197,13 @@ const Auth = () => {
           </h1>
         </div>
 
-        <div
-          className="rounded-[28px] bg-[hsl(0_0%_100%)] border border-[hsl(250_16%_86%)] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10 overflow-hidden motion-safe:transition-[height] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={cardHeight ? { height: cardHeight } : undefined}
-        >
+        <div className="rounded-[28px] bg-[hsl(0_0%_100%)] border border-[hsl(250_16%_86%)] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10">
+          <div
+            className="overflow-hidden motion-safe:transition-[height] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={cardHeight ? { height: cardHeight } : undefined}
+          >
           <div ref={cardInnerRef}>
+
           <div
             className="grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
             style={{
