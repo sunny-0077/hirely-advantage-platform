@@ -143,7 +143,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-[radial-gradient(1200px_520px_at_50%_-10%,hsl(258_45%_88%),transparent),hsl(250_22%_93%)]">
+    <div
+      className="min-h-screen flex items-center justify-center px-6 py-12"
+      style={{
+        background:
+          "radial-gradient(1100px 520px at 50% -12%, hsl(258 55% 87%), transparent 70%), linear-gradient(180deg, hsl(250 24% 94%), hsl(250 18% 90%))",
+      }}
+    >
       <div className="w-full max-w-[520px]">
         <div className="text-center mb-9">
           <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
