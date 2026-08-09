@@ -1,51 +1,89 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
   className?: string;
   /** Tailwind text size class for the wordmark, e.g. "text-lg", "text-xl", "text-3xl" */
   size?: string;
+  /** Render the chevron mark before the wordmark */
+  showMark?: boolean;
 }
 
+type MarkVariant = "plain" | "tile" | "mono";
+
 /**
- * Hirely AI wordmark — clean lockup:
- *   hirely · ai
- * Blue gradient dot separates the wordmark from the AI tag.
+ * Hirely AI mark — an ascending double chevron.
+ * Two equal-weight strokes on a 24x24 grid: the lower "step" and the upper "lift".
  */
-export const LogoLockup = ({ className, size = "text-xl" }: LogoProps) => {
+export const LogoMark = ({
+  size = 28,
+  variant = "plain",
+  className,
+}: {
+  size?: number;
+  variant?: MarkVariant;
+  className?: string;
+}) => {
+  const gid = useId().replace(/:/g, "");
+  const stroke = variant === "mono" ? "currentColor" : `url(#hg-${gid})`;
+
   return (
-    <span className={cn("inline-flex items-baseline tracking-[-0.03em]", className)}>
-      <span className={cn("font-semibold text-foreground", size)}>hirely</span>
-      <span
-        aria-hidden="true"
-        className={cn("ml-0.5 font-semibold bg-clip-text text-transparent", size)}
-        style={{
-          backgroundImage: "linear-gradient(120deg, hsl(220 90% 60%), hsl(200 100% 55%))",
-        }}
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      className={cn("shrink-0", className)}
+    >
+      <defs>
+        <linearGradient id={`hg-${gid}`} x1="4" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="hsl(220 90% 60%)" />
+          <stop offset="100%" stopColor="hsl(200 100% 55%)" />
+        </linearGradient>
+      </defs>
+
+      {variant === "tile" && (
+        <rect x="0" y="0" width="24" height="24" rx="6.5" fill={`url(#hg-${gid})`} />
+      )}
+
+      <g
+        fill="none"
+        stroke={variant === "tile" ? "hsl(0 0% 100%)" : stroke}
+        strokeWidth={variant === "tile" ? 2.4 : 2.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
       >
-        ·
-      </span>
-      <span className="ml-1.5 font-semibold tracking-[0.22em] text-foreground/45 uppercase text-xs">
-        ai
-      </span>
-    </span>
+        <path d={variant === "tile" ? "M6.5 18 L12 12.5 L17.5 18" : "M4.5 19 L12 11.5 L19.5 19"} />
+        <path d={variant === "tile" ? "M6.5 12 L12 6.5 L17.5 12" : "M4.5 12.5 L12 5 L19.5 12.5"} />
+      </g>
+    </svg>
   );
 };
 
 /**
- * Compact mark-only variant — the gradient dot in a circle.
- * Useful for tight spaces or future favicon work.
+ * Hirely AI wordmark lockup:
+ *   [mark] hirely · ai
  */
-export const LogoMark = ({ size = 32, className }: { size?: number; className?: string }) => {
+export const LogoLockup = ({ className, size = "text-xl", showMark = true }: LogoProps) => {
   return (
-    <span
-      aria-hidden="true"
-      className={cn("inline-flex items-center justify-center rounded-full", className)}
-      style={{
-        width: size,
-        height: size,
-        background: "linear-gradient(135deg, hsl(220 90% 60%), hsl(200 100% 55%))",
-        boxShadow: "0 6px 20px -8px hsl(220 90% 60% / 0.5)",
-      }}
-    />
+    <span className={cn("inline-flex items-center gap-2 tracking-[-0.03em]", className)}>
+      {showMark && <LogoMark size={24} />}
+      <span className="inline-flex items-baseline">
+        <span className={cn("font-semibold text-foreground", size)}>hirely</span>
+        <span
+          aria-hidden="true"
+          className={cn("ml-0.5 font-semibold bg-clip-text text-transparent", size)}
+          style={{
+            backgroundImage: "linear-gradient(120deg, hsl(220 90% 60%), hsl(200 100% 55%))",
+          }}
+        >
+          ·
+        </span>
+        <span className="ml-1.5 font-semibold tracking-[0.22em] text-foreground/45 uppercase text-xs">
+          ai
+        </span>
+      </span>
+    </span>
   );
 };
