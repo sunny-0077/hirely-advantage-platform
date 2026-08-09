@@ -162,7 +162,7 @@ const Auth = () => {
             className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-full border border-foreground/20 text-[15px] font-medium hover:bg-foreground/[0.05] transition-colors disabled:opacity-50"
           >
 
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -171,13 +171,13 @@ const Auth = () => {
             Continue with Google
           </button>
 
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-foreground/[0.08]" />
-            <span className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/40">or</span>
-            <div className="h-px flex-1 bg-foreground/[0.08]" />
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-foreground/[0.14]" />
+            <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/50 font-medium">or</span>
+            <div className="h-px flex-1 bg-foreground/[0.14]" />
           </div>
 
-          <form onSubmit={handleEmail} className="space-y-3">
+          <form onSubmit={handleEmail} className="space-y-3.5">
             {mode === "signup" && (
               <input
                 type="text"
@@ -185,7 +185,7 @@ const Auth = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={100}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] text-[13px] outline-none focus:ring-2 focus:ring-foreground/15"
+                className="w-full px-4 py-3.5 rounded-xl bg-foreground/[0.045] border border-foreground/[0.14] text-[15px] placeholder:text-foreground/45 outline-none focus:ring-2 focus:ring-foreground/25 focus:border-foreground/25 transition-colors"
               />
             )}
             <input
@@ -195,7 +195,7 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               maxLength={255}
               required
-              className="w-full px-3.5 py-2.5 rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] text-[13px] outline-none focus:ring-2 focus:ring-foreground/15"
+              className="w-full px-4 py-3.5 rounded-xl bg-foreground/[0.045] border border-foreground/[0.14] text-[15px] placeholder:text-foreground/45 outline-none focus:ring-2 focus:ring-foreground/25 focus:border-foreground/25 transition-colors"
             />
             <input
               type="password"
@@ -204,28 +204,29 @@ const Auth = () => {
               onChange={(e) => setPassword(e.target.value)}
               maxLength={72}
               required
-              className="w-full px-3.5 py-2.5 rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] text-[13px] outline-none focus:ring-2 focus:ring-foreground/15"
+              className="w-full px-4 py-3.5 rounded-xl bg-foreground/[0.045] border border-foreground/[0.14] text-[15px] placeholder:text-foreground/45 outline-none focus:ring-2 focus:ring-foreground/25 focus:border-foreground/25 transition-colors"
             />
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-full bg-foreground text-background text-[13px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full py-3.5 rounded-full bg-foreground text-background text-[15px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {loading ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
           </form>
 
-          <p className="text-center text-[12px] text-foreground/55 mt-5">
+          <p className="text-center text-[13.5px] text-foreground/60 mt-6">
             {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
             <button
               type="button"
               onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-              className="text-foreground font-medium hover:underline"
+              className="text-foreground font-semibold hover:underline"
             >
               {mode === "signin" ? "Create an account" : "Sign in"}
             </button>
           </p>
         </div>
+
       </div>
     </div>
   );
