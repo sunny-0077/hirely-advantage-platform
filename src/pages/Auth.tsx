@@ -144,23 +144,24 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-[radial-gradient(1200px_500px_at_50%_-10%,hsl(258_45%_92%),transparent),hsl(0_0%_99%)]">
-      <div className="w-full max-w-[400px]">
-        <div className="text-center mb-8">
-          <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
+      <div className="w-full max-w-[480px]">
+        <div className="text-center mb-9">
+          <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
             {mode === "signin" ? "Welcome back" : "Get started"}
           </p>
-          <h1 className="mt-2 text-[34px] leading-[1.05] font-semibold tracking-[-0.035em]">
+          <h1 className="mt-2.5 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em]">
             {mode === "signin" ? "Sign in to continue." : "Create your account."}
           </h1>
         </div>
 
-        <div className="rounded-[22px] bg-card/80 backdrop-blur-2xl border border-white/70 shadow-[0_30px_60px_-25px_hsl(252_46%_8%/0.15)] p-6">
+        <div className="rounded-[26px] bg-card border border-foreground/[0.12] shadow-[0_40px_80px_-30px_hsl(252_46%_8%/0.28),0_2px_8px_-2px_hsl(252_46%_8%/0.08)] p-8 sm:p-9">
           <button
             type="button"
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full border border-foreground/10 text-[13px] font-medium hover:bg-foreground/[0.03] transition-colors disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-full border border-foreground/20 text-[15px] font-medium hover:bg-foreground/[0.05] transition-colors disabled:opacity-50"
           >
+
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
