@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -64,12 +64,31 @@ export const LogoMark = ({
 /**
  * Hirely wordmark lockup:
  *   [mark] hirely
+ *
+ * Motion: chevrons lift on hover (upper one leads), wordmark tightens
+ * slightly and a soft sheen sweeps across it. On scroll the lockup
+ * settles a touch smaller/denser.
  */
 export const LogoLockup = ({ className, size = "text-xl", showMark = true }: LogoProps) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <span className={cn("inline-flex items-center gap-2 tracking-[-0.03em]", className)}>
-      {showMark && <LogoMark size={24} />}
-      <span className={cn("font-semibold text-foreground", size)}>hirely</span>
+    <span
+      className={cn(
+        "logo-lockup group inline-flex items-center gap-2 tracking-[-0.03em]",
+        scrolled && "is-scrolled",
+        className
+      )}
+    >
+      {showMark && <LogoMark size={24} className="logo-lockup__mark" />}
+      <span className={cn("logo-lockup__word font-semibold text-foreground", size)}>hirely</span>
     </span>
   );
 };
