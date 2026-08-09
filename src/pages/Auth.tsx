@@ -161,7 +161,7 @@ const Auth = () => {
         </span>
         <span className="flex flex-col leading-none text-left">
           <span className="text-[9.5px] tracking-[0.2em] uppercase text-foreground/45 font-semibold">
-            Hirely AI
+            Hirely
           </span>
           <span className="mt-1 text-[13.5px] font-semibold text-foreground/85">Back to home</span>
         </span>
