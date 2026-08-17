@@ -76,7 +76,7 @@ export const VisualOutreach = () => (
       </div>
       <p className="text-sm text-foreground leading-relaxed">
         "Hi Sarah — saw you led the Series B at Linear. I shipped the same kind of zero-to-one
-        billing primitives at Acme Cloud. Open to a 15-min chat next week?"
+        billing primitives at Stripe. Open to a 15-min chat next week?"
       </p>
     </div>
 

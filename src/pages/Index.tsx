@@ -1,14 +1,17 @@
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { TrustStrip } from "@/components/landing/TrustStrip";
+import { Stats } from "@/components/landing/Stats";
 import { SectionHeader } from "@/components/landing/SectionHeader";
 import { FeatureBlock } from "@/components/landing/FeatureBlock";
 import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
 
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Testimonials } from "@/components/landing/Testimonials";
 import { ResumeCompare } from "@/components/landing/ResumeCompare";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
+import { HiredWall } from "@/components/landing/HiredWall";
+import { ProofQuote } from "@/components/landing/ProofQuote";
 import { Pricing } from "@/components/landing/Pricing";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
@@ -19,13 +22,22 @@ const Index = () => {
       <MeshGradient />
       <Navbar />
       <Hero />
-      <TrustStrip />
+      <section className="px-4 -mt-8 md:-mt-16 pb-12 md:pb-16 relative z-10">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+          <div className="lg:col-span-3">
+            <Stats embedded />
+          </div>
+          <div className="lg:col-span-2">
+            <ProofQuote embedded />
+          </div>
+        </div>
+      </section>
 
       <section id="features" className="pt-12">
         <SectionHeader
           eyebrow="Core Capabilities"
-          title="Everything your target role is measuring you on."
-          description="Hirely reads your resume against the role you want, then tells you what to fix, what to learn, and what to do next."
+          title="Three engines, engineered for offers."
+          description="Each module is built to compress weeks of guesswork into minutes of decisive feedback."
         />
 
         <FeatureBlock
@@ -72,6 +84,8 @@ const Index = () => {
       <ResumeCompare />
       <HowItWorks />
       <ProductShowcase />
+      <Testimonials />
+      <HiredWall />
       <Pricing />
       <FinalCTA />
       <Footer />
