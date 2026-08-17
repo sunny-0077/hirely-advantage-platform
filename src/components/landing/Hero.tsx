@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Star, Sparkles, ArrowDown } from "lucide-react";
+import { ArrowRight, Star, Sparkles, ArrowDown } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { useParallax } from "@/hooks/useParallax";
 
@@ -156,15 +156,6 @@ export const Hero = () => {
                 Get My Resume Score
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </AppTransitionLink>
-              <a
-                href="#features"
-                className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white/40 backdrop-blur-md border border-foreground/10 text-foreground text-[15px] font-medium tracking-[-0.01em] hover:bg-white/70 transition-colors"
-              >
-                <span className="size-6 rounded-full bg-white shadow-sm flex items-center justify-center">
-                  <Play className="w-3 h-3 text-foreground fill-foreground ml-0.5" />
-                </span>
-                Watch Demo
-              </a>
             </div>
           </Reveal>
 
