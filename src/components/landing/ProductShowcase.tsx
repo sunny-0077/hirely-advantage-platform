@@ -60,7 +60,7 @@ export const ProductShowcase = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-foreground/45 font-medium">resume_v7.pdf</p>
-                    <h3 className="font-display text-xl font-semibold mt-0.5">Senior PM @ Stripe</h3>
+                    <h3 className="font-display text-xl font-semibold mt-0.5">Senior PM @ Acme Cloud</h3>
                   </div>
                   <div className="glass rounded-full px-3 py-1 text-[11px] text-foreground/70 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -132,7 +132,7 @@ export const ProductShowcase = () => {
                 </div>
                 <div className="p-3 rounded-xl bg-white border border-foreground/5">
                   <p className="text-[10px] uppercase tracking-wider text-foreground/50 font-medium">Next interview</p>
-                  <p className="text-sm font-medium mt-1">Stripe · onsite</p>
+                  <p className="text-sm font-medium mt-1">Acme Cloud · onsite</p>
                   <p className="text-[11px] text-foreground/55 mt-0.5">Thu, 2:00 PM</p>
                 </div>
               </aside>
