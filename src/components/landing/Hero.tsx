@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Star, Sparkles, ArrowDown } from "lucide-react";
+import { ArrowRight, Star, Sparkles, ArrowDown } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { useParallax } from "@/hooks/useParallax";
 
