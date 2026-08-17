@@ -46,7 +46,6 @@ const plans: Plan[] = [
     name: "Pro",
     price: "$12",
     cadence: "/month",
-    was: "was $9",
     tagline: "Impulse-buy territory, full power.",
     icon: Zap,
     badge: "Most Popular",
@@ -69,7 +68,6 @@ const plans: Plan[] = [
     name: "Advanced",
     price: "$29",
     cadence: "/month",
-    was: "was $19",
     tagline: "Justified by feature depth.",
     icon: Rocket,
     features: [
