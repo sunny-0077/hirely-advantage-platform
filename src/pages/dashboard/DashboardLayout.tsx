@@ -1,57 +1,13 @@
-import { useEffect, useState } from "react";
-import { useLocation, Outlet, Navigate } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
 import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 
 const DashboardLayout = () => {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, loading } = useAuth();
-  const [checkingSession, setCheckingSession] = useState(true);
-  const [hasConfirmedUser, setHasConfirmedUser] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    if (user) {
-      setHasConfirmedUser(true);
-      setCheckingSession(false);
-      return;
-    }
-
-    setCheckingSession(true);
-    supabase.auth
-      .getUser()
-      .then(({ data: { user: confirmedUser } }) => {
-        if (!active) return;
-        setHasConfirmedUser(!!confirmedUser);
-      })
-      .catch(() => {
-        if (!active) return;
-        setHasConfirmedUser(false);
-      })
-      .finally(() => {
-        if (!active) return;
-        setCheckingSession(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [user?.id]);
-
-  if (loading || checkingSession || (!user && hasConfirmedUser)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-foreground/50 text-sm">
-        Loading…
-      </div>
-    );
-  }
-  if (!user && !hasConfirmedUser) return <Navigate to={`/auth?next=${encodeURIComponent(pathname)}`} replace />;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-display">
