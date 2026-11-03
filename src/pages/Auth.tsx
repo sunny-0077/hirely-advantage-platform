@@ -31,7 +31,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
-  const [signupSignIn, setSignupSignIn] = useState(false);
+  const [existingEmail, setExistingEmail] = useState("");
   const [resendUntil, setResendUntil] = useState(0);
   const [now, setNow] = useState(Date.now());
   const [resendNotice, setResendNotice] = useState("");
@@ -94,8 +94,7 @@ const Auth = () => {
         const outcome = signupOutcome(data);
         setPassword("");
         if (outcome === "sign-in") {
-          setSignupSignIn(true);
-          setMode("signin");
+          setExistingEmail(emailParsed.data);
         } else if (outcome === "confirmation") {
           setConfirmationEmail(emailParsed.data);
           setResendUntil(Date.now() + 60000);
@@ -338,7 +337,7 @@ const Auth = () => {
             {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
             <Button variant="link"
               type="button"
-              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setConfirmationEmail(""); setSignupSignIn(false); }}
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setConfirmationEmail(""); setExistingEmail(""); }}
               className="text-foreground font-semibold hover:underline"
             >
               {mode === "signin" ? "Create an account" : "Sign in"}
