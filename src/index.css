@@ -41,6 +41,8 @@
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
+    --verification-success: 145 66% 29%;
+    --verification-success-foreground: 0 0% 100%;
 
     --border: 226 20% 90%;
     --input: 226 20% 90%;
@@ -113,6 +115,10 @@
 }
 
 @layer components {
+  .verification-success {
+    background: hsl(var(--verification-success));
+    color: hsl(var(--verification-success-foreground));
+  }
   .glass {
     background: hsl(var(--glass-bg) / 0.62);
     backdrop-filter: blur(20px) saturate(170%);
