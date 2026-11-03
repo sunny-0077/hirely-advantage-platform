@@ -6,7 +6,7 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { safeReturnPath } from "@/lib/authNavigation";
+import { authRedirectUrl, safeReturnPath } from "@/lib/authNavigation";
 import { signupOutcome } from "@/lib/signupOutcome";
 
 const emailSchema = z
