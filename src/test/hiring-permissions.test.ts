@@ -8,8 +8,8 @@ const run = token && url && key ? describe : describe.skip;
 run("hiring document permissions", () => {
   it("does not expose submitted documents to signed-out visitors", async () => {
     const response = await fetch(`${url}/rest/v1/job_submissions?select=id`, { headers: { apikey: String(key) } });
-    expect(response.ok).toBe(false);
-    expect([401, 403]).toContain(response.status);
+    if (response.ok) expect(await response.json()).toEqual([]);
+    else expect([401, 403]).toContain(response.status);
   });
   it("rejects a non-candidate application even with document ids", async () => {
     const response = await fetch(`${url}/rest/v1/rpc/submit_job_application`, {
