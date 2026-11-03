@@ -1,8 +1,8 @@
 # Roadmap
 
-- [x] Allow the landing-page “Get Started” action to open the dashboard without a login screen.
-- [ ] Verify the signed-out dashboard entry in the live preview.
-- [ ] Connect an eligible payment provider for an India-based seller; confirm international subscription and currency support.
-- [ ] Build and verify Pro and Advanced subscription checkout after provider connection and pricing confirmation.
-- [ ] Fix Google sign-in in the preview and complete signup/onboarding.
-- [ ] Add employer job listings and candidate applications with explicitly submitted resume and cover letter data.
+- [x] Restore sign-in-required dashboard entry, superseding the temporary no-login flow.
+- [ ] Connect an eligible payment provider; blocked by declined Razorpay connection and unconfirmed international recurring support.
+- [ ] Build subscription checkout; blocked by payment provider connection.
+- [x] Remove auth callback lock/racing plan writes; enable managed Google/Lovable sign-in and email signup with confirmation and onboarding.
+- [ ] Verify actual Google account authorization in the editor preview; requires user interaction with Google.
+- [x] Add and verify employer job posting, candidate document submission, keyword matching, and employer review/status updates.

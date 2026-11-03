@@ -1,3 +1,4 @@
 # Project implementation rules
 
-- Keep the dashboard route accessible without a client-side sign-in gate while the temporary no-login entry flow is active, because landing-page “Get Started” must open the dashboard directly; user-specific data and backend actions still require valid authentication.
+- Require a validated signed-in user and completed profile onboarding for dashboard routes, because personal workspaces must not render for signed-out visitors.
+- Keep hiring submissions as server-created snapshots of candidate-owned documents; only the applicant and the listing owner may read them, because employers must never gain access to a candidate's private document library.
