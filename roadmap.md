@@ -8,3 +8,4 @@
 - [x] Add and verify employer job posting, candidate document submission, keyword matching, and employer review/status updates.
 - [x] Reproduce and correct misleading signup confirmation for an existing verified Google account; add confirmation resend and alternate-email controls with cooldown.
 - [ ] Verify delivery to an inbox for a genuinely new email signup; mailbox access is unavailable.
+- [ ] Repeat the live hiring walkthrough: post a job, submit candidate documents, and review matching; separate candidate account not yet identified.
