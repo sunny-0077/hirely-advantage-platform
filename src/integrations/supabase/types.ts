@@ -518,8 +518,12 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
+          education: Json
+          experience: Json
+          headline: string | null
           id: string
           plan: Database["public"]["Enums"]["app_plan"]
+          skills: string[]
           updated_at: string
           user_id: string
         }
@@ -527,8 +531,12 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          education?: Json
+          experience?: Json
+          headline?: string | null
           id?: string
           plan?: Database["public"]["Enums"]["app_plan"]
+          skills?: string[]
           updated_at?: string
           user_id: string
         }
@@ -536,8 +544,12 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          education?: Json
+          experience?: Json
+          headline?: string | null
           id?: string
           plan?: Database["public"]["Enums"]["app_plan"]
+          skills?: string[]
           updated_at?: string
           user_id?: string
         }
