@@ -6,6 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import AuthCallback from "./pages/AuthCallback.tsx";
+import Onboarding from "./pages/Onboarding";
+import WorkspaceHome from "./pages/dashboard/WorkspaceHome";
+import HiringDashboard from "./pages/dashboard/HiringDashboard";
+import Jobs from "./pages/dashboard/Jobs";
 import NotFound from "./pages/NotFound.tsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.tsx";
 import ResumeAnalyzer from "./pages/dashboard/ResumeAnalyzer.tsx";
@@ -39,8 +43,12 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/app" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="/app/resume" replace />} />
+            <Route index element={<Navigate to="/app/home" replace />} />
+            <Route path="home" element={<WorkspaceHome />} />
+            <Route path="hiring" element={<HiringDashboard />} />
+            <Route path="jobs" element={<Jobs />} />
             <Route path="resume" element={<ResumeAnalyzer />} />
             <Route path="compare" element={<CompareResumes />} />
             <Route path="cover-letter" element={<CoverLetterGenerator />} />
