@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Correct email confirmation destination and verify the green Verified state and return to Hirely.
+
 - [x] Restore sign-in-required dashboard entry, superseding the temporary no-login flow.
 - [ ] Connect an eligible payment provider; blocked by declined Razorpay connection and unconfirmed international recurring support.
 - [ ] Build subscription checkout; blocked by payment provider connection.
