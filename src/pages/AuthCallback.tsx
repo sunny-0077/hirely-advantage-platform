@@ -1,102 +1,34 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { safeReturnPath } from "@/lib/authNavigation";
 import { toast } from "sonner";
 
-const getSafeReturnPath = (value: string | null) => {
-  if (!value) return "/app/resume";
-  if (!value.startsWith("/") || value.startsWith("//")) return "/app/resume";
-  if (value.startsWith("/auth")) return "/app/resume";
-  return value;
-};
-
-const getStoredReturnPath = () => {
-  try {
-    return sessionStorage.getItem("auth:returnPath");
-  } catch {
-    return null;
-  }
-};
-
-const clearStoredReturnPath = () => {
-  try {
-    sessionStorage.removeItem("auth:returnPath");
-  } catch {
-    /* ignore */
-  }
-};
-
-const applyPendingPlan = async (userId: string) => {
-  let pending: string | null = null;
-  try {
-    pending = localStorage.getItem("pending_plan");
-  } catch {
-    /* ignore */
-  }
-
-  if (!pending || !["free", "pro", "advanced"].includes(pending)) return;
-
-  await supabase
-    .from("profiles")
-    .update({ plan: pending as "free" | "pro" | "advanced" })
-    .eq("user_id", userId);
-
-  try {
-    localStorage.removeItem("pending_plan");
-  } catch {
-    /* ignore */
-  }
-
-  toast.success(
-    pending === "free"
-      ? "You're on the Free plan."
-      : `You're now on ${pending[0].toUpperCase()}${pending.slice(1)}.`,
-  );
-};
-
-const AuthCallback = () => {
+export default function AuthCallback() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-
   useEffect(() => {
     let active = true;
-    const returnPath = getSafeReturnPath(params.get("next") ?? getStoredReturnPath());
-
+    let stored: string | null = null;
+    try { stored = sessionStorage.getItem("auth:returnPath"); } catch { /* optional storage */ }
+    const destination = safeReturnPath(params.get("next") ?? stored);
     const finish = async () => {
-      for (let attempt = 0; attempt < 12; attempt += 1) {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!active) return;
-
-        if (session?.user) {
-          await applyPendingPlan(session.user.id);
-          clearStoredReturnPath();
-          if (active) navigate(returnPath, { replace: true });
+      const hash = new URLSearchParams(window.location.hash.slice(1));
+      const failure = params.get("error_description") ?? hash.get("error_description");
+      if (failure) { toast.error(failure); navigate("/auth", { replace: true }); return; }
+      for (let attempt = 0; attempt < 40 && active; attempt++) {
+        const { data, error } = await supabase.auth.getUser();
+        if (data.user && !error && active) {
+          try { sessionStorage.removeItem("auth:returnPath"); } catch { /* optional storage */ }
+          navigate(destination, { replace: true });
           return;
         }
-
-        await new Promise((resolve) => window.setTimeout(resolve, 250));
+        await new Promise(resolve => window.setTimeout(resolve, 250));
       }
-
-      if (!active) return;
-      toast.error("Google sign-in did not finish. Please try again.");
-      navigate(`/auth?next=${encodeURIComponent(returnPath)}`, { replace: true });
+      if (active) { toast.error("Sign-in did not finish. Please try again."); navigate(`/auth?next=${encodeURIComponent(destination)}`, { replace: true }); }
     };
-
-    finish();
-
-    return () => {
-      active = false;
-    };
+    void finish();
+    return () => { active = false; };
   }, [navigate, params]);
-
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-6 text-foreground">
-      <p className="text-sm text-muted-foreground">Finishing sign-in…</p>
-    </main>
-  );
-};
-
-export default AuthCallback;
+  return <main className="min-h-screen flex items-center justify-center bg-background text-foreground"><p role="status">Finishing sign-in…</p></main>;
+}
