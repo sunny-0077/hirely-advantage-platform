@@ -28,8 +28,12 @@ export default function Onboarding() {
     if (!user || !name.trim() || (type === "employer" && !company.trim())) return;
     setBusy(true);
     try {
-      const profile = await supabase.from("profiles").upsert({ user_id: user.id, display_name: name.trim() }, { onConflict: "user_id" });
+      const profile = await supabase.from("profiles").update({ display_name: name.trim() }).eq("user_id", user.id).select("id").maybeSingle();
       if (profile.error) throw profile.error;
+      if (!profile.data) {
+        const created = await supabase.from("profiles").insert({ user_id: user.id, display_name: name.trim() });
+        if (created.error) throw created.error;
+      }
       const { error } = await supabase.from("hiring_accounts").insert({ user_id: user.id, account_type: type, company_name: type === "employer" ? company.trim() : "" });
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ["workspace", user.id] });
