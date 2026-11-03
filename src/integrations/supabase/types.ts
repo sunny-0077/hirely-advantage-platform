@@ -152,6 +152,27 @@ export type Database = {
         }
         Relationships: []
       }
+      hiring_accounts: {
+        Row: {
+          account_type: string
+          company_name: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          account_type: string
+          company_name?: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          account_type?: string
+          company_name?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       interview_answers: {
         Row: {
           answer: string
@@ -280,6 +301,104 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      job_listings: {
+        Row: {
+          company_name: string
+          created_at: string
+          description: string
+          employer_id: string
+          employment_type: string
+          id: string
+          keywords: string[]
+          location: string
+          status: string
+          title: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          description: string
+          employer_id: string
+          employment_type?: string
+          id?: string
+          keywords?: string[]
+          location?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          description?: string
+          employer_id?: string
+          employment_type?: string
+          id?: string
+          keywords?: string[]
+          location?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      job_submissions: {
+        Row: {
+          candidate_email: string
+          candidate_id: string
+          candidate_name: string
+          cover_letter_text: string
+          created_at: string
+          employer_id: string
+          id: string
+          job_id: string
+          match_score: number | null
+          matched_keywords: string[]
+          missing_keywords: string[]
+          resume_name: string
+          resume_text: string
+          status: string
+        }
+        Insert: {
+          candidate_email: string
+          candidate_id: string
+          candidate_name: string
+          cover_letter_text?: string
+          created_at?: string
+          employer_id: string
+          id?: string
+          job_id: string
+          match_score?: number | null
+          matched_keywords?: string[]
+          missing_keywords?: string[]
+          resume_name: string
+          resume_text: string
+          status?: string
+        }
+        Update: {
+          candidate_email?: string
+          candidate_id?: string
+          candidate_name?: string
+          cover_letter_text?: string
+          created_at?: string
+          employer_id?: string
+          id?: string
+          job_id?: string
+          match_score?: number | null
+          matched_keywords?: string[]
+          missing_keywords?: string[]
+          resume_name?: string
+          resume_text?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_submissions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mock_interview_sessions: {
         Row: {
@@ -729,6 +848,14 @@ export type Database = {
       increment_usage_counter: {
         Args: { _column: string; _delta?: number; _user_id: string }
         Returns: number
+      }
+      submit_job_application: {
+        Args: {
+          p_cover_letter_id?: string
+          p_job_id: string
+          p_resume_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
