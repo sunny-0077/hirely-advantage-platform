@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Add server-validated green Verified confirmation and original-tab resume; test confirmed account reaches required onboarding without runtime errors.
+- [ ] Verify a fresh email link on public Hirely; blocked because the app is unpublished and no test inbox is available.
+
 - [x] Restore sign-in-required dashboard entry, superseding the temporary no-login flow.
 - [ ] Connect an eligible payment provider; blocked by declined Razorpay connection and unconfirmed international recurring support.
 - [ ] Build subscription checkout; blocked by payment provider connection.

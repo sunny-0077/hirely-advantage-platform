@@ -31,6 +31,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
+  const pendingSignup = useRef<{ email: string; password: string } | null>(null);
+  const checkingConfirmation = useRef(false);
   const [existingEmail, setExistingEmail] = useState("");
   const [resendUntil, setResendUntil] = useState(0);
   const [now, setNow] = useState(Date.now());
@@ -71,6 +73,37 @@ const Auth = () => {
     return () => { active = false; sub.subscription.unsubscribe(); };
   }, [navigate, returnPath]);
 
+  const checkConfirmation = async () => {
+    const pending = pendingSignup.current;
+    if (!pending || checkingConfirmation.current) return;
+    checkingConfirmation.current = true;
+    try {
+      // Credentials remain only in this tab's memory, never browser storage.
+      const { error } = await supabase.auth.signInWithPassword(pending);
+      if (!error) {
+        const { data, error: validationError } = await supabase.auth.getUser();
+        if (data.user?.email_confirmed_at && !validationError) {
+          pendingSignup.current = null;
+          navigate(returnPath, { replace: true });
+        }
+      }
+    } finally {
+      checkingConfirmation.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (!confirmationEmail) { pendingSignup.current = null; return; }
+    const onFocus = () => { void checkConfirmation(); };
+    const onVisible = () => { if (document.visibilityState === "visible") onFocus(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [confirmationEmail, returnPath, navigate]);
+
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -96,6 +129,7 @@ const Auth = () => {
         if (outcome === "sign-in") {
           setExistingEmail(emailParsed.data);
         } else if (outcome === "confirmation") {
+          pendingSignup.current = { email: emailParsed.data, password: passParsed.data };
           setConfirmationEmail(emailParsed.data);
           setResendUntil(Date.now() + 60000);
           setNow(Date.now());
@@ -270,6 +304,7 @@ const Auth = () => {
               <p className="text-muted-foreground break-words">We sent a confirmation link to {confirmationEmail}. Check your spam and promotions folders too.</p>
               <Button className="w-full" disabled={loading || resendSeconds > 0} onClick={resendConfirmation}>{loading ? "Requesting…" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend confirmation email"}</Button>
               {resendNotice && <p className="text-sm text-muted-foreground">{resendNotice}</p>}
+              <Button variant="outline" className="w-full" onClick={() => void checkConfirmation()}>I've verified my email</Button>
               <Button variant="link" onClick={() => { setConfirmationEmail(""); setResendNotice(""); }}>Use a different email</Button>
               <Button variant="outline" onClick={() => { setConfirmationEmail(""); setMode("signin"); }}>Back to sign in</Button>
             </div>

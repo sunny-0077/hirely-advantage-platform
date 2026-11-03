@@ -8,5 +8,9 @@ const PUBLIC_APP_URL = "https://hirely-advantage-platform.lovable.app";
 export function authRedirectUrl(origin: string = window.location.origin): string {
   const host = new URL(origin).hostname;
   const isPrivatePreview = host.startsWith("id-preview--") || host.endsWith(".lovableproject.com") || host === "localhost" || host === "127.0.0.1";
-  return `${isPrivatePreview ? PUBLIC_APP_URL : origin}/auth/callback`;
+  return `${isPrivatePreview ? PUBLIC_APP_URL : origin}/auth/callback?verification=signup`;
+}
+
+export function isVerifiedSignup(kind: string | null, user: { email_confirmed_at?: string | null } | null): boolean {
+  return kind === "signup" && Boolean(user?.email_confirmed_at);
 }
