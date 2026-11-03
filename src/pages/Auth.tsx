@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { safeReturnPath } from "@/lib/authNavigation";
+import { signupOutcome } from "@/lib/signupOutcome";
 
 const emailSchema = z
   .string()
@@ -30,9 +31,20 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
+  const [signupSignIn, setSignupSignIn] = useState(false);
+  const [resendUntil, setResendUntil] = useState(0);
+  const [now, setNow] = useState(Date.now());
+  const [resendNotice, setResendNotice] = useState("");
   const cardInnerRef = useRef<HTMLDivElement>(null);
   const [cardHeight, setCardHeight] = useState<number | undefined>(undefined);
   const returnPath = safeReturnPath(params.get("next"));
+  const resendSeconds = Math.max(0, Math.ceil((resendUntil - now) / 1000));
+
+  useEffect(() => {
+    if (!resendUntil) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [resendUntil]);
 
   useLayoutEffect(() => {
     const el = cardInnerRef.current;
@@ -79,7 +91,16 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        if (!data.session) setConfirmationEmail(emailParsed.data);
+        const outcome = signupOutcome(data);
+        setPassword("");
+        if (outcome === "sign-in") {
+          setSignupSignIn(true);
+          setMode("signin");
+        } else if (outcome === "confirmation") {
+          setConfirmationEmail(emailParsed.data);
+          setResendUntil(Date.now() + 60000);
+          setNow(Date.now());
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: emailParsed.data,
@@ -91,6 +112,27 @@ const Auth = () => {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       toast.error(msg);
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    if (!confirmationEmail || loading || resendSeconds > 0) return;
+    setLoading(true);
+    setResendNotice("");
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: confirmationEmail,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) throw error;
+      setResendNotice("Confirmation requested. Check your inbox and spam folder.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Couldn't request confirmation. Please try again.");
+    } finally {
+      setResendUntil(Date.now() + 60000);
+      setNow(Date.now());
       setLoading(false);
     }
   };
@@ -216,10 +258,14 @@ const Auth = () => {
           {confirmationEmail ? (
             <div role="status" className="space-y-4 py-6 text-center">
               <h2 className="text-xl font-semibold">Check your email</h2>
-              <p className="text-muted-foreground break-words">Confirm your account using the link sent to {confirmationEmail}.</p>
+              <p className="text-muted-foreground break-words">If this address is eligible for signup, a confirmation link will arrive at {confirmationEmail}. Check your spam folder too.</p>
+              <Button className="w-full" disabled={loading || resendSeconds > 0} onClick={resendConfirmation}>{loading ? "Requesting…" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend confirmation email"}</Button>
+              {resendNotice && <p className="text-sm text-muted-foreground">{resendNotice}</p>}
+              <Button variant="link" onClick={() => { setConfirmationEmail(""); setResendNotice(""); }}>Use a different email</Button>
               <Button variant="outline" onClick={() => { setConfirmationEmail(""); setMode("signin"); }}>Back to sign in</Button>
             </div>
           ) : <form onSubmit={handleEmail} className="space-y-3.5">
+            {signupSignIn && mode === "signin" && <p role="status" className="text-sm text-muted-foreground leading-relaxed">Continue by signing in. If you previously used Google, choose Continue with Google; an existing verified account does not need another signup confirmation.</p>}
             <div
               className="grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
               style={{
@@ -283,7 +329,7 @@ const Auth = () => {
             {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
             <Button variant="link"
               type="button"
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setConfirmationEmail(""); setSignupSignIn(false); }}
               className="text-foreground font-semibold hover:underline"
             >
               {mode === "signin" ? "Create an account" : "Sign in"}

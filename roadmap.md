@@ -6,3 +6,4 @@
 - [x] Remove auth callback lock/racing plan writes; enable managed Google/Lovable sign-in and email signup with confirmation and onboarding.
 - [ ] Verify actual Google account authorization in the editor preview; requires user interaction with Google.
 - [x] Add and verify employer job posting, candidate document submission, keyword matching, and employer review/status updates.
+- [ ] Correct misleading signup confirmation for existing Google accounts and verify email resend controls.
