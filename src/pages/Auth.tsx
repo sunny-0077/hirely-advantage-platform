@@ -255,17 +255,26 @@ const Auth = () => {
             </div>
           </div>
 
-          {confirmationEmail ? (
+          {existingEmail ? (
+            <div role="alert" className="space-y-4 py-6 text-center">
+              <h2 className="text-xl font-semibold">You already have an account</h2>
+              <p className="text-muted-foreground break-words">
+                <span className="font-medium text-foreground">{existingEmail}</span> is already registered on Hirely, so no confirmation email is sent. Accounts made with Google sign in with Google.
+              </p>
+              <Button className="w-full rounded-full" disabled={loading} onClick={() => handleSocial("google")}>Continue with Google</Button>
+              <Button variant="outline" className="w-full rounded-full" onClick={() => { setExistingEmail(""); setMode("signin"); }}>Sign in with password instead</Button>
+              <Button variant="link" onClick={() => { setExistingEmail(""); setEmail(""); setMode("signup"); }}>Use a different email</Button>
+            </div>
+          ) : confirmationEmail ? (
             <div role="status" className="space-y-4 py-6 text-center">
               <h2 className="text-xl font-semibold">Check your email</h2>
-              <p className="text-muted-foreground break-words">If this address is eligible for signup, a confirmation link will arrive at {confirmationEmail}. Check your spam folder too.</p>
+              <p className="text-muted-foreground break-words">We sent a confirmation link to {confirmationEmail}. Check your spam and promotions folders too.</p>
               <Button className="w-full" disabled={loading || resendSeconds > 0} onClick={resendConfirmation}>{loading ? "Requesting…" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend confirmation email"}</Button>
               {resendNotice && <p className="text-sm text-muted-foreground">{resendNotice}</p>}
               <Button variant="link" onClick={() => { setConfirmationEmail(""); setResendNotice(""); }}>Use a different email</Button>
               <Button variant="outline" onClick={() => { setConfirmationEmail(""); setMode("signin"); }}>Back to sign in</Button>
             </div>
           ) : <form onSubmit={handleEmail} className="space-y-3.5">
-            {signupSignIn && mode === "signin" && <p role="status" className="text-sm text-muted-foreground leading-relaxed">Continue by signing in. If you previously used Google, choose Continue with Google; an existing verified account does not need another signup confirmation.</p>}
             <div
               className="grid motion-safe:transition-[grid-template-rows,opacity] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
               style={{
