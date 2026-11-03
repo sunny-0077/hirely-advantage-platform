@@ -123,7 +123,7 @@ export function MyProfile() {
   return <div className="max-w-xl mx-auto">
     <PageHeader eyebrow="Candidate portal" title="My profile" />
     {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="bg-card border border-border rounded-lg p-6 space-y-5">
-      <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /><p className="text-xs text-muted-foreground">Employers see this name on new applications.</p></div>
+      <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
       <div className="space-y-2"><Label htmlFor="pf-email">Email</Label><Input id="pf-email" value={user?.email ?? ""} disabled /></div>
       <div className="space-y-2"><Label>Plan</Label><p className="text-sm capitalize">{q.data?.plan ?? "free"}</p></div>
       <Button type="submit" disabled={busy || !name.trim()}>{busy ? "Saving…" : "Save changes"}</Button>
