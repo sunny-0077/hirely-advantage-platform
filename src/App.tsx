@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import WorkspaceHome from "./pages/dashboard/WorkspaceHome";
 import HiringDashboard from "./pages/dashboard/HiringDashboard";
 import Jobs from "./pages/dashboard/Jobs";
+import { MyApplications, MyDocuments, MyProfile } from "./pages/dashboard/CandidatePortal";
 import NotFound from "./pages/NotFound.tsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.tsx";
 import ResumeAnalyzer from "./pages/dashboard/ResumeAnalyzer.tsx";
@@ -49,6 +50,9 @@ const App = () => (
             <Route path="home" element={<WorkspaceHome />} />
             <Route path="hiring" element={<HiringDashboard />} />
             <Route path="jobs" element={<Jobs />} />
+            <Route path="my-applications" element={<MyApplications />} />
+            <Route path="documents" element={<MyDocuments />} />
+            <Route path="profile" element={<MyProfile />} />
             <Route path="resume" element={<ResumeAnalyzer />} />
             <Route path="compare" element={<CompareResumes />} />
             <Route path="cover-letter" element={<CoverLetterGenerator />} />

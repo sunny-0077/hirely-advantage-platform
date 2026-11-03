@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, Users } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, Users, ClipboardList, FolderOpen, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
@@ -35,7 +35,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
   const employer = workspace.data?.account_type === "employer";
   const workspaceLinks = employer
     ? [{ to: "/app/hiring", label: "Hiring dashboard", icon: Users }]
-    : [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Browse jobs", icon: Briefcase }];
+    : [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Browse jobs", icon: Briefcase }, { to: "/app/my-applications", label: "My applications", icon: ClipboardList }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/profile", label: "My profile", icon: UserRound }];
   return (
   <>
     <div className="flex items-center mb-9 px-2">
