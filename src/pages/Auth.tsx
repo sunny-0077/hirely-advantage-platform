@@ -86,7 +86,7 @@ const Auth = () => {
           email: emailParsed.data,
           password: passParsed.data,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: authRedirectUrl(),
             data: { full_name: name.trim() || emailParsed.data },
           },
         });
@@ -124,7 +124,7 @@ const Auth = () => {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: confirmationEmail,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: { emailRedirectTo: authRedirectUrl() },
       });
       if (error) throw error;
       setResendNotice("Confirmation requested. Check your inbox and spam folder.");
