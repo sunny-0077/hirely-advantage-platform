@@ -94,39 +94,121 @@ export function MyDocuments() {
   </div>;
 }
 
+type Edu = { school: string; degree: string; year: string };
+type Exp = { company: string; title: string; period: string; summary: string };
+
 export function MyProfile() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const redirect = useEmployerRedirect();
   const [name, setName] = useState("");
+  const [headline, setHeadline] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillDraft, setSkillDraft] = useState("");
+  const [education, setEducation] = useState<Edu[]>([]);
+  const [experience, setExperience] = useState<Exp[]>([]);
   const [busy, setBusy] = useState(false);
   const q = useQuery({ queryKey: ["my-profile", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const { data, error } = await supabase.from("profiles").select("display_name,plan").eq("user_id", user!.id).maybeSingle();
+    const { data, error } = await supabase.from("profiles").select("display_name,plan,headline,skills,education,experience").eq("user_id", user!.id).maybeSingle();
     if (error) throw error;
     return data;
   } });
-  useEffect(() => { if (q.data) setName(q.data.display_name ?? ""); }, [q.data]);
+  useEffect(() => {
+    if (!q.data) return;
+    setName(q.data.display_name ?? "");
+    setHeadline(q.data.headline ?? "");
+    setSkills(q.data.skills ?? []);
+    setEducation(Array.isArray(q.data.education) ? (q.data.education as unknown as Edu[]) : []);
+    setExperience(Array.isArray(q.data.experience) ? (q.data.experience as unknown as Exp[]) : []);
+  }, [q.data]);
   if (redirect) return redirect;
+  function addSkill() {
+    const parts = skillDraft.split(",").map(s => s.trim().slice(0, 50)).filter(Boolean);
+    const next = [...skills];
+    for (const p of parts) if (!next.some(s => s.toLowerCase() === p.toLowerCase()) && next.length < 50) next.push(p);
+    setSkills(next); setSkillDraft("");
+  }
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const clean = name.trim().slice(0, 100);
     if (!clean || !user) return;
+    const payload = {
+      display_name: clean,
+      headline: headline.trim().slice(0, 150) || null,
+      skills,
+      education: education.filter(x => x.school.trim() || x.degree.trim()).slice(0, 10),
+      experience: experience.filter(x => x.company.trim() || x.title.trim()).slice(0, 15).map(x => ({ ...x, summary: x.summary.slice(0, 1500) })),
+    };
     setBusy(true);
     const { error } = q.data
-      ? await supabase.from("profiles").update({ display_name: clean }).eq("user_id", user.id)
-      : await supabase.from("profiles").insert({ user_id: user.id, display_name: clean });
+      ? await supabase.from("profiles").update(payload).eq("user_id", user.id)
+      : await supabase.from("profiles").insert({ user_id: user.id, ...payload });
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Profile updated");
     qc.invalidateQueries({ queryKey: ["my-profile"] });
   }
-  return <div className="max-w-xl mx-auto">
-    <PageHeader eyebrow="Candidate portal" title="My profile" />
-    {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="bg-card border border-border rounded-lg p-6 space-y-5">
-      <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
-      <div className="space-y-2"><Label htmlFor="pf-email">Email</Label><Input id="pf-email" value={user?.email ?? ""} disabled /></div>
-      <div className="space-y-2"><Label>Plan</Label><p className="text-sm capitalize">{q.data?.plan ?? "free"}</p></div>
-      <Button type="submit" disabled={busy || !name.trim()}>{busy ? "Saving…" : "Save changes"}</Button>
+  const section = "bg-card border border-border rounded-lg p-6 space-y-4";
+  return <div className="max-w-2xl mx-auto">
+    <PageHeader eyebrow="Candidate portal" title="My profile" description="Your skills, experience and education are included when employers' match scores are calculated." />
+    {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="space-y-5">
+      <div className={section}>
+        <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
+        <div className="space-y-2"><Label htmlFor="pf-headline">Headline</Label><Input id="pf-headline" maxLength={150} placeholder="e.g. Data Analyst with 3 years in retail analytics" value={headline} onChange={e => setHeadline(e.target.value)} /></div>
+        <div className="space-y-2"><Label htmlFor="pf-email">Email</Label><Input id="pf-email" value={user?.email ?? ""} disabled /></div>
+        <div className="space-y-2"><Label>Plan</Label><p className="text-sm capitalize">{q.data?.plan ?? "free"}</p></div>
+      </div>
+
+      <div className={section}>
+        <h2 className="font-semibold">Skills</h2>
+        <div className="flex gap-2">
+          <Input aria-label="Add skill" placeholder="SQL, Python, Tableau" value={skillDraft} onChange={e => setSkillDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }} />
+          <Button type="button" variant="outline" onClick={addSkill}>Add</Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {skills.length === 0 && <p className="text-sm text-muted-foreground">No skills yet.</p>}
+          {skills.map(s => <span key={s} className="inline-flex items-center gap-1 rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm">
+            {s}<button type="button" aria-label={`Remove ${s}`} className="text-muted-foreground hover:text-foreground" onClick={() => setSkills(skills.filter(x => x !== s))}>×</button>
+          </span>)}
+        </div>
+      </div>
+
+      <div className={section}>
+        <div className="flex items-center justify-between"><h2 className="font-semibold">Work experience</h2>
+          <Button type="button" variant="outline" size="sm" onClick={() => setExperience([...experience, { company: "", title: "", period: "", summary: "" }])}>Add role</Button></div>
+        {experience.length === 0 && <p className="text-sm text-muted-foreground">No roles added.</p>}
+        {experience.map((x, i) => {
+          const set = (k: keyof Exp, v: string) => setExperience(experience.map((y, j) => j === i ? { ...y, [k]: v } : y));
+          return <div key={i} className="border border-border rounded-md p-4 space-y-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Input aria-label="Job title" placeholder="Job title" maxLength={100} value={x.title} onChange={e => set("title", e.target.value)} />
+              <Input aria-label="Company" placeholder="Company" maxLength={100} value={x.company} onChange={e => set("company", e.target.value)} />
+              <Input aria-label="Period" placeholder="2022 – Present" maxLength={50} value={x.period} onChange={e => set("period", e.target.value)} />
+            </div>
+            <textarea aria-label="What you did" placeholder="Key responsibilities, tools and results" maxLength={1500} rows={3} value={x.summary} onChange={e => set("summary", e.target.value)} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+            <Button type="button" variant="ghost" size="sm" onClick={() => setExperience(experience.filter((_, j) => j !== i))}>Remove</Button>
+          </div>;
+        })}
+      </div>
+
+      <div className={section}>
+        <div className="flex items-center justify-between"><h2 className="font-semibold">Education</h2>
+          <Button type="button" variant="outline" size="sm" onClick={() => setEducation([...education, { school: "", degree: "", year: "" }])}>Add education</Button></div>
+        {education.length === 0 && <p className="text-sm text-muted-foreground">No education added.</p>}
+        {education.map((x, i) => {
+          const set = (k: keyof Edu, v: string) => setEducation(education.map((y, j) => j === i ? { ...y, [k]: v } : y));
+          return <div key={i} className="border border-border rounded-md p-4 space-y-3">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Input aria-label="School" placeholder="School" maxLength={120} value={x.school} onChange={e => set("school", e.target.value)} />
+              <Input aria-label="Degree" placeholder="B.Sc. Statistics" maxLength={120} value={x.degree} onChange={e => set("degree", e.target.value)} />
+              <Input aria-label="Year" placeholder="2021" maxLength={20} value={x.year} onChange={e => set("year", e.target.value)} />
+            </div>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setEducation(education.filter((_, j) => j !== i))}>Remove</Button>
+          </div>;
+        })}
+      </div>
+
+      <Button type="submit" disabled={busy || !name.trim()}>{busy ? "Saving…" : "Save profile"}</Button>
     </form>}
   </div>;
 }
