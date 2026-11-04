@@ -61,12 +61,12 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
     try {
       // Validate
       if (file.size > MAX_FILE_BYTES) {
-        toast.error("File too large. Max 10 MB.");
+        toast.error("File too large. Resumes must be 5 MB or smaller.");
         return;
       }
       const mime = file.type || extToMime(file.name) || "";
       if (!ACCEPTED_MIME.includes(mime)) {
-        toast.error("Unsupported file. Use PDF, DOCX or TXT.");
+        toast.error("Unsupported file. Please upload a PDF or TXT resume.");
         return;
       }
       setFileName(file.name);

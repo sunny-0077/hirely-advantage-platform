@@ -209,8 +209,11 @@ Deno.serve(async (req) => {
   
   Now call tailor_resume.`;
   
-      const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      let aiResp: Response;
+      try {
+      aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
+        signal: AbortSignal.timeout(60_000),
         headers: {
           Authorization: `Bearer ${LOVABLE_API_KEY}`,
           "Content-Type": "application/json",
@@ -225,6 +228,9 @@ Deno.serve(async (req) => {
           tool_choice: { type: "function", function: { name: "tailor_resume" } },
         }),
       });
+      } catch (_e) {
+        throw new HttpError("The AI took too long to respond. Your credit was refunded — please try again.", 504);
+      }
   
       if (!aiResp.ok) {
         if (aiResp.status === 429)
@@ -233,14 +239,17 @@ Deno.serve(async (req) => {
           throw new HttpError("AI is temporarily unavailable. Try again later.", 503);
         const t = await aiResp.text();
         console.error("AI gateway error:", aiResp.status, t);
-        throw new HttpError("AI tailoring failed", 500);
+        throw new HttpError("The AI couldn't finish tailoring. Your credit was refunded — please try again.", 502);
       }
   
-      const aiData = await aiResp.json();
+      let aiData: any;
+      try { aiData = await aiResp.json(); } catch {
+        throw new HttpError("The AI sent back an unreadable result. Your credit was refunded — please try again.", 502);
+      }
       const toolCall = aiData?.choices?.[0]?.message?.tool_calls?.[0];
       if (!toolCall?.function?.arguments) {
         console.error("No tool call", JSON.stringify(aiData).slice(0, 500));
-        throw new HttpError("AI did not return structured output", 500);
+        throw new HttpError("The AI sent back an unreadable result. Your credit was refunded — please try again.", 502);
       }
   
       let parsed: any;
@@ -248,7 +257,7 @@ Deno.serve(async (req) => {
         parsed = JSON.parse(toolCall.function.arguments);
       } catch (e) {
         console.error("Failed to parse tool args", e);
-        throw new HttpError("AI returned invalid JSON", 500);
+        throw new HttpError("The AI sent back an unreadable result. Your credit was refunded — please try again.", 502);
       }
   
       const { data: inserted, error: insertErr } = await supabase
@@ -285,7 +294,7 @@ Deno.serve(async (req) => {
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
     if (e instanceof HttpError) return json({ error: e.message }, e.status);
     console.error("tailor-resume error", e);
-    return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
+    return json({ error: "Something went wrong on our side. Any credit used was refunded — please try again." }, 500);
   }
 });
 

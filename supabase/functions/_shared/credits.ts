@@ -6,7 +6,7 @@ export const MAINTENANCE_MESSAGE =
   "Hirely's AI tools are taking a short break for maintenance. Please try again in a few hours — no credits were used.";
 
 export class PaidActionError extends Error {
-  constructor(public code: "maintenance" | "insufficient_credits", message: string, public status: number) {
+  constructor(public code: "maintenance" | "insufficient_credits" | "rate_limited", message: string, public status: number) {
     super(message);
   }
 }
@@ -31,6 +31,8 @@ export async function runPaidAction<T>(
   });
   if (error) {
     if (error.message.includes("AI_MAINTENANCE")) throw new PaidActionError("maintenance", MAINTENANCE_MESSAGE, 503);
+    if (error.message.includes("RATE_LIMITED"))
+      throw new PaidActionError("rate_limited", "You've hit the limit of 5 resume tailorings per hour. Please try again later — no credits were used.", 429);
     if (error.message.includes("INSUFFICIENT_CREDITS"))
       throw new PaidActionError("insufficient_credits", "You don't have enough credits for this action.", 402);
     throw error;
