@@ -43,6 +43,13 @@
       "when": 1793801393602,
       "tag": "0005_ingest_state_hide_token",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793804452532,
+      "tag": "0006_credit_safety_controls",
+      "breakpoints": true
     }
   ]
 }
