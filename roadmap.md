@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Sanitize and cap Gemini resume/job inputs at 4,000 characters; test and deploy the guards.
+- [x] Sanitize and cap Gemini resume/job inputs at 4,000 characters; seven guard/credit tests passed, tailoring and ingestion deployed.
 
 - [x] Phase 1A: credits, ledger, usage logs, jobs catalog, $10/24h safety switch, auto-refund (wired into resume tailoring).
 - [x] Remove employer hiring pages and wipe hiring data.
