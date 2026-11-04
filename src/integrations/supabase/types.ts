@@ -659,6 +659,8 @@ export type Database = {
           master_resume_json: Json
           master_resume_text: string | null
           pass_expires_at: string | null
+          pass_started_at: string | null
+          pass_tranches_granted: number
           plan: Database["public"]["Enums"]["app_plan"]
           plan_tier: string
           skills: string[]
@@ -679,6 +681,8 @@ export type Database = {
           master_resume_json?: Json
           master_resume_text?: string | null
           pass_expires_at?: string | null
+          pass_started_at?: string | null
+          pass_tranches_granted?: number
           plan?: Database["public"]["Enums"]["app_plan"]
           plan_tier?: string
           skills?: string[]
@@ -699,6 +703,8 @@ export type Database = {
           master_resume_json?: Json
           master_resume_text?: string | null
           pass_expires_at?: string | null
+          pass_started_at?: string | null
+          pass_tranches_granted?: number
           plan?: Database["public"]["Enums"]["app_plan"]
           plan_tier?: string
           skills?: string[]
@@ -1002,6 +1008,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_pass_90_day: { Args: { _user_id: string }; Returns: undefined }
       ai_actions_paused: { Args: never; Returns: boolean }
       ai_spend_last_24h: { Args: never; Returns: number }
       credit_cost: {
@@ -1032,6 +1039,9 @@ export type Database = {
         }
         Returns: string
       }
+      sync_all_passes: { Args: never; Returns: number }
+      sync_my_pass: { Args: never; Returns: undefined }
+      sync_pass_state: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       app_plan: "free" | "pro" | "advanced" | "teams"
