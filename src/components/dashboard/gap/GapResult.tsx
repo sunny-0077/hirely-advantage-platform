@@ -284,7 +284,7 @@ function SectionBlock({ section }: { section: Section }) {
             "[&_tbody_tr:last-child_td]:border-b-0",
           )}
         >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{section.body}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripScores(section.body)}</ReactMarkdown>
         </article>
       </div>
     </SectionCard>

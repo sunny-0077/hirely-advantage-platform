@@ -93,28 +93,6 @@ export default function ParseCompareView({
       <SectionCard className="p-5 sm:p-6">
         <div className="flex flex-wrap items-center gap-4 justify-between">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="relative w-14 h-14 shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                <circle cx="50" cy="50" r="42" className="stroke-foreground/[0.08]" strokeWidth="10" fill="none" />
-                {compat.score != null && (
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    className={cn(tier.ring, "transition-all duration-700")}
-                    stroke="currentColor"
-                    strokeWidth="10"
-                    strokeLinecap="round"
-                    fill="none"
-                    strokeDasharray={2 * Math.PI * 42}
-                    strokeDashoffset={2 * Math.PI * 42 - (compat.score / 100) * 2 * Math.PI * 42}
-                  />
-                )}
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-[13px] font-semibold tabular-nums text-foreground">
-                {compat.score ?? "—"}
-              </div>
-            </div>
             <div className="min-w-0">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
                 Parse compatibility

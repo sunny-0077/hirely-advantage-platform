@@ -263,7 +263,7 @@ export default function GapInsights({ markdown }: { markdown: string }) {
                   <PolarRadiusAxis
                     angle={90}
                     domain={[0, 100]}
-                    tick={{ fill: "hsl(var(--foreground) / 0.35)", fontSize: 10 }}
+                    tick={false}
                     axisLine={false}
                   />
                   <Radar
