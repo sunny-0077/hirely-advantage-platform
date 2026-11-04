@@ -146,7 +146,15 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json();
-    const { resume_id, analysis_id, target_role, job_description } = body ?? {};
+    const { resume_id, analysis_id, job_id } = body ?? {};
+    let { target_role, job_description } = body ?? {};
+    // Job feed: load the job description server-side so the client can't send a mismatched one.
+    if (job_id) {
+      const { data: job } = await supabase.from("jobs_catalog").select("title, company_name, raw_description").eq("id", job_id).maybeSingle();
+      if (!job) return json({ error: "Job not found" }, 404);
+      target_role = target_role || `${job.title} at ${job.company_name}`;
+      job_description = job.raw_description ?? "";
+    }
 
     if (!resume_id || !target_role || typeof target_role !== "string" || target_role.trim().length < 2) {
       return json({ error: "resume_id and target_role are required" }, 400);

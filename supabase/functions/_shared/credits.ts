@@ -24,8 +24,8 @@ function admin() {
 export async function runPaidAction<T>(
   opts: { userId: string; action: PaidAction; units?: number; feature: string; provider: string; estimatedCostUsd: number },
   work: () => Promise<T>,
+  db: { rpc: (...a: any[]) => any; from: (t: string) => any } = admin(),
 ): Promise<T> {
-  const db = admin();
   const { data: ledgerId, error } = await db.rpc("spend_credits", {
     _user_id: opts.userId, _action: opts.action, _units: opts.units ?? 1,
   });
