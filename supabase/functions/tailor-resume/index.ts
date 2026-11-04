@@ -281,7 +281,7 @@ Deno.serve(async (req) => {
           job_id: job_id ?? null,
           tailored_text: [
             parsed.summary ? `SUMMARY\n${parsed.summary}` : "",
-            Array.isArray(parsed.skills) && parsed.skills.length ? `SKILLS\n${parsed.skills.join(", ")}` : "",
+            Array.isArray(parsed.skills) && parsed.skills.length ? `SKILLS\n${parsed.skills.map((g: any) => typeof g === "string" ? g : `${g?.group ?? "Skills"}: ${(g?.items ?? []).join(", ")}`).join("\n")}` : "",
             Array.isArray(parsed.bullets) && parsed.bullets.length
               ? `EXPERIENCE\n${parsed.bullets.map((b: any) => `${b?.role ?? ""}${b?.company ? `, ${b.company}` : ""}\n${(b?.rewrites ?? []).map((r: any) => `- ${r?.after ?? ""}`).join("\n")}`).join("\n\n")}`
               : "",
