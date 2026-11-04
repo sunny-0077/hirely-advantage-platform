@@ -10,6 +10,8 @@ export function useWorkspace() {
     enabled: Boolean(user),
     queryFn: async () => {
       if (!user) return null;
+      // Releases due 90-Day Pass credits and downgrades expired passes before reading.
+      await supabase.rpc("sync_my_pass");
       const { data, error } = await supabase
         .from("profiles")
         .select("user_id, full_name, city_hub, plan_tier, pass_expires_at, credits_balance")
