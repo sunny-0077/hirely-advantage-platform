@@ -64,3 +64,25 @@ export function exportTailoredPdf(name: string, text: string) {
   });
   save(doc.output("blob"), `${safeFileName(name)}.pdf`);
 }
+
+const letterName = (n: string) => (n.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "cover") + "-cover-letter";
+
+export function exportLetterTxt(name: string, text: string) {
+  save(new Blob([cleanResumeText(text) + "\n"], { type: "text/plain;charset=utf-8" }), `${letterName(name)}.txt`);
+}
+
+/** Business-letter PDF: plain paragraphs, 1in margins, 11pt Helvetica. */
+export function exportLetterPdf(name: string, text: string) {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const M = 72, W = doc.internal.pageSize.getWidth() - M * 2, H = doc.internal.pageSize.getHeight();
+  let y = M;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+  for (const para of cleanResumeText(text).split("\n")) {
+    if (!para.trim()) { y += 8; continue; }
+    for (const w of doc.splitTextToSize(para.trim(), W)) {
+      if (y + 16 > H - M) { doc.addPage(); y = M; }
+      doc.text(w, M, y + 11); y += 16;
+    }
+  }
+  save(doc.output("blob"), `${letterName(name)}.pdf`);
+}

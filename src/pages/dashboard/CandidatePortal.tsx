@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { exportTailoredPdf, exportTailoredTxt } from "@/lib/tailoredResume/export";
+import { exportTailoredPdf, exportTailoredTxt, exportLetterPdf, exportLetterTxt } from "@/lib/tailoredResume/export";
 import { Briefcase, FileText, Mail, Trash2, Eye, ArrowRight, Sparkles, Copy, Download } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,7 @@ const fmt = (d: string) => new Date(d).toLocaleDateString(undefined, { day: "num
 export function MyDocuments() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [letter, setLetter] = useState<{ company: string; role: string; full_letter: string } | null>(null);
+  const [letter, setLetter] = useState<{ id?: string; company: string; role: string; full_letter: string } | null>(null);
   const [tailored, setTailored] = useState<{ id: string; target_role: string; tailored_text: string | null } | null>(null);
   const q = useQuery({ queryKey: ["my-documents", user?.id], enabled: Boolean(user), queryFn: async () => {
     const [r, c, t] = await Promise.all([
@@ -36,6 +36,12 @@ export function MyDocuments() {
     const hit = q.data.tailored.find((t) => t.id === openId);
     if (hit) { setTailored(hit); window.history.replaceState(null, "", window.location.pathname); }
   }, [openId, q.data]);
+  const letterId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("letter") : null;
+  useEffect(() => {
+    if (!letterId || !q.data) return;
+    const hit = q.data.letters.find((l) => l.id === letterId);
+    if (hit) { setLetter(hit); window.history.replaceState(null, "", window.location.pathname); }
+  }, [letterId, q.data]);
   function copyText(text: string) {
     navigator.clipboard.writeText(text).then(() => toast.success("Copied"), () => toast.error("Couldn't copy"));
   }
@@ -65,14 +71,14 @@ export function MyDocuments() {
         <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.resumes.length ? q.data.resumes.map(r => <div key={r.id} className="p-4 flex items-center gap-3"><FileText className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="break-all text-sm font-medium">{r.file_name}</p><p className="text-xs text-muted-foreground">{fmt(r.created_at)}</p></div><Button size="icon" variant="ghost" aria-label="Open resume" onClick={() => openResume(r.file_path)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Delete resume" onClick={() => del("resumes", r.id, r.file_path)}><Trash2 /></Button></div>) : <p className="p-4 text-sm text-muted-foreground">No resumes yet.</p>}</div>
       </section>
       <section><div className="flex items-center justify-between mb-3"><h2 className="text-lg font-semibold">Cover letters</h2><Button asChild size="sm" variant="outline"><Link to="/app/cover-letter">Create</Link></Button></div>
-        <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.letters.length ? q.data.letters.map(l => <div key={l.id} className="p-4 flex items-center gap-3"><Mail className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{l.role} · {l.company}</p><p className="text-xs text-muted-foreground">{fmt(l.created_at)}</p></div><Button size="icon" variant="ghost" aria-label="View cover letter" onClick={() => setLetter(l)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Delete cover letter" onClick={() => del("cover_letters", l.id)}><Trash2 /></Button></div>) : <p className="p-4 text-sm text-muted-foreground">No cover letters yet.</p>}</div>
+        <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.letters.length ? q.data.letters.map(l => <div key={l.id} className="p-4 flex items-center gap-3"><Mail className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{l.role} · {l.company}</p><p className="text-xs text-muted-foreground">{fmt(l.created_at)}</p></div><Button size="icon" variant="ghost" aria-label="View cover letter" onClick={() => setLetter(l)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Copy cover letter" onClick={() => copyText(l.full_letter)}><Copy /></Button><Button size="sm" onClick={() => exportLetterPdf(`${l.role} ${l.company}`, l.full_letter)}><Download className="size-4" />PDF</Button><Button size="sm" variant="outline" onClick={() => exportLetterTxt(`${l.role} ${l.company}`, l.full_letter)}><Download className="size-4" />TXT</Button><Button size="icon" variant="ghost" aria-label="Delete cover letter" onClick={() => del("cover_letters", l.id)}><Trash2 /></Button></div>) : <p className="p-4 text-sm text-muted-foreground">No cover letters yet.</p>}</div>
       </section>
       <section className="lg:col-span-2"><div className="flex items-center justify-between mb-3"><h2 className="text-lg font-semibold">Tailored resumes</h2><Button asChild size="sm" variant="outline"><Link to="/app/jobs">Find a job</Link></Button></div>
         <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.tailored.length ? q.data.tailored.map(t => <div key={t.id} className="p-4 flex items-center gap-3"><Sparkles className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{t.target_role}</p><p className="text-xs text-muted-foreground">{fmt(t.created_at)} · from {t.source === "master" ? "master resume" : "uploaded resume"}</p></div><Button size="icon" variant="ghost" aria-label="View tailored resume" onClick={() => setTailored(t)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Copy tailored resume" onClick={() => copyText(t.tailored_text ?? "")}><Copy /></Button><Button size="sm" onClick={() => exportTailoredPdf(t.target_role, t.tailored_text ?? "")}><Download className="size-4" />PDF</Button><Button size="sm" variant="outline" onClick={() => exportTailoredTxt(t.target_role, t.tailored_text ?? "")}><Download className="size-4" />TXT</Button><Button size="icon" variant="ghost" aria-label="Delete tailored resume" onClick={() => del("resume_tailorings", t.id)}><Trash2 /></Button></div>) : <p className="p-4 text-sm text-muted-foreground">No tailored resumes yet. Tap Tailor Resume on any job.</p>}</div>
       </section>
     </div>}
     <Dialog open={Boolean(tailored)} onOpenChange={o => !o && setTailored(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{tailored?.target_role}</DialogTitle></DialogHeader><p className="whitespace-pre-wrap text-sm leading-relaxed">{tailored?.tailored_text}</p><div className="flex gap-2"><Button variant="outline" onClick={() => copyText(tailored?.tailored_text ?? "")}><Copy className="size-4" />Copy</Button><Button onClick={() => tailored && exportTailoredPdf(tailored.target_role, tailored.tailored_text ?? "")}><Download className="size-4" />Download PDF</Button><Button variant="outline" onClick={() => tailored && exportTailoredTxt(tailored.target_role, tailored.tailored_text ?? "")}><Download className="size-4" />Download TXT</Button></div></DialogContent></Dialog>
-    <Dialog open={Boolean(letter)} onOpenChange={o => !o && setLetter(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{letter?.role} · {letter?.company}</DialogTitle></DialogHeader><p className="whitespace-pre-wrap text-sm leading-relaxed">{letter?.full_letter}</p></DialogContent></Dialog>
+    <Dialog open={Boolean(letter)} onOpenChange={o => !o && setLetter(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{letter?.role} · {letter?.company}</DialogTitle></DialogHeader><p className="whitespace-pre-wrap text-sm leading-relaxed">{letter?.full_letter}</p><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => copyText(letter?.full_letter ?? "")}><Copy className="size-4" />Copy</Button><Button onClick={() => letter && exportLetterPdf(`${letter.role} ${letter.company}`, letter.full_letter)}><Download className="size-4" />Download PDF</Button><Button variant="outline" onClick={() => letter && exportLetterTxt(`${letter.role} ${letter.company}`, letter.full_letter)}><Download className="size-4" />Download TXT</Button></div></DialogContent></Dialog>
   </div>;
 }
 
@@ -205,7 +211,7 @@ export function MyProfile() {
 
 const LEDGER_LABELS: Record<string, string> = {
   signup_bonus: "Welcome credits", credit_purchase: "Credits purchased", refund: "Automatic refund", pass_tranche: "90-day pass monthly credits", pass_expired: "90-day pass ended",
-  resume_tailor: "Resume tailoring", hm_unlock: "Hiring manager unlock", voice_interview: "Voice interview", salary_audit: "Salary audit",
+  resume_tailor: "Resume tailoring", cover_letter: "Cover letter", hm_unlock: "Hiring manager unlock", voice_interview: "Voice interview", salary_audit: "Salary audit",
 };
 
 function CreditHistory() {
