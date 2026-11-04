@@ -1,6 +1,6 @@
 // Tailor resume — generates a role-specific optimized version via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { checkEntitlement } from "../_shared/entitlements.ts";
+import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -123,6 +123,10 @@ const TOOL_SCHEMA = {
   },
 };
 
+class HttpError extends Error {
+  constructor(message: string, public status: number) { super(message); }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -162,8 +166,6 @@ Deno.serve(async (req) => {
       return json({ error: "Resume text is empty or too short to tailor" }, 400);
     }
 
-    const gate = await checkEntitlement(userId, "tailored_edits");
-    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
 
     // Optional analysis context
     let analysisContext = "";
@@ -188,93 +190,100 @@ Deno.serve(async (req) => {
       }
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
-
-    const truncated = resumeRow.raw_text.slice(0, 15000);
-    const jdText = (job_description ?? "").toString().slice(0, 6000);
-
-    const userPrompt = `Tailor this resume for the role: "${target_role}".
-
-${jdText ? `--- JOB DESCRIPTION ---\n${jdText}\n` : "(No job description pasted — infer typical requirements for this role.)"}
-${analysisContext}
-
---- RESUME TEXT ---
-${truncated}
-
-Now call tailor_resume.`;
-
-    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+    const inserted = await runPaidAction(
+      { userId, action: "resume_tailor", feature: "tailor-resume", provider: "google/gemini-3.8-flash", estimatedCostUsd: 0.003 },
+      async () => {
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      if (!LOVABLE_API_KEY) throw new HttpError("AI key not configured", 500);
+  
+      const truncated = resumeRow.raw_text.slice(0, 15000);
+      const jdText = (job_description ?? "").toString().slice(0, 6000);
+  
+      const userPrompt = `Tailor this resume for the role: "${target_role}".
+  
+  ${jdText ? `--- JOB DESCRIPTION ---\n${jdText}\n` : "(No job description pasted — infer typical requirements for this role.)"}
+  ${analysisContext}
+  
+  --- RESUME TEXT ---
+  ${truncated}
+  
+  Now call tailor_resume.`;
+  
+      const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3.8-flash",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userPrompt },
+          ],
+          tools: [TOOL_SCHEMA],
+          tool_choice: { type: "function", function: { name: "tailor_resume" } },
+        }),
+      });
+  
+      if (!aiResp.ok) {
+        if (aiResp.status === 429)
+          throw new HttpError("Rate limit exceeded. Try again in a moment.", 429);
+        if (aiResp.status === 402)
+          throw new HttpError("AI is temporarily unavailable. Try again later.", 503);
+        const t = await aiResp.text();
+        console.error("AI gateway error:", aiResp.status, t);
+        throw new HttpError("AI tailoring failed", 500);
+      }
+  
+      const aiData = await aiResp.json();
+      const toolCall = aiData?.choices?.[0]?.message?.tool_calls?.[0];
+      if (!toolCall?.function?.arguments) {
+        console.error("No tool call", JSON.stringify(aiData).slice(0, 500));
+        throw new HttpError("AI did not return structured output", 500);
+      }
+  
+      let parsed: any;
+      try {
+        parsed = JSON.parse(toolCall.function.arguments);
+      } catch (e) {
+        console.error("Failed to parse tool args", e);
+        throw new HttpError("AI returned invalid JSON", 500);
+      }
+  
+      const { data: inserted, error: insertErr } = await supabase
+        .from("resume_tailorings")
+        .insert({
+          user_id: userId,
+          resume_id,
+          analysis_id: analysis_id ?? null,
+          target_role: target_role.trim(),
+          job_description: jdText || null,
+          summary: parsed.summary ?? "",
+          skills: parsed.skills ?? [],
+          bullets: parsed.bullets ?? [],
+          keywords_to_add: parsed.keywords_to_add ?? [],
+          cover_note: parsed.cover_note ?? "",
+          match_before:
+            parsed.match_before != null ? Math.round(parsed.match_before) : null,
+          match_after:
+            parsed.match_after != null ? Math.round(parsed.match_after) : null,
+          model: "google/gemini-3.8-flash",
+        })
+        .select()
+        .single();
+  
+      if (insertErr) {
+        console.error("Insert error", insertErr);
+        throw new HttpError("Failed to save tailoring", 500);
+      }
+        return inserted;
       },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userPrompt },
-        ],
-        tools: [TOOL_SCHEMA],
-        tool_choice: { type: "function", function: { name: "tailor_resume" } },
-      }),
-    });
-
-    if (!aiResp.ok) {
-      if (aiResp.status === 429)
-        return json({ error: "Rate limit exceeded. Try again in a moment." }, 429);
-      if (aiResp.status === 402)
-        return json({ error: "AI credits exhausted. Add credits in workspace usage." }, 402);
-      const t = await aiResp.text();
-      console.error("AI gateway error:", aiResp.status, t);
-      return json({ error: "AI tailoring failed" }, 500);
-    }
-
-    const aiData = await aiResp.json();
-    const toolCall = aiData?.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
-      console.error("No tool call", JSON.stringify(aiData).slice(0, 500));
-      return json({ error: "AI did not return structured output" }, 500);
-    }
-
-    let parsed: any;
-    try {
-      parsed = JSON.parse(toolCall.function.arguments);
-    } catch (e) {
-      console.error("Failed to parse tool args", e);
-      return json({ error: "AI returned invalid JSON" }, 500);
-    }
-
-    const { data: inserted, error: insertErr } = await supabase
-      .from("resume_tailorings")
-      .insert({
-        user_id: userId,
-        resume_id,
-        analysis_id: analysis_id ?? null,
-        target_role: target_role.trim(),
-        job_description: jdText || null,
-        summary: parsed.summary ?? "",
-        skills: parsed.skills ?? [],
-        bullets: parsed.bullets ?? [],
-        keywords_to_add: parsed.keywords_to_add ?? [],
-        cover_note: parsed.cover_note ?? "",
-        match_before:
-          parsed.match_before != null ? Math.round(parsed.match_before) : null,
-        match_after:
-          parsed.match_after != null ? Math.round(parsed.match_after) : null,
-        model: "google/gemini-2.5-flash",
-      })
-      .select()
-      .single();
-
-    if (insertErr) {
-      console.error("Insert error", insertErr);
-      return json({ error: "Failed to save tailoring" }, 500);
-    }
-
+    );
     return json({ tailoring: inserted });
   } catch (e) {
+    if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
+    if (e instanceof HttpError) return json({ error: e.message }, e.status);
     console.error("tailor-resume error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }

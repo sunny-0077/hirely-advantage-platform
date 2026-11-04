@@ -54,7 +54,7 @@ const DashboardLayout = () => {
 
           {/* Desktop usage strip — top-right of main pane */}
           <div className="flex justify-end items-center gap-3 mb-3">
-            {workspace.data.account_type === "candidate" && <div className="hidden md:block"><UsageMeterStrip /></div>}
+            <div className="hidden md:block"><UsageMeterStrip /></div>
             <Button variant="ghost" size="sm" onClick={async () => { const { error } = await supabase.auth.signOut(); if (error) toast.error(error.message); }}><LogOut />Sign out</Button>
           </div>
 

@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Briefcase, FileText, Mail, Trash2, Eye, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useWorkspace } from "@/hooks/useWorkspace";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,47 +14,9 @@ import { toast } from "sonner";
 
 const fmt = (d: string) => new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
-function useEmployerRedirect() {
-  const ws = useWorkspace();
-  return ws.data?.account_type === "employer" ? <Navigate to="/app/hiring" replace /> : null;
-}
-
-export function MyApplications() {
-  const { user } = useAuth();
-  const redirect = useEmployerRedirect();
-  const [open, setOpen] = useState<string | null>(null);
-  const q = useQuery({ queryKey: ["my-applications", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const { data, error } = await supabase.from("job_submissions").select("*, job_listings(title,company_name,location,status)").eq("candidate_id", user!.id).order("created_at", { ascending: false });
-    if (error) throw error;
-    return data;
-  } });
-  if (redirect) return redirect;
-  const sel = q.data?.find(a => a.id === open);
-  return <div className="max-w-5xl mx-auto">
-    <PageHeader eyebrow="Candidate portal" title="My applications" />
-    {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load applications. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
-    {q.isPending ? <p role="status">Loading applications…</p> : q.data?.length ? <div className="divide-y divide-border border border-border rounded-lg bg-card">
-      {q.data.map(a => <div key={a.id} className="p-5 flex flex-wrap items-center gap-4">
-        <Briefcase className="size-5 text-muted-foreground" />
-        <div className="flex-1 min-w-0"><p className="font-semibold break-words">{a.job_listings?.title ?? "Job no longer listed"}</p><p className="text-sm text-muted-foreground">{a.job_listings?.company_name ?? ""} · Applied {fmt(a.created_at)}</p></div>
-        {a.match_score != null && <span className="text-sm font-medium">{a.match_score}% match</span>}
-        <Badge variant="secondary" className="capitalize">{a.status}</Badge>
-        <Button variant="outline" size="sm" onClick={() => setOpen(a.id)}><Eye />Details</Button>
-      </div>)}
-    </div> : <div className="py-16 text-center"><Briefcase className="size-8 text-muted-foreground mx-auto mb-4" /><h2 className="text-xl font-semibold">No applications yet</h2><Button asChild variant="link"><Link to="/app/jobs">Browse jobs<ArrowRight /></Link></Button></div>}
-    <Dialog open={Boolean(sel)} onOpenChange={o => !o && setOpen(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{sel?.job_listings?.title ?? "Application"}</DialogTitle></DialogHeader>{sel && <div className="space-y-4 text-sm">
-      <p className="text-muted-foreground">Status: <span className="capitalize font-medium text-foreground">{sel.status}</span> · Resume sent: {sel.resume_name}</p>
-      {sel.matched_keywords.length > 0 && <p><span className="font-semibold">Matched skills:</span> {sel.matched_keywords.join(", ")}</p>}
-      {sel.missing_keywords.length > 0 && <p><span className="font-semibold">Missing skills:</span> {sel.missing_keywords.join(", ")}</p>}
-      {sel.cover_letter_text && <div><h3 className="font-semibold mb-1">Cover letter sent</h3><p className="whitespace-pre-wrap border border-border rounded-md p-3 bg-muted/40">{sel.cover_letter_text}</p></div>}
-    </div>}</DialogContent></Dialog>
-  </div>;
-}
-
 export function MyDocuments() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const redirect = useEmployerRedirect();
   const [letter, setLetter] = useState<{ company: string; role: string; full_letter: string } | null>(null);
   const q = useQuery({ queryKey: ["my-documents", user?.id], enabled: Boolean(user), queryFn: async () => {
     const [r, c] = await Promise.all([
@@ -65,7 +26,6 @@ export function MyDocuments() {
     if (r.error || c.error) throw r.error ?? c.error;
     return { resumes: r.data, letters: c.data };
   } });
-  if (redirect) return redirect;
   async function del(kind: "resumes" | "cover_letters", id: string, path?: string) {
     if (!confirm("Delete this document? Applications you already sent keep their copy.")) return;
     const { error } = await supabase.from(kind).delete().eq("id", id);
@@ -100,7 +60,6 @@ type Exp = { company: string; title: string; period: string; summary: string };
 export function MyProfile() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const redirect = useEmployerRedirect();
   const [name, setName] = useState("");
   const [headline, setHeadline] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
@@ -109,7 +68,7 @@ export function MyProfile() {
   const [experience, setExperience] = useState<Exp[]>([]);
   const [busy, setBusy] = useState(false);
   const q = useQuery({ queryKey: ["my-profile", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const { data, error } = await supabase.from("profiles").select("display_name,plan,headline,skills,education,experience").eq("user_id", user!.id).maybeSingle();
+    const { data, error } = await supabase.from("profiles").select("display_name,plan_tier,credits_balance,headline,skills,education,experience").eq("user_id", user!.id).maybeSingle();
     if (error) throw error;
     return data;
   } });
@@ -121,7 +80,6 @@ export function MyProfile() {
     setEducation(Array.isArray(q.data.education) ? (q.data.education as unknown as Edu[]) : []);
     setExperience(Array.isArray(q.data.experience) ? (q.data.experience as unknown as Exp[]) : []);
   }, [q.data]);
-  if (redirect) return redirect;
   function addSkill() {
     const parts = skillDraft.split(",").map(s => s.trim().slice(0, 50)).filter(Boolean);
     const next = [...skills];
@@ -150,13 +108,13 @@ export function MyProfile() {
   }
   const section = "bg-card border border-border rounded-lg p-6 space-y-4";
   return <div className="max-w-2xl mx-auto">
-    <PageHeader eyebrow="Candidate portal" title="My profile" description="Your skills, experience and education are included when employers' match scores are calculated." />
+    <PageHeader eyebrow="Candidate portal" title="My profile" description="Your skills, experience and education help Hirely tailor your resume and prep." />
     {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="space-y-5">
       <div className={section}>
         <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-headline">Headline</Label><Input id="pf-headline" maxLength={150} placeholder="e.g. Data Analyst with 3 years in retail analytics" value={headline} onChange={e => setHeadline(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-email">Email</Label><Input id="pf-email" value={user?.email ?? ""} disabled /></div>
-        <div className="space-y-2"><Label>Plan</Label><p className="text-sm capitalize">{q.data?.plan ?? "free"}</p></div>
+        <div className="space-y-2"><Label>Plan</Label><p className="text-sm">{({ scout_free: "Scout (free)", starter_pack: "Starter pack", pass_90_day: "90-day pass" } as Record<string, string>)[q.data?.plan_tier ?? "scout_free"]} · {q.data?.credits_balance ?? 0} credits</p></div>
       </div>
 
       <div className={section}>

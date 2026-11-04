@@ -103,7 +103,11 @@ export const TailoredEditsPanel = ({
           job_description: jd.trim() || undefined,
         },
       });
-      if (error) throw new Error(error.message || "Tailoring failed");
+      if (error) {
+        const ctx = (error as { context?: Response }).context;
+        const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
+        throw new Error(body?.error || error.message || "Tailoring failed");
+      }
       if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
       const id = (data as { tailoring?: Tailoring })?.tailoring?.id;
       if (id) setActiveId(id);
