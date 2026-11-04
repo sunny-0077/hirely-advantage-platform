@@ -164,6 +164,13 @@ function parseSections(md: string): Section[] {
   return sections.map((s) => ({ ...s, body: s.body.trim() }));
 }
 
+/** Remove numeric fit scores like "65/100" or "Match: 72%" from AI text. */
+export function stripScores(text: string) {
+  return text
+    .replace(/\s*[:\-–(]?\s*\b\d{1,3}\s*\/\s*100\b\)?/g, "")
+    .replace(/\b(score|match|fit|readability|parseability|compatibility)(\s*[:\-–]\s*)\d{1,3}(\.\d+)?\s*%/gi, "$1");
+}
+
 function extractScores(body: string) {
   // Look for lines like "Hard Requirements Met: 65/100"
   const re = /([A-Za-z][A-Za-z \-/]+?)\s*[:\-–]\s*(\d{1,3})\s*\/\s*100/g;
@@ -177,56 +184,8 @@ function extractScores(body: string) {
   return out;
 }
 
-function ScoreRing({ value }: { value: number }) {
-  const r = 44;
-  const c = 2 * Math.PI * r;
-  const offset = c - (value / 100) * c;
-  const tone =
-    value >= 75 ? "text-emerald-500" : value >= 50 ? "text-amber-500" : "text-rose-500";
-  return (
-    <div className="relative w-[120px] h-[120px] shrink-0">
-      <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-        <circle cx="50" cy="50" r={r} className="stroke-foreground/[0.08]" strokeWidth="8" fill="none" />
-        <circle
-          cx="50"
-          cy="50"
-          r={r}
-          className={cn(tone, "transition-all duration-700")}
-          stroke="currentColor"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-          fill="none"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[28px] font-medium tracking-tight text-foreground leading-none">
-          {value}
-        </span>
-        <span className="text-[10px] tracking-[0.18em] uppercase text-foreground/50 mt-1">/ 100</span>
-      </div>
-    </div>
-  );
-}
-
-function ScoreBar({ label, value }: { label: string; value: number }) {
-  const tone =
-    value >= 75 ? "bg-emerald-500" : value >= 50 ? "bg-amber-500" : "bg-rose-500";
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-3 mb-1.5">
-        <span className="text-[12.5px] text-foreground/70">{label}</span>
-        <span className="text-[12.5px] font-medium tabular-nums text-foreground">{value}</span>
-      </div>
-      <div className="h-1.5 rounded-full bg-foreground/[0.06] overflow-hidden">
-        <div
-          className={cn("h-full rounded-full transition-all duration-700", tone)}
-          style={{ width: `${value}%` }}
-        />
-      </div>
-    </div>
-  );
+function fitLabel(value: number) {
+  return value >= 75 ? "Strong" : value >= 50 ? "Partial" : "Gap";
 }
 
 function ScoreSection({ section }: { section: Section }) {
@@ -236,51 +195,42 @@ function ScoreSection({ section }: { section: Section }) {
     (scores.length ? Math.round(scores.reduce((a, b) => a + b.value, 0) / scores.length) : null);
   const others = scores.filter((s) => !/overall/i.test(s.label));
 
-  // verdict line: a sentence after the scores
   const verdict = section.body
     .split(/\n/)
     .map((l) => l.replace(/[*_`#>]/g, "").trim())
     .filter((l) => l && !/\d{1,3}\s*\/\s*100/.test(l) && !/^[-•]/.test(l))
+    .map(stripScores)
     .pop();
 
   return (
     <SectionCard tone="dark" className="overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
         {overall !== null && (
-          <div className="flex items-center gap-5">
-            <ScoreRing value={overall} />
-            <div>
-              <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/50 font-medium">
-                Overall fit
-              </p>
-              <p className="mt-1 text-[18px] leading-snug font-medium tracking-tight text-white max-w-md">
-                {overall >= 75
-                  ? "Strong fit. Apply with confidence."
-                  : overall >= 50
-                  ? "Partial fit. Worth tailoring before submitting."
-                  : "Weak fit. Significant gaps to close first."}
-              </p>
-            </div>
+          <div>
+            <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/50 font-medium">
+              Overall fit
+            </p>
+            <p className="mt-1 text-[18px] leading-snug font-medium tracking-tight text-white max-w-md">
+              {overall >= 75
+                ? "Strong fit. Apply with confidence."
+                : overall >= 50
+                ? "Partial fit. Worth tailoring before submitting."
+                : "Weak fit. Significant gaps to close first."}
+            </p>
           </div>
         )}
         <div className="flex-1 grid sm:grid-cols-2 gap-x-6 gap-y-3 md:pl-6 md:border-l md:border-white/10">
           {others.length > 0 ? (
             others.map((s) => (
-              <div key={s.label}>
-                <div className="flex items-baseline justify-between gap-3 mb-1.5">
-                  <span className="text-[12px] text-white/70">{s.label}</span>
-                  <span className="text-[12px] font-medium tabular-nums text-white">{s.value}</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-white/85 transition-all duration-700"
-                    style={{ width: `${s.value}%` }}
-                  />
-                </div>
+              <div key={s.label} className="flex items-center justify-between gap-3">
+                <span className="text-[12.5px] text-white/75">{s.label}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-white/10 text-white">
+                  {fitLabel(s.value)}
+                </span>
               </div>
             ))
           ) : (
-            <div className="text-[13px] text-white/70 leading-relaxed">{section.body}</div>
+            <div className="text-[13px] text-white/70 leading-relaxed">{stripScores(section.body)}</div>
           )}
         </div>
       </div>
@@ -334,7 +284,7 @@ function SectionBlock({ section }: { section: Section }) {
             "[&_tbody_tr:last-child_td]:border-b-0",
           )}
         >
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{section.body}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripScores(section.body)}</ReactMarkdown>
         </article>
       </div>
     </SectionCard>
