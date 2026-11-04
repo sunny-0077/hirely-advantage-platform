@@ -8,6 +8,7 @@ import {
   ACCEPTED_EXTS,
   ACCEPTED_MIME,
   MAX_FILE_BYTES,
+  assertPdfPageLimit,
   extToMime,
   extractResumeText,
 } from "@/lib/resumeParser";
@@ -67,6 +68,10 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       const mime = file.type || extToMime(file.name) || "";
       if (!ACCEPTED_MIME.includes(mime)) {
         toast.error("Unsupported file. Please upload a PDF or TXT resume.");
+        return;
+      }
+      try { await assertPdfPageLimit(file); } catch (err) {
+        toast.error(err instanceof Error ? err.message : "This PDF is too long.");
         return;
       }
       setFileName(file.name);

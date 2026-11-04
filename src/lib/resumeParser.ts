@@ -22,6 +22,15 @@ export const extToMime = (name: string): string | null => {
   return null;
 };
 
+/** Throws a friendly error when a PDF is longer than MAX_PDF_PAGES. */
+export async function assertPdfPageLimit(file: File): Promise<void> {
+  const mime = file.type || extToMime(file.name) || "";
+  if (mime !== "application/pdf") return;
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  if (pdf.numPages > MAX_PDF_PAGES)
+    throw new Error(`This PDF has ${pdf.numPages} pages. Please upload a resume of ${MAX_PDF_PAGES} pages or fewer.`);
+}
+
 export async function extractResumeText(file: File): Promise<string> {
   const mime = file.type || extToMime(file.name) || "";
 

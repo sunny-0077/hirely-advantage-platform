@@ -168,5 +168,33 @@ export function MyProfile() {
 
       <Button type="submit" disabled={busy || !name.trim()}>{busy ? "Saving…" : "Save profile"}</Button>
     </form>}
+    <CreditHistory />
+  </div>;
+}
+
+const LEDGER_LABELS: Record<string, string> = {
+  signup_bonus: "Welcome credits", credit_purchase: "Credits purchased", refund: "Automatic refund",
+  resume_tailor: "Resume tailoring", hm_unlock: "Hiring manager unlock", voice_interview: "Voice interview", salary_audit: "Salary audit",
+};
+
+function CreditHistory() {
+  const { user } = useAuth();
+  const q = useQuery({
+    queryKey: ["credit-ledger", user?.id], enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("credit_ledger").select("id,action_type,credits_delta,created_at").order("created_at", { ascending: false }).limit(50);
+      if (error) throw error;
+      return data;
+    },
+  });
+  return <div className="bg-card border border-border rounded-lg p-6 space-y-4 mt-5">
+    <h2 className="font-semibold">Credit history</h2>
+    {q.isPending ? <p role="status" className="text-sm text-muted-foreground">Loading…</p>
+      : q.isError ? <p className="text-sm text-destructive">Couldn't load your credit history.</p>
+      : !q.data?.length ? <p className="text-sm text-muted-foreground">No credit activity yet.</p>
+      : <ul className="divide-y divide-border">{q.data.map(r => <li key={r.id} className="flex items-center justify-between py-2 text-sm">
+          <div><p>{LEDGER_LABELS[r.action_type] ?? r.action_type}</p><p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</p></div>
+          <span className={r.credits_delta > 0 ? "font-medium text-primary" : "font-medium text-foreground"}>{r.credits_delta > 0 ? "+" : ""}{r.credits_delta}</span>
+        </li>)}</ul>}
   </div>;
 }
