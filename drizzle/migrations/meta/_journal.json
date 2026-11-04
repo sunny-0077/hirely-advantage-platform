@@ -50,6 +50,13 @@
       "when": 1793804452532,
       "tag": "0006_credit_safety_controls",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793805336314,
+      "tag": "0007_pass_90_day_tranches",
+      "breakpoints": true
     }
   ]
 }
