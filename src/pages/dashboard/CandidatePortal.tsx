@@ -211,7 +211,7 @@ export function MyProfile() {
 
 const LEDGER_LABELS: Record<string, string> = {
   signup_bonus: "Welcome credits", credit_purchase: "Credits purchased", refund: "Automatic refund", pass_tranche: "90-day pass monthly credits", pass_expired: "90-day pass ended",
-  resume_tailor: "Resume tailoring", cover_letter: "Cover letter", hm_unlock: "Hiring manager unlock", voice_interview: "Voice interview", salary_audit: "Salary audit",
+  resume_tailor: "Resume tailoring", cover_letter: "Cover letter", interview_prep: "Interview prep", hm_unlock: "Hiring manager unlock", voice_interview: "Voice interview", salary_audit: "Salary audit",
 };
 
 function CreditHistory() {
