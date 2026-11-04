@@ -858,13 +858,16 @@ export type Database = {
           created_at: string
           id: string
           job_description: string | null
+          job_id: string | null
           keywords_to_add: Json
           match_after: number | null
           match_before: number | null
           model: string | null
-          resume_id: string
+          resume_id: string | null
           skills: Json
+          source: string
           summary: string | null
+          tailored_text: string | null
           target_role: string
           user_id: string
         }
@@ -875,13 +878,16 @@ export type Database = {
           created_at?: string
           id?: string
           job_description?: string | null
+          job_id?: string | null
           keywords_to_add?: Json
           match_after?: number | null
           match_before?: number | null
           model?: string | null
-          resume_id: string
+          resume_id?: string | null
           skills?: Json
+          source?: string
           summary?: string | null
+          tailored_text?: string | null
           target_role: string
           user_id: string
         }
@@ -892,13 +898,16 @@ export type Database = {
           created_at?: string
           id?: string
           job_description?: string | null
+          job_id?: string | null
           keywords_to_add?: Json
           match_after?: number | null
           match_before?: number | null
           model?: string | null
-          resume_id?: string
+          resume_id?: string | null
           skills?: Json
+          source?: string
           summary?: string | null
+          tailored_text?: string | null
           target_role?: string
           user_id?: string
         }
