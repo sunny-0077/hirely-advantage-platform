@@ -78,19 +78,16 @@ export default function Jobs() {
     return () => { alive = false; };
   }, [city]);
 
-  const openTailor = async (job: Job) => {
-    setTailorJob(job);
-    const { data } = await supabase.from("resumes").select("id, file_name").order("created_at", { ascending: false });
-    setResumes(data ?? []);
-    setResumeId(data?.[0]?.id ?? "master");
-  };
+  const [busyJobId, setBusyJobId] = useState<string | null>(null);
+  void setResumes; void setResumeId;
 
-  const runTailor = async () => {
-    if (!tailorJob) return;
+  const runTailor = async (job: Job | null = tailorJob) => {
+    if (!job || busyJobId) return;
     setBusy(true);
+    setBusyJobId(job.id);
     try {
       const { data, error } = await supabase.functions.invoke("tailor-resume", {
-        body: { resume_id: resumeId === "master" ? undefined : resumeId, job_id: tailorJob.id, target_role: tailorJob.title },
+        body: { job_id: job.id, target_role: job.title },
       });
       if (error) {
         const ctx = (error as { context?: Response }).context;
@@ -100,11 +97,13 @@ export default function Jobs() {
       if (data?.error) throw new Error(data.error);
       toast.success("Tailored resume ready. 1 credit used.");
       setTailorJob(null);
-      navigate("/app/documents");
+      const id = data?.tailoring?.id;
+      navigate(id ? `/app/documents?tailoring=${id}` : "/app/documents");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Tailoring failed");
     } finally {
       setBusy(false);
+      setBusyJobId(null);
     }
   };
 
@@ -135,11 +134,15 @@ export default function Jobs() {
                 </p>
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto flex gap-2">
-                <Button asChild variant="outline" className="flex-1" disabled={!j.apply_url}>
+              <div className="mt-auto flex flex-col sm:flex-row gap-2">
+                <Button size="lg" className="flex-1 font-semibold" onClick={() => runTailor(j)} disabled={!!busyJobId}
+                  aria-label={`Tailor Resume for ${j.title}`}>
+                  {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                  {busyJobId === j.id ? "Tailoring…" : "Tailor Resume · 1 credit"}
+                </Button>
+                <Button asChild size="lg" variant="outline" className="flex-1" disabled={!j.apply_url}>
                   <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>
                 </Button>
-                <Button className="flex-1" onClick={() => openTailor(j)}><Sparkles className="size-4" />Tailor Resume</Button>
               </div>
             </article>
           ))}
@@ -160,7 +163,7 @@ export default function Jobs() {
                 {resumes.map((r) => <SelectItem key={r.id} value={r.id}>{r.file_name}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Button className="w-full" onClick={runTailor} disabled={busy}>
+            <Button className="w-full" onClick={() => runTailor()} disabled={busy}>
               {busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}Tailor for 1 credit
             </Button>
           </div>
