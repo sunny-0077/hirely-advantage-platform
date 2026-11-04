@@ -275,7 +275,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
             <p className="mt-1 text-[16px] leading-snug font-medium tracking-tight text-foreground truncate">
               {busy
                 ? stageLabel[stage]
-                : fileName ?? "Drop a PDF, DOCX or TXT — or click to browse"}
+                : fileName ?? "Drop a PDF or TXT (max 5 MB, 3 pages) — or click to browse"}
             </p>
             <p className="mt-1 text-[12px] text-foreground/55">
               {busy
