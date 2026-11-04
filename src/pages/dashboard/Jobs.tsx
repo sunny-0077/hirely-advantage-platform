@@ -90,7 +90,7 @@ export default function Jobs() {
     setBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("tailor-resume", {
-        body: { resume_id: resumeId, target_role: tailorJob.title, job_description: (tailorJob.raw_description ?? "").slice(0, 6000) },
+        body: { resume_id: resumeId, job_id: tailorJob.id, target_role: tailorJob.title },
       });
       if (error) {
         const ctx = (error as { context?: Response }).context;
