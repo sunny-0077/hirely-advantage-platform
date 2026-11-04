@@ -102,7 +102,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
       ))}
     </nav>
 
-    <UpgradeCard onNavigate={onNavigate} /></>}
+    <UpgradeCard onNavigate={onNavigate} /></>
   </>
   );
 };
