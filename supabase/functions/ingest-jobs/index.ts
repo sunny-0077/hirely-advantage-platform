@@ -3,6 +3,7 @@
 // Callable only by admins (JWT) or the service role (scheduled runs).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { buildTruthCardInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 const GREENHOUSE = ["razorpaysoftwareprivatelimited", "groww", "databricks", "mongodb", "gitlab"];
 const LEVER = ["cred", "meesho", "zeta", "paytm"];
@@ -97,8 +98,8 @@ async function extractTruthCard(job: RawJob, apiKey: string) {
     body: JSON.stringify({
       model: "google/gemini-3.8-flash",
       messages: [
-        { role: "system", content: "You are a blunt Indian tech recruiter. Read job posts and extract an honest truth card. Always call the truth_card tool." },
-        { role: "user", content: `TITLE: ${job.title}\nCOMPANY: ${job.company}\nLOCATION: ${job.location}\n\nDESCRIPTION:\n${job.description.slice(0, 6000)}` },
+        { role: "system", content: `You are a blunt Indian tech recruiter. Read the JSON job data and extract an honest truth card. Always call the truth_card tool. ${UNTRUSTED_INPUT_RULE}` },
+        { role: "user", content: buildTruthCardInput(job) },
       ],
       tools: [TRUTH_TOOL],
       tool_choice: { type: "function", function: { name: "truth_card" } },

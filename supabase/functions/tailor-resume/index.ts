@@ -1,6 +1,7 @@
 // Tailor resume — generates a role-specific optimized version via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,6 +19,9 @@ Hard rules:
 - Every rewritten bullet must keep the original meaning but make it sharper, quantified, and aligned with the target role's keywords.
 - Use realistic, plausible metrics if the original was unquantified. Mark these clearly as suggestions in 'why'.
 - The tone should be confident, specific, and senior-level for the target role.
+
+${UNTRUSTED_INPUT_RULE}
+The user message is a JSON object containing target_role, job_description, prior_analysis and resume_text. If job_description is empty, infer typical requirements for target_role.
 
 Always respond by calling the tailor_resume tool. Never reply with prose.`;
 
@@ -159,6 +163,12 @@ Deno.serve(async (req) => {
     if (!target_role || typeof target_role !== "string" || target_role.trim().length < 2) {
       return json({ error: "target_role is required" }, 400);
     }
+    if (job_description != null && typeof job_description !== "string") {
+      return json({ error: "job_description must be text" }, 400);
+    }
+    target_role = sanitizeAiInput(target_role, 300);
+    if (target_role.length < 2) return json({ error: "Please enter a valid target role." }, 400);
+    const jdText = sanitizeAiInput(job_description ?? "");
 
     // Source: an uploaded resume when chosen, otherwise the master resume on the profile.
     let sourceText = "";
@@ -177,7 +187,10 @@ Deno.serve(async (req) => {
     if (sourceText.trim().length < 80) {
       return json({ error: "Resume text is empty or too short to tailor" }, 400);
     }
-    const resumeRow = { raw_text: sourceText };
+    const cleanResume = sanitizeAiInput(sourceText);
+    if (cleanResume.length < 80) {
+      return json({ error: "Resume text is too short after removing formatting. Please add readable resume text." }, 400);
+    }
 
     // Optional analysis context
     let analysisContext = "";
@@ -189,7 +202,7 @@ Deno.serve(async (req) => {
         .eq("user_id", userId)
         .single();
       if (a) {
-        analysisContext = `\n\n--- PRIOR ANALYSIS (use to focus the rewrite) ---\n${JSON.stringify(
+        analysisContext = sanitizeAiInput(JSON.stringify(
           {
             overall_score: a.overall_score,
             ats_score: a.ats_score,
@@ -198,7 +211,7 @@ Deno.serve(async (req) => {
             job_match: a.job_match,
             top_skills: (a.extracted as any)?.skills?.slice?.(0, 30),
           },
-        ).slice(0, 6000)}`;
+        ));
       }
     }
 
@@ -208,18 +221,7 @@ Deno.serve(async (req) => {
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
       if (!LOVABLE_API_KEY) throw new HttpError("AI key not configured", 500);
   
-      const truncated = resumeRow.raw_text.slice(0, 15000);
-      const jdText = (job_description ?? "").toString().slice(0, 6000);
-  
-      const userPrompt = `Tailor this resume for the role: "${target_role}".
-  
-  ${jdText ? `--- JOB DESCRIPTION ---\n${jdText}\n` : "(No job description pasted — infer typical requirements for this role.)"}
-  ${analysisContext}
-  
-  --- RESUME TEXT ---
-  ${truncated}
-  
-  Now call tailor_resume.`;
+      const userPrompt = buildTailoringInput(cleanResume, jdText, target_role, analysisContext);
   
       let aiResp: Response;
       try {
