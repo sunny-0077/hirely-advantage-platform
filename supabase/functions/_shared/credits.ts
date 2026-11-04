@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-export type PaidAction = "resume_tailor" | "cover_letter" | "hm_unlock" | "voice_interview" | "salary_audit";
+export type PaidAction = "resume_tailor" | "cover_letter" | "interview_prep" | "hm_unlock" | "voice_interview" | "salary_audit";
 
 export const MAINTENANCE_MESSAGE =
   "Hirely's AI tools are taking a short break for maintenance. Please try again in a few hours — no credits were used.";

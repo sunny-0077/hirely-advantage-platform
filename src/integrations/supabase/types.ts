@@ -352,6 +352,42 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_prep_guides: {
+        Row: {
+          company: string | null
+          created_at: string
+          guide_json: Json
+          guide_text: string
+          id: string
+          job_id: string | null
+          model: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          guide_json?: Json
+          guide_text: string
+          id?: string
+          job_id?: string | null
+          model?: string | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          guide_json?: Json
+          guide_text?: string
+          id?: string
+          job_id?: string | null
+          model?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       interview_questions: {
         Row: {
           created_at: string
