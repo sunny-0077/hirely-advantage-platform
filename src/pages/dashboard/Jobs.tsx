@@ -82,15 +82,15 @@ export default function Jobs() {
     setTailorJob(job);
     const { data } = await supabase.from("resumes").select("id, file_name").order("created_at", { ascending: false });
     setResumes(data ?? []);
-    setResumeId(data?.[0]?.id ?? "");
+    setResumeId(data?.[0]?.id ?? "master");
   };
 
   const runTailor = async () => {
-    if (!tailorJob || !resumeId) return;
+    if (!tailorJob) return;
     setBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("tailor-resume", {
-        body: { resume_id: resumeId, job_id: tailorJob.id, target_role: tailorJob.title },
+        body: { resume_id: resumeId === "master" ? undefined : resumeId, job_id: tailorJob.id, target_role: tailorJob.title },
       });
       if (error) {
         const ctx = (error as { context?: Response }).context;
@@ -100,7 +100,7 @@ export default function Jobs() {
       if (data?.error) throw new Error(data.error);
       toast.success("Tailored resume ready. 1 credit used.");
       setTailorJob(null);
-      navigate("/app/resume");
+      navigate("/app/documents");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Tailoring failed");
     } finally {
@@ -152,22 +152,18 @@ export default function Jobs() {
             <DialogTitle>Tailor your resume</DialogTitle>
             <DialogDescription>For {tailorJob?.title} at {tailorJob?.company_name}. This uses 1 credit, refunded if it fails.</DialogDescription>
           </DialogHeader>
-          {resumes.length === 0 ? (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Upload a resume first.</p>
-              <Button onClick={() => navigate("/app/resume")}>Upload resume</Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <Select value={resumeId} onValueChange={setResumeId}>
-                <SelectTrigger><SelectValue placeholder="Choose a resume" /></SelectTrigger>
-                <SelectContent>{resumes.map((r) => <SelectItem key={r.id} value={r.id}>{r.file_name}</SelectItem>)}</SelectContent>
-              </Select>
-              <Button className="w-full" onClick={runTailor} disabled={busy || !resumeId}>
-                {busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}Tailor for 1 credit
-              </Button>
-            </div>
-          )}
+          <div className="space-y-4">
+            <Select value={resumeId} onValueChange={setResumeId}>
+              <SelectTrigger aria-label="Resume to tailor"><SelectValue placeholder="Choose a resume" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="master">Master resume (from My profile)</SelectItem>
+                {resumes.map((r) => <SelectItem key={r.id} value={r.id}>{r.file_name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button className="w-full" onClick={runTailor} disabled={busy}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}Tailor for 1 credit
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

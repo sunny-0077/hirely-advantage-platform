@@ -156,24 +156,28 @@ Deno.serve(async (req) => {
       job_description = job.raw_description ?? "";
     }
 
-    if (!resume_id || !target_role || typeof target_role !== "string" || target_role.trim().length < 2) {
-      return json({ error: "resume_id and target_role are required" }, 400);
+    if (!target_role || typeof target_role !== "string" || target_role.trim().length < 2) {
+      return json({ error: "target_role is required" }, 400);
     }
 
-    // Confirm resume ownership and pull text
-    const { data: resumeRow, error: resumeErr } = await supabase
-      .from("resumes")
-      .select("id, user_id, raw_text")
-      .eq("id", resume_id)
-      .single();
-    if (resumeErr || !resumeRow || resumeRow.user_id !== userId) {
-      return json({ error: "Resume not found" }, 404);
+    // Source: an uploaded resume when chosen, otherwise the master resume on the profile.
+    let sourceText = "";
+    let source = "upload";
+    if (resume_id) {
+      const { data: resumeRow } = await supabase.from("resumes").select("id, user_id, raw_text").eq("id", resume_id).maybeSingle();
+      if (!resumeRow || resumeRow.user_id !== userId) return json({ error: "Resume not found" }, 404);
+      sourceText = resumeRow.raw_text ?? "";
+    } else {
+      const { data: prof } = await supabase.from("profiles").select("master_resume_text").eq("user_id", userId).maybeSingle();
+      sourceText = prof?.master_resume_text ?? "";
+      source = "master";
+      if (sourceText.trim().length < 80)
+        return json({ error: "Add your master resume on My profile, or pick an uploaded resume, before tailoring." }, 400);
     }
-
-    if (!resumeRow.raw_text || resumeRow.raw_text.trim().length < 80) {
+    if (sourceText.trim().length < 80) {
       return json({ error: "Resume text is empty or too short to tailor" }, 400);
     }
-
+    const resumeRow = { raw_text: sourceText };
 
     // Optional analysis context
     let analysisContext = "";
@@ -272,7 +276,16 @@ Deno.serve(async (req) => {
         .from("resume_tailorings")
         .insert({
           user_id: userId,
-          resume_id,
+          resume_id: resume_id ?? null,
+          source,
+          job_id: job_id ?? null,
+          tailored_text: [
+            parsed.summary ? `SUMMARY\n${parsed.summary}` : "",
+            Array.isArray(parsed.skills) && parsed.skills.length ? `SKILLS\n${parsed.skills.map((g: any) => typeof g === "string" ? g : `${g?.group ?? "Skills"}: ${(g?.items ?? []).join(", ")}`).join("\n")}` : "",
+            Array.isArray(parsed.bullets) && parsed.bullets.length
+              ? `EXPERIENCE\n${parsed.bullets.map((b: any) => `${b?.role ?? ""}${b?.company ? `, ${b.company}` : ""}\n${(b?.rewrites ?? []).map((r: any) => `- ${r?.after ?? ""}`).join("\n")}`).join("\n\n")}`
+              : "",
+          ].filter(Boolean).join("\n\n"),
           analysis_id: analysis_id ?? null,
           target_role: target_role.trim(),
           job_description: jdText || null,
