@@ -106,7 +106,7 @@ export const TailoredEditsPanel = ({
       if (error) {
         const ctx = (error as { context?: Response }).context;
         const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
-        throw new Error(body?.error || error.message || "Tailoring failed");
+        throw new Error(body?.error || "We couldn't reach the AI right now. Any credit used was refunded — please try again.");
       }
       if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
       const id = (data as { tailoring?: Tailoring })?.tailoring?.id;

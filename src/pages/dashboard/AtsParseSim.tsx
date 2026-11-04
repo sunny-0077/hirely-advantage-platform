@@ -24,9 +24,9 @@ export default function AtsParseSim() {
   const [markdown, setMarkdown] = useState<string | null>(null);
 
   const onFile = async (file: File) => {
-    if (file.size > MAX_FILE_BYTES) return toast.error("File too large. Max 10 MB.");
+    if (file.size > MAX_FILE_BYTES) return toast.error("File too large. Resumes must be 5 MB or smaller.");
     const mime = file.type || extToMime(file.name) || "";
-    if (!ACCEPTED_MIME.includes(mime)) return toast.error("Use PDF, DOCX or TXT.");
+    if (!ACCEPTED_MIME.includes(mime)) return toast.error("Please upload a PDF or TXT resume.");
     setExtracting(true);
     try {
       const text = await extractResumeText(file);

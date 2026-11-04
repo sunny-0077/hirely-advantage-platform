@@ -8,6 +8,7 @@ import {
   ACCEPTED_EXTS,
   ACCEPTED_MIME,
   MAX_FILE_BYTES,
+  assertPdfPageLimit,
   extToMime,
   extractResumeText,
 } from "@/lib/resumeParser";
@@ -61,12 +62,16 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
     try {
       // Validate
       if (file.size > MAX_FILE_BYTES) {
-        toast.error("File too large. Max 10 MB.");
+        toast.error("File too large. Resumes must be 5 MB or smaller.");
         return;
       }
       const mime = file.type || extToMime(file.name) || "";
       if (!ACCEPTED_MIME.includes(mime)) {
-        toast.error("Unsupported file. Use PDF, DOCX or TXT.");
+        toast.error("Unsupported file. Please upload a PDF or TXT resume.");
+        return;
+      }
+      try { await assertPdfPageLimit(file); } catch (err) {
+        toast.error(err instanceof Error ? err.message : "This PDF is too long.");
         return;
       }
       setFileName(file.name);
@@ -275,7 +280,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
             <p className="mt-1 text-[16px] leading-snug font-medium tracking-tight text-foreground truncate">
               {busy
                 ? stageLabel[stage]
-                : fileName ?? "Drop a PDF, DOCX or TXT — or click to browse"}
+                : fileName ?? "Drop a PDF or TXT (max 5 MB, 3 pages) — or click to browse"}
             </p>
             <p className="mt-1 text-[12px] text-foreground/55">
               {busy
