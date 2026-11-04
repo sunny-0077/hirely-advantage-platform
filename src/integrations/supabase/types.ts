@@ -238,6 +238,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ingest_job_state: {
+        Row: {
+          cron_token: string
+          id: string
+          last_result: Json
+          last_run_at: string | null
+          locked_until: string | null
+          paused_reason: string | null
+        }
+        Insert: {
+          cron_token?: string
+          id?: string
+          last_result?: Json
+          last_run_at?: string | null
+          locked_until?: string | null
+          paused_reason?: string | null
+        }
+        Update: {
+          cron_token?: string
+          id?: string
+          last_result?: Json
+          last_run_at?: string | null
+          locked_until?: string | null
+          paused_reason?: string | null
+        }
+        Relationships: []
+      }
       interview_answers: {
         Row: {
           answer: string
