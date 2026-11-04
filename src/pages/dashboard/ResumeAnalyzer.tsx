@@ -93,7 +93,7 @@ type Analysis = {
 };
 
 const tabs = [
-  { value: "score", label: "Score" },
+  { value: "score", label: "Overview" },
   { value: "enhanced", label: "Enhanced" },
   
   { value: "extracted", label: "Extracted" },
@@ -365,7 +365,7 @@ const ResumeAnalyzer = () => {
         <>
           {/* HERO — everything that matters at a glance, in one card */}
           <SectionCard className="mt-5">
-            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_220px] gap-5 lg:gap-7 items-end">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] gap-5 lg:gap-7 items-end">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
@@ -386,9 +386,8 @@ const ResumeAnalyzer = () => {
                     </span>
                   )}
                 </div>
-                <p className="mt-2 text-[64px] sm:text-[72px] leading-none font-semibold tracking-[-0.045em] text-foreground tabular-nums">
-                  {latest.overall_score}
-                  <span className="text-[22px] text-foreground/30 tracking-tight">/100</span>
+                <p className="mt-2 text-[40px] sm:text-[48px] leading-none font-semibold tracking-[-0.045em] text-foreground tabular-nums">
+                  {readinessLabel(latest.overall_score)}
                 </p>
                 <p className="mt-3 text-[13.5px] leading-[1.5] text-foreground/70 tracking-tight max-w-xl">
                   {latest.summary || "Your latest review."}
@@ -397,14 +396,9 @@ const ResumeAnalyzer = () => {
 
               {/* Inline stat pills — no separate StatStrip card */}
               <div className="grid grid-cols-2 lg:grid-cols-2 gap-2 md:gap-2.5 lg:max-w-[260px] w-full lg:w-auto">
-                <MiniStat label="ATS" value={`${latest.ats_score}`} accent={latest.ats_score >= 80} />
                 <MiniStat
-                  label="Match"
-                  value={
-                    latest.job_match?.match_percent != null
-                      ? `${Math.round(latest.job_match.match_percent)}%`
-                      : "—"
-                  }
+                  label="Gaps"
+                  value={`${latest.job_match?.missing_requirements?.length ?? 0}`}
                 />
                 <MiniStat label="Skills" value={`${latest.extracted?.skills?.length ?? 0}`} />
                 <MiniStat
@@ -419,17 +413,6 @@ const ResumeAnalyzer = () => {
               </div>
 
               {/* Trajectory rail */}
-              <ScoreTrajectory analyses={analyses} />
-            </div>
-
-            <div className="mt-4 h-[3px] rounded-full bg-foreground/[0.06]">
-              <div
-                className="h-full rounded-full transition-[width] duration-700"
-                style={{
-                  width: `${latest.overall_score}%`,
-                  background: "linear-gradient(90deg,#0E0B1F,#6D54B3)",
-                }}
-              />
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -578,11 +561,11 @@ const ResumeAnalyzer = () => {
                 </DeepDiveItem>
               )}
 
-              {latest.job_match?.match_percent != null && (
+              {latest.job_match && (
                 <DeepDiveItem
                   value="job-match"
                   title="Job match"
-                  count={`${Math.round(latest.job_match.match_percent)}%`}
+                  count={latest.job_match.missing_requirements?.length ?? 0}
                   tone="violet"
                   preview={
                     latest.job_match.target_role
@@ -591,18 +574,6 @@ const ResumeAnalyzer = () => {
                   }
                 >
                   <JobMatchCard match={latest.job_match} />
-                </DeepDiveItem>
-              )}
-
-              {!isFree && latest.score_breakdown && (
-                <DeepDiveItem
-                  value="breakdown"
-                  title="Score breakdown"
-                  count={5}
-                  tone="violet"
-                  preview="ATS · Impact · Relevance · Clarity · Keywords"
-                >
-                  <ScoreBreakdownCard breakdown={latest.score_breakdown} />
                 </DeepDiveItem>
               )}
 
@@ -1023,10 +994,12 @@ const IssueList = ({
   </SectionCard>
 );
 
+function readinessLabel(score: number) {
+  return score >= 80 ? "Interview-ready" : score >= 60 ? "Almost there" : "Needs work";
+}
+
 // ----- Job match card -----
 const JobMatchCard = ({ match }: { match: NonNullable<Analysis["job_match"]> }) => {
-  const pct = Math.max(0, Math.min(100, Math.round(match.match_percent ?? 0)));
-  const target = Math.max(pct, Math.min(100, Math.round(match.target_percent ?? Math.min(100, pct + 22))));
   const missing = match.missing_requirements ?? [];
   return (
     <SectionCard>
@@ -1040,29 +1013,10 @@ const JobMatchCard = ({ match }: { match: NonNullable<Analysis["job_match"]> }) 
           </span>
         )}
       </div>
-      <div className="mt-3 flex items-baseline gap-2">
-        <p className="text-[44px] leading-none font-semibold tracking-[-0.04em] tabular-nums">
-          {pct}
-          <span className="text-[18px] text-foreground/30">%</span>
-        </p>
-        <span className="text-[12px] text-foreground/55 tracking-tight">
-          → {target}% reachable
-        </span>
-      </div>
-      <div className="mt-3 relative h-[6px] rounded-full bg-foreground/[0.06] overflow-hidden">
-        <div
-          className="absolute inset-y-0 left-0 rounded-full"
-          style={{ width: `${target}%`, background: "hsl(258 45% 58% / 0.18)" }}
-        />
-        <div
-          className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-700"
-          style={{ width: `${pct}%`, background: "linear-gradient(90deg,#0E0B1F,#6D54B3)" }}
-        />
-      </div>
       {missing.length > 0 && (
         <div className="mt-4">
           <p className="text-[11px] text-foreground/55 tracking-tight">
-            Improve these {Math.min(missing.length, 5)} areas to reach {target}%+
+            Improve these {Math.min(missing.length, 5)} areas to strengthen your fit
           </p>
           <ul className="mt-2 space-y-1.5">
             {missing.slice(0, 5).map((m, i) => (
@@ -1179,9 +1133,6 @@ const HeadlineCompanion = ({
       <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
         Last analyzed
       </p>
-      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(258_45%_58%/0.10)] text-[hsl(258_38%_42%)] tabular-nums">
-        {score}
-      </span>
     </div>
     <p className="mt-1.5 text-[14px] font-medium tracking-tight text-foreground tabular-nums">
       {formatRelative(createdAt)}
