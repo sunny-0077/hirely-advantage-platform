@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Briefcase, ExternalLink, Loader2, Mail, MapPin, Sparkles, Wallet } from "lucide-react";
+import { AlertTriangle, Briefcase, ExternalLink, Loader2, Mail, MessagesSquare, MapPin, Sparkles, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -103,6 +103,28 @@ export default function Jobs() {
     }
   };
 
+  const [prepJobId, setPrepJobId] = useState<string | null>(null);
+  const runInterviewPrep = async (job: Job) => {
+    if (prepJobId || letterJobId || busyJobId) return;
+    setPrepJobId(job.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("job-interview-prep", { body: { job_id: job.id } });
+      if (error) {
+        const ctx = (error as { context?: Response }).context;
+        const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
+        throw new Error(body?.error || error.message);
+      }
+      if (data?.error) throw new Error(data.error);
+      toast.success("Interview prep guide ready. 1 credit used.");
+      const id = data?.guide?.id;
+      navigate(id ? `/app/documents?prep=${id}` : "/app/documents");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Interview prep failed");
+    } finally {
+      setPrepJobId(null);
+    }
+  };
+
   const runTailor = async (job: Job | null = tailorJob) => {
     if (!job || busyJobId) return;
     setBusy(true);
@@ -157,15 +179,20 @@ export default function Jobs() {
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
               <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button size="lg" className="flex-1 font-semibold" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId}
+                <Button size="lg" className="flex-1 font-semibold" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Tailor Resume for ${j.title}`}>
                   {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
                   {busyJobId === j.id ? "Tailoring…" : "Tailor Resume · 1 credit"}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId}
+                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Generate Cover Letter for ${j.title}`}>
                   {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
                   {letterJobId === j.id ? "Writing…" : "Cover Letter · 1 credit"}
+                </Button>
+                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                  aria-label={`Interview Prep for ${j.title}`}>
+                  {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4" />}
+                  {prepJobId === j.id ? "Preparing…" : "Interview Prep · 1 credit"}
                 </Button>
                 <Button asChild size="lg" variant="outline" className="flex-1" disabled={!j.apply_url}>
                   <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>

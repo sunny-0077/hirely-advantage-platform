@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { exportTailoredPdf, exportTailoredTxt, exportLetterPdf, exportLetterTxt } from "@/lib/tailoredResume/export";
-import { Briefcase, FileText, Mail, Trash2, Eye, ArrowRight, Sparkles, Copy, Download } from "lucide-react";
+import { Briefcase, FileText, Mail, Trash2, Eye, ArrowRight, Sparkles, Copy, Download, MessagesSquare } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,14 +21,16 @@ export function MyDocuments() {
   const qc = useQueryClient();
   const [letter, setLetter] = useState<{ id?: string; company: string; role: string; full_letter: string } | null>(null);
   const [tailored, setTailored] = useState<{ id: string; target_role: string; tailored_text: string | null } | null>(null);
+  const [prep, setPrep] = useState<{ id: string; company: string | null; role: string; guide_text: string } | null>(null);
   const q = useQuery({ queryKey: ["my-documents", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const [r, c, t] = await Promise.all([
+    const [r, c, t, g] = await Promise.all([
       supabase.from("resumes").select("id,file_name,file_path,created_at").eq("user_id", user!.id).order("created_at", { ascending: false }),
       supabase.from("cover_letters").select("id,company,role,full_letter,created_at").eq("user_id", user!.id).order("created_at", { ascending: false }),
       supabase.from("resume_tailorings").select("id,target_role,tailored_text,source,created_at").eq("user_id", user!.id).not("tailored_text", "is", null).order("created_at", { ascending: false }).limit(50),
+      supabase.from("interview_prep_guides").select("id,company,role,guide_text,created_at").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(50),
     ]);
-    if (r.error || c.error || t.error) throw r.error ?? c.error ?? t.error;
-    return { resumes: r.data, letters: c.data, tailored: t.data };
+    if (r.error || c.error || t.error || g.error) throw r.error ?? c.error ?? t.error ?? g.error;
+    return { resumes: r.data, letters: c.data, tailored: t.data, preps: g.data };
   } });
   const openId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tailoring") : null;
   useEffect(() => {
@@ -42,6 +44,12 @@ export function MyDocuments() {
     const hit = q.data.letters.find((l) => l.id === letterId);
     if (hit) { setLetter(hit); window.history.replaceState(null, "", window.location.pathname); }
   }, [letterId, q.data]);
+  const prepId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("prep") : null;
+  useEffect(() => {
+    if (!prepId || !q.data) return;
+    const hit = q.data.preps.find((x) => x.id === prepId);
+    if (hit) { setPrep(hit); window.history.replaceState(null, "", window.location.pathname); }
+  }, [prepId, q.data]);
   function copyText(text: string) {
     navigator.clipboard.writeText(text).then(() => toast.success("Copied"), () => toast.error("Couldn't copy"));
   }
@@ -50,7 +58,7 @@ export function MyDocuments() {
     const a = document.createElement("a"); a.href = url; a.download = `${name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.txt`; a.click();
     URL.revokeObjectURL(url);
   }
-  async function del(kind: "resumes" | "cover_letters" | "resume_tailorings", id: string, path?: string) {
+  async function del(kind: "resumes" | "cover_letters" | "resume_tailorings" | "interview_prep_guides", id: string, path?: string) {
     if (!confirm("Delete this document? Applications you already sent keep their copy.")) return;
     const { error } = await supabase.from(kind).delete().eq("id", id);
     if (error) return toast.error(error.message);
@@ -76,9 +84,13 @@ export function MyDocuments() {
       <section className="lg:col-span-2"><div className="flex items-center justify-between mb-3"><h2 className="text-lg font-semibold">Tailored resumes</h2><Button asChild size="sm" variant="outline"><Link to="/app/jobs">Find a job</Link></Button></div>
         <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.tailored.length ? q.data.tailored.map(t => <div key={t.id} className="p-4 flex items-center gap-3"><Sparkles className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{t.target_role}</p><p className="text-xs text-muted-foreground">{fmt(t.created_at)} · from {t.source === "master" ? "master resume" : "uploaded resume"}</p></div><Button size="icon" variant="ghost" aria-label="View tailored resume" onClick={() => setTailored(t)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Copy tailored resume" onClick={() => copyText(t.tailored_text ?? "")}><Copy /></Button><Button size="sm" onClick={() => exportTailoredPdf(t.target_role, t.tailored_text ?? "")}><Download className="size-4" />PDF</Button><Button size="sm" variant="outline" onClick={() => exportTailoredTxt(t.target_role, t.tailored_text ?? "")}><Download className="size-4" />TXT</Button><Button size="icon" variant="ghost" aria-label="Delete tailored resume" onClick={() => del("resume_tailorings", t.id)}><Trash2 /></Button></div>) : <p className="p-4 text-sm text-muted-foreground">No tailored resumes yet. Tap Tailor Resume on any job.</p>}</div>
       </section>
+      <section className="lg:col-span-2"><div className="flex items-center justify-between mb-3"><h2 className="text-lg font-semibold">Interview Prep</h2><Button asChild size="sm" variant="outline"><Link to="/app/jobs">Find a job</Link></Button></div>
+        <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.preps.length ? q.data.preps.map(g => { const name = `Interview prep ${g.role} ${g.company ?? ""}`; return <div key={g.id} className="p-4 flex items-center gap-3"><MessagesSquare className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{g.role}{g.company ? ` · ${g.company}` : ""}</p><p className="text-xs text-muted-foreground">{fmt(g.created_at)}</p></div><Button size="icon" variant="ghost" aria-label="View interview prep" onClick={() => setPrep(g)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Copy interview prep" onClick={() => copyText(g.guide_text)}><Copy /></Button><Button size="sm" onClick={() => exportTailoredPdf(name, g.guide_text)}><Download className="size-4" />PDF</Button><Button size="sm" variant="outline" onClick={() => exportTailoredTxt(name, g.guide_text)}><Download className="size-4" />TXT</Button><Button size="icon" variant="ghost" aria-label="Delete interview prep" onClick={() => del("interview_prep_guides", g.id)}><Trash2 /></Button></div>; }) : <p className="p-4 text-sm text-muted-foreground">No interview prep guides yet. Tap Interview Prep on any job.</p>}</div>
+      </section>
     </div>}
     <Dialog open={Boolean(tailored)} onOpenChange={o => !o && setTailored(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{tailored?.target_role}</DialogTitle></DialogHeader><p className="whitespace-pre-wrap text-sm leading-relaxed">{tailored?.tailored_text}</p><div className="flex gap-2"><Button variant="outline" onClick={() => copyText(tailored?.tailored_text ?? "")}><Copy className="size-4" />Copy</Button><Button onClick={() => tailored && exportTailoredPdf(tailored.target_role, tailored.tailored_text ?? "")}><Download className="size-4" />Download PDF</Button><Button variant="outline" onClick={() => tailored && exportTailoredTxt(tailored.target_role, tailored.tailored_text ?? "")}><Download className="size-4" />Download TXT</Button></div></DialogContent></Dialog>
     <Dialog open={Boolean(letter)} onOpenChange={o => !o && setLetter(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{letter?.role} · {letter?.company}</DialogTitle></DialogHeader><p className="whitespace-pre-wrap text-sm leading-relaxed">{letter?.full_letter}</p><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => copyText(letter?.full_letter ?? "")}><Copy className="size-4" />Copy</Button><Button onClick={() => letter && exportLetterPdf(`${letter.role} ${letter.company}`, letter.full_letter)}><Download className="size-4" />Download PDF</Button><Button variant="outline" onClick={() => letter && exportLetterTxt(`${letter.role} ${letter.company}`, letter.full_letter)}><Download className="size-4" />Download TXT</Button></div></DialogContent></Dialog>
+    <Dialog open={Boolean(prep)} onOpenChange={o => !o && setPrep(null)}><DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Interview prep · {prep?.role}</DialogTitle></DialogHeader><p className="whitespace-pre-wrap text-sm leading-relaxed">{prep?.guide_text}</p><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => copyText(prep?.guide_text ?? "")}><Copy className="size-4" />Copy</Button><Button onClick={() => prep && exportTailoredPdf(`Interview prep ${prep.role} ${prep.company ?? ""}`, prep.guide_text)}><Download className="size-4" />Download PDF</Button><Button variant="outline" onClick={() => prep && exportTailoredTxt(`Interview prep ${prep.role} ${prep.company ?? ""}`, prep.guide_text)}><Download className="size-4" />Download TXT</Button></div></DialogContent></Dialog>
   </div>;
 }
 
