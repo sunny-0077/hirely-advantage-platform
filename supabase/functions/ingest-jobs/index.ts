@@ -8,6 +8,10 @@ const GREENHOUSE = ["razorpaysoftwareprivatelimited", "groww", "databricks", "mo
 const LEVER = ["cred", "meesho", "zeta", "paytm"];
 const MAX_NEW_PER_RUN = 25;
 const EST_COST_PER_JOB = 0.0006;
+// Background imports stop once total 24h AI spend reaches this, leaving the
+// rest of the $10 circuit breaker for paid user actions.
+const INGEST_SPEND_CEILING_USD = 3;
+class AiHalt extends Error { constructor(public reason: string) { super(reason); } }
 
 type City = "Bengaluru" | "Hyderabad" | "Pune" | "Mumbai" | "Delhi NCR" | "Remote";
 type RawJob = { source: string; sourceId: string; title: string; company: string; location: string; applyUrl: string; description: string };
@@ -100,6 +104,8 @@ async function extractTruthCard(job: RawJob, apiKey: string) {
       tool_choice: { type: "function", function: { name: "truth_card" } },
     }),
   });
+  if (r.status === 402 || r.status === 403) throw new AiHalt(`ai_${r.status}`);
+  if (r.status === 429) throw new AiHalt("rate_limited");
   if (!r.ok) throw new Error(`AI ${r.status}`);
   const d = await r.json();
   const args = d?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
@@ -117,15 +123,31 @@ Deno.serve(async (req) => {
     const db = createClient(url, serviceKey, { auth: { persistSession: false } });
 
     const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "");
-    if (token !== serviceKey) {
+    const cronToken = req.headers.get("x-cron-token") ?? "";
+    const { data: state } = await db.from("ingest_job_state").select("*").eq("id", "ingest-jobs").single();
+    const isCron = !!state && cronToken.length > 0 && cronToken === state.cron_token;
+    if (!isCron && token !== serviceKey) {
       const { data: u } = await db.auth.getUser(token);
       if (!u?.user) return json({ error: "Unauthorized" }, 401);
       const { data: isAdmin } = await db.rpc("has_role", { _user_id: u.user.id, _role: "admin" });
       if (!isAdmin) return json({ error: "Admins only" }, 403);
     }
 
-    const { data: paused } = await db.rpc("ai_actions_paused");
-    if (paused) return json({ error: "AI spend limit reached; ingestion paused" }, 503);
+    // Credit/policy pauses need a manual resume; rate-limit pauses clear on the next run.
+    if (state?.paused_reason && state.paused_reason !== "rate_limited" && isCron)
+      return json({ skipped: "paused", reason: state.paused_reason });
+
+    const { data: spend } = await db.rpc("ai_spend_last_24h");
+    if (Number(spend ?? 0) >= INGEST_SPEND_CEILING_USD) return json({ skipped: "budget", spend });
+
+    // Single-flight lease: a concurrent run exits.
+    const now = new Date();
+    const { data: lease } = await db.from("ingest_job_state")
+      .update({ locked_until: new Date(now.getTime() + 10 * 60_000).toISOString() })
+      .eq("id", "ingest-jobs").or(`locked_until.is.null,locked_until.lt.${now.toISOString()}`).select("id");
+    if (!lease?.length) return json({ skipped: "already_running" });
+    let pausedReason: string | null = null;
+    try {
 
     const feeds = await Promise.allSettled([...GREENHOUSE.map(fetchGreenhouse), ...LEVER.map(fetchLever)]);
     const raw = feeds.flatMap((f) => (f.status === "fulfilled" ? f.value : []));
@@ -164,12 +186,18 @@ Deno.serve(async (req) => {
         inserted++;
         await db.from("api_usage_logs").insert({ user_id: null, feature_name: "ingest-jobs", provider: "lovable-ai", estimated_cost_usd: EST_COST_PER_JOB, status: "success" });
       } catch (e) {
+        if (e instanceof AiHalt) { pausedReason = e.reason; break; }
         failed++;
         console.error("ingest failed", j.title, e);
         await db.from("api_usage_logs").insert({ user_id: null, feature_name: "ingest-jobs", provider: "lovable-ai", estimated_cost_usd: 0, status: "failed" });
       }
     }
-    return json({ scanned: raw.length, eligible: candidates.length, inserted, failed, skipped_existing: have.size });
+    const result = { scanned: raw.length, eligible: candidates.length, inserted, failed, skipped_existing: have.size, paused: pausedReason };
+    await db.from("ingest_job_state").update({ paused_reason: pausedReason, last_run_at: new Date().toISOString(), last_result: result }).eq("id", "ingest-jobs");
+    return json(result);
+    } finally {
+      await db.from("ingest_job_state").update({ locked_until: null }).eq("id", "ingest-jobs");
+    }
   } catch (e) {
     console.error("ingest-jobs error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
