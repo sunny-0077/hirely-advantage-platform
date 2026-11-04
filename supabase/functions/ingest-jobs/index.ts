@@ -163,8 +163,13 @@ Deno.serve(async (req) => {
       candidates.push({ ...j, hash, city });
     }
 
-    const { data: existing } = await db.from("jobs_catalog").select("external_job_id").in("external_job_id", candidates.map((c) => c.hash));
-    const have = new Set((existing ?? []).map((e) => e.external_job_id));
+    const have = new Set<string>();
+    for (let i = 0; i < candidates.length; i += 100) {
+      const { data: existing, error: exErr } = await db.from("jobs_catalog").select("external_job_id")
+        .in("external_job_id", candidates.slice(i, i + 100).map((c) => c.hash));
+      if (exErr) throw exErr;
+      for (const e of existing ?? []) have.add(e.external_job_id);
+    }
     // Round-robin across cities so each hub gets fresh jobs.
     const byCity = new Map<City, typeof candidates>();
     for (const c of candidates.filter((c) => !have.has(c.hash))) byCity.set(c.city, [...(byCity.get(c.city) ?? []), c]);
