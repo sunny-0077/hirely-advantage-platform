@@ -1,10 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, Users, ClipboardList, FolderOpen, UserRound } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, FolderOpen, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
 import { useEntitlements } from "@/hooks/useEntitlements";
-import { useWorkspace } from "@/hooks/useWorkspace";
 
 const suite = [
   { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
@@ -31,22 +30,18 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const workspace = useWorkspace();
-  const employer = workspace.data?.account_type === "employer";
-  const workspaceLinks = employer
-    ? [{ to: "/app/hiring", label: "Hiring dashboard", icon: Users }]
-    : [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Browse jobs", icon: Briefcase }, { to: "/app/my-applications", label: "My applications", icon: ClipboardList }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/profile", label: "My profile", icon: UserRound }];
+  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/profile", label: "My profile", icon: UserRound }];
   return (
   <>
     <div className="flex items-center mb-9 px-2">
       <LogoLockup size="text-xl font-sans" />
     </div>
 
-    <SectionLabel>{employer ? "Hiring" : "Workspace"}</SectionLabel>
+    <SectionLabel>Workspace</SectionLabel>
     <nav className="flex flex-col gap-1 mb-5">
       {workspaceLinks.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} onClick={onNavigate} className={({ isActive }) => cn("flex gap-3 items-center rounded-lg px-3 py-3 text-sm", isActive ? "bg-card text-foreground font-semibold border border-border" : "text-muted-foreground hover:text-foreground")}><Icon className="size-4" />{label}</NavLink>)}
     </nav>
-    {!employer && <><SectionLabel>Suite</SectionLabel>
+    <><SectionLabel>Suite</SectionLabel>
     <nav className="flex flex-col gap-0.5 mb-5">
       {suite.map(({ to, label, icon: Icon }) => (
         <NavLink
