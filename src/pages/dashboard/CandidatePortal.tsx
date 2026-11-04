@@ -29,6 +29,12 @@ export function MyDocuments() {
     if (r.error || c.error || t.error) throw r.error ?? c.error ?? t.error;
     return { resumes: r.data, letters: c.data, tailored: t.data };
   } });
+  const openId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("tailoring") : null;
+  useEffect(() => {
+    if (!openId || !q.data) return;
+    const hit = q.data.tailored.find((t) => t.id === openId);
+    if (hit) { setTailored(hit); window.history.replaceState(null, "", window.location.pathname); }
+  }, [openId, q.data]);
   function copyText(text: string) {
     navigator.clipboard.writeText(text).then(() => toast.success("Copied"), () => toast.error("Couldn't copy"));
   }
