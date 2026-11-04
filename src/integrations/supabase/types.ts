@@ -115,6 +115,7 @@ export type Database = {
           id: string
           jd_keywords: Json
           job_description: string | null
+          job_id: string | null
           match_score: number | null
           matched_keywords: Json
           missing_keywords: Json
@@ -141,6 +142,7 @@ export type Database = {
           id?: string
           jd_keywords?: Json
           job_description?: string | null
+          job_id?: string | null
           match_score?: number | null
           matched_keywords?: Json
           missing_keywords?: Json
@@ -167,6 +169,7 @@ export type Database = {
           id?: string
           jd_keywords?: Json
           job_description?: string | null
+          job_id?: string | null
           match_score?: number | null
           matched_keywords?: Json
           missing_keywords?: Json
