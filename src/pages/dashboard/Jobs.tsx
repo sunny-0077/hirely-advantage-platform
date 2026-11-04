@@ -82,7 +82,7 @@ export default function Jobs() {
     setTailorJob(job);
     const { data } = await supabase.from("resumes").select("id, file_name").order("created_at", { ascending: false });
     setResumes(data ?? []);
-    setResumeId("master");
+    setResumeId(data?.[0]?.id ?? "master");
   };
 
   const runTailor = async () => {
