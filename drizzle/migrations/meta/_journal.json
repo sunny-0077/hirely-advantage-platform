@@ -29,6 +29,20 @@
       "when": 1793799483254,
       "tag": "0003_retire_hiring_features",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793801371756,
+      "tag": "0004_ingest_job_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793801393602,
+      "tag": "0005_ingest_state_hide_token",
+      "breakpoints": true
     }
   ]
 }
