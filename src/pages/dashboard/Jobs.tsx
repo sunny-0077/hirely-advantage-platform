@@ -100,7 +100,7 @@ export default function Jobs() {
       if (data?.error) throw new Error(data.error);
       toast.success("Tailored resume ready. 1 credit used.");
       setTailorJob(null);
-      navigate(`/app/resume?resume=${resumeId}`);
+      navigate("/app/resume");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Tailoring failed");
     } finally {
