@@ -735,8 +735,7 @@ const ScoreCell = ({
         accent && "text-[hsl(258_45%_55%)]",
       )}
     >
-      {Math.round(value)}
-      <span className="text-[12px] font-normal text-foreground/45 ml-0.5">/100</span>
+      {value >= 75 ? "Strong" : value >= 50 ? "Fair" : "Weak"}
     </p>
   </div>
 );
