@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Briefcase, FileText, Mail, Trash2, Eye, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -68,7 +68,7 @@ export function MyProfile() {
   const [experience, setExperience] = useState<Exp[]>([]);
   const [busy, setBusy] = useState(false);
   const q = useQuery({ queryKey: ["my-profile", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const { data, error } = await supabase.from("profiles").select("display_name,plan,headline,skills,education,experience").eq("user_id", user!.id).maybeSingle();
+    const { data, error } = await supabase.from("profiles").select("display_name,plan_tier,credits_balance,headline,skills,education,experience").eq("user_id", user!.id).maybeSingle();
     if (error) throw error;
     return data;
   } });
@@ -114,7 +114,7 @@ export function MyProfile() {
         <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-headline">Headline</Label><Input id="pf-headline" maxLength={150} placeholder="e.g. Data Analyst with 3 years in retail analytics" value={headline} onChange={e => setHeadline(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-email">Email</Label><Input id="pf-email" value={user?.email ?? ""} disabled /></div>
-        <div className="space-y-2"><Label>Plan</Label><p className="text-sm capitalize">{q.data?.plan ?? "free"}</p></div>
+        <div className="space-y-2"><Label>Plan</Label><p className="text-sm">{({ scout_free: "Scout (free)", starter_pack: "Starter pack", pass_90_day: "90-day pass" } as Record<string, string>)[q.data?.plan_tier ?? "scout_free"]} · {q.data?.credits_balance ?? 0} credits</p></div>
       </div>
 
       <div className={section}>
