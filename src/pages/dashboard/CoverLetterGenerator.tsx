@@ -451,22 +451,6 @@ const CoverLetterGenerator = () => {
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              {hasLetter && matchScore !== null && (
-                <span
-                  title="Personalization score — % of JD keywords woven into your letter"
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium tracking-tight border",
-                    matchScore >= 75
-                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                      : matchScore >= 50
-                        ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                        : "bg-rose-500/10 text-rose-600 border-rose-500/20",
-                  )}
-                >
-                  <span className="opacity-70">Match</span>
-                  <span>{matchScore}%</span>
-                </span>
-              )}
               <button
                 onClick={() => setFullscreen(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"

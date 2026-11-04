@@ -356,15 +356,14 @@ function ResultsView({ result }: { result: Result }) {
             style={{ background: "radial-gradient(closest-side, rgba(251,146,60,0.28), transparent)" }}
           />
           <div className="relative flex items-start gap-6 flex-wrap">
-            <MatchRing value={matchPct} projected={effectivePct} />
             <div className="flex-1 min-w-[220px]">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-orange-600 font-semibold">
                 Keyword match
               </p>
               <p className="mt-1.5 text-[16px] leading-snug font-medium tracking-tight text-foreground">
-                {matchPct}% of JD keywords appear in your resume
-                {effectivePct > matchPct && (
-                  <span className="text-orange-600 font-semibold"> · {effectivePct}% after edits</span>
+                {found} of {total} job description keywords appear in your resume
+                {added.length > 0 && (
+                  <span className="text-orange-600 font-semibold"> · {added.length} added since</span>
                 )}
               </p>
               <p className="mt-2 text-[12.5px] text-foreground/65 leading-relaxed max-w-lg">
@@ -560,7 +559,7 @@ function ResultsView({ result }: { result: Result }) {
                 <p className="text-[11.5px] text-foreground/60">
                   {added.length === 0
                     ? "Track keywords as you incorporate them into your resume."
-                    : `${added.length} keyword${added.length === 1 ? "" : "s"} · match ${matchPct}% → ${effectivePct}%`}
+                    : `${added.length} keyword${added.length === 1 ? "" : "s"} added`}
                 </p>
               </div>
             </div>
