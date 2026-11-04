@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_usage_logs: {
+        Row: {
+          created_at: string
+          estimated_cost_usd: number
+          feature_name: string
+          id: string
+          provider: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          estimated_cost_usd?: number
+          feature_name: string
+          id?: string
+          provider: string
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          estimated_cost_usd?: number
+          feature_name?: string
+          id?: string
+          provider?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applied_at: string | null
@@ -151,6 +181,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      credit_ledger: {
+        Row: {
+          action_type: string
+          created_at: string
+          credits_delta: number
+          id: string
+          refund_of: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          credits_delta: number
+          id?: string
+          refund_of?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          credits_delta?: number
+          id?: string
+          refund_of?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_ledger_refund_of_fkey"
+            columns: ["refund_of"]
+            isOneToOne: true
+            referencedRelation: "credit_ledger"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hiring_accounts: {
         Row: {
@@ -400,6 +465,45 @@ export type Database = {
           },
         ]
       }
+      jobs_catalog: {
+        Row: {
+          apply_url: string | null
+          city_hub: string
+          company_name: string
+          external_job_id: string
+          fetched_at: string
+          id: string
+          raw_description: string | null
+          title: string
+          truth_card_json: Json
+          work_mode: string | null
+        }
+        Insert: {
+          apply_url?: string | null
+          city_hub: string
+          company_name: string
+          external_job_id: string
+          fetched_at?: string
+          id?: string
+          raw_description?: string | null
+          title: string
+          truth_card_json?: Json
+          work_mode?: string | null
+        }
+        Update: {
+          apply_url?: string | null
+          city_hub?: string
+          company_name?: string
+          external_job_id?: string
+          fetched_at?: string
+          id?: string
+          raw_description?: string | null
+          title?: string
+          truth_card_json?: Json
+          work_mode?: string | null
+        }
+        Relationships: []
+      }
       mock_interview_sessions: {
         Row: {
           created_at: string
@@ -516,39 +620,60 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          city_hub: string
           created_at: string
+          credits_balance: number
           display_name: string | null
           education: Json
           experience: Json
+          full_name: string | null
           headline: string | null
           id: string
+          master_resume_json: Json
+          master_resume_text: string | null
+          pass_expires_at: string | null
           plan: Database["public"]["Enums"]["app_plan"]
+          plan_tier: string
           skills: string[]
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          city_hub?: string
           created_at?: string
+          credits_balance?: number
           display_name?: string | null
           education?: Json
           experience?: Json
+          full_name?: string | null
           headline?: string | null
           id?: string
+          master_resume_json?: Json
+          master_resume_text?: string | null
+          pass_expires_at?: string | null
           plan?: Database["public"]["Enums"]["app_plan"]
+          plan_tier?: string
           skills?: string[]
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          city_hub?: string
           created_at?: string
+          credits_balance?: number
           display_name?: string | null
           education?: Json
           experience?: Json
+          full_name?: string | null
           headline?: string | null
           id?: string
+          master_resume_json?: Json
+          master_resume_text?: string | null
+          pass_expires_at?: string | null
           plan?: Database["public"]["Enums"]["app_plan"]
+          plan_tier?: string
           skills?: string[]
           updated_at?: string
           user_id?: string
@@ -850,6 +975,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ai_actions_paused: { Args: never; Returns: boolean }
+      ai_spend_last_24h: { Args: never; Returns: number }
+      credit_cost: {
+        Args: { _action: string; _units?: number }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -860,6 +991,11 @@ export type Database = {
       increment_usage_counter: {
         Args: { _column: string; _delta?: number; _user_id: string }
         Returns: number
+      }
+      refund_credits: { Args: { _ledger_id: string }; Returns: undefined }
+      spend_credits: {
+        Args: { _action: string; _units?: number; _user_id: string }
+        Returns: string
       }
       submit_job_application: {
         Args: {
