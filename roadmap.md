@@ -1,15 +1,9 @@
 # Roadmap
 
-- [x] Add server-validated green Verified confirmation and original-tab resume; test confirmed account reaches required onboarding without runtime errors.
-- [ ] Verify a fresh email link on public Hirely; blocked because the app is unpublished and no test inbox is available.
-
-- [x] Restore sign-in-required dashboard entry, superseding the temporary no-login flow.
-- [ ] Connect an eligible payment provider; blocked by declined Razorpay connection and unconfirmed international recurring support.
-- [ ] Build subscription checkout; blocked by payment provider connection.
-- [x] Remove auth callback lock/racing plan writes; enable managed Google/Lovable sign-in and email signup with confirmation and onboarding.
-- [x] Verify Google authorization from fresh preview telemetry showing a successful Google session and account read.
-- [x] Add and verify employer job posting, candidate document submission, keyword matching, and employer review/status updates.
-- [x] Reproduce and correct misleading signup confirmation for an existing verified Google account; add confirmation resend and alternate-email controls with cooldown.
-- [ ] Verify delivery to an inbox for a genuinely new email signup; mailbox access is unavailable.
-- [x] Repeat employer onboarding, job posting, close/reopen, and reload verification with temporary records.
-- [ ] Complete candidate document submission and employer matching review; blocked until the user identifies a separate candidate account for approved sign-in.
+- [x] Phase 1A: credits, ledger, usage logs, jobs catalog, $10/24h safety switch, auto-refund (wired into resume tailoring).
+- [x] Remove employer hiring pages and wipe hiring data.
+- [ ] Permanently drop old hiring tables; blocked until "Execute backward incompatible database migrations" is allowed in Agent permissions.
+- [ ] Remove percentage scores from Resume Analyzer, ATS Optimizer, Compare, Gap Analysis, Parse Simulator and Cover Letter screens.
+- [ ] Replace Pricing page plan switching with credit purchase; blocked by payment provider.
+- [ ] Wire hm_unlock, voice_interview, salary_audit through runPaidAction when those features are built.
+- [ ] Verify a fresh email link on public Hirely; blocked because the app is unpublished.

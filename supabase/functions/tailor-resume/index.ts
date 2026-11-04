@@ -1,7 +1,6 @@
 // Tailor resume — generates a role-specific optimized version via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
-import { checkEntitlement } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -192,7 +191,7 @@ Deno.serve(async (req) => {
     }
 
     const inserted = await runPaidAction(
-      { userId, action: "resume_tailor", feature: "tailor-resume", provider: "google/gemini-2.5-flash", estimatedCostUsd: 0.003 },
+      { userId, action: "resume_tailor", feature: "tailor-resume", provider: "google/gemini-3.8-flash", estimatedCostUsd: 0.003 },
       async () => {
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
       if (!LOVABLE_API_KEY) throw new HttpError("AI key not configured", 500);
@@ -217,7 +216,7 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-3.8-flash",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: userPrompt },
@@ -269,7 +268,7 @@ Deno.serve(async (req) => {
             parsed.match_before != null ? Math.round(parsed.match_before) : null,
           match_after:
             parsed.match_after != null ? Math.round(parsed.match_after) : null,
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-3.8-flash",
         })
         .select()
         .single();
