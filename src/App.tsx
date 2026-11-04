@@ -19,6 +19,7 @@ import AtsOptimizer from "./pages/dashboard/AtsOptimizer.tsx";
 import ResumeBuilder from "./pages/dashboard/ResumeBuilder.tsx";
 import GapAnalysis from "./pages/dashboard/GapAnalysis.tsx";
 import AtsParseSim from "./pages/dashboard/AtsParseSim.tsx";
+import Jobs from "./pages/dashboard/Jobs.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/app" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/app/home" replace />} />
             <Route path="home" element={<WorkspaceHome />} />
+            <Route path="jobs" element={<Jobs />} />
             <Route path="documents" element={<MyDocuments />} />
             <Route path="profile" element={<MyProfile />} />
             <Route path="resume" element={<ResumeAnalyzer />} />

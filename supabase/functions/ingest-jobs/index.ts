@@ -91,7 +91,7 @@ async function extractTruthCard(job: RawJob, apiKey: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-3.8-flash",
       messages: [
         { role: "system", content: "You are a blunt Indian tech recruiter. Read job posts and extract an honest truth card. Always call the truth_card tool." },
         { role: "user", content: `TITLE: ${job.title}\nCOMPANY: ${job.company}\nLOCATION: ${job.location}\n\nDESCRIPTION:\n${job.description.slice(0, 6000)}` },

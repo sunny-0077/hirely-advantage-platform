@@ -30,7 +30,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/profile", label: "My profile", icon: UserRound }];
+  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/profile", label: "My profile", icon: UserRound }];
   return (
   <>
     <div className="flex items-center mb-9 px-2">
