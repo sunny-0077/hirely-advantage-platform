@@ -283,7 +283,7 @@ Deno.serve(async (req) => {
             parsed.summary ? `SUMMARY\n${parsed.summary}` : "",
             Array.isArray(parsed.skills) && parsed.skills.length ? `SKILLS\n${parsed.skills.join(", ")}` : "",
             Array.isArray(parsed.bullets) && parsed.bullets.length
-              ? `EXPERIENCE HIGHLIGHTS\n${parsed.bullets.map((b: any) => `- ${typeof b === "string" ? b : b?.rewritten ?? b?.after ?? b?.text ?? ""}`).join("\n")}`
+              ? `EXPERIENCE\n${parsed.bullets.map((b: any) => `${b?.role ?? ""}${b?.company ? `, ${b.company}` : ""}\n${(b?.rewrites ?? []).map((r: any) => `- ${r?.after ?? ""}`).join("\n")}`).join("\n\n")}`
               : "",
           ].filter(Boolean).join("\n\n"),
           analysis_id: analysis_id ?? null,
