@@ -832,40 +832,11 @@ function SafetyCard({
   return (
     <SectionCard>
       <div className="flex items-start gap-5 flex-wrap">
-        <div className="relative w-[76px] h-[76px] shrink-0">
-          <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
-            <circle
-              cx="32"
-              cy="32"
-              r={r}
-              fill="none"
-              strokeWidth="6"
-              className={cn("stroke-current", palette.track)}
-            />
-            <circle
-              cx="32"
-              cy="32"
-              r={r}
-              fill="none"
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={`${dash} ${c}`}
-              className={cn("stroke-current transition-all", palette.ring)}
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[16px] font-medium tracking-tight text-foreground">
-              {score}
-              <span className="text-[10px] text-foreground/45 ml-0.5">%</span>
-            </span>
-          </div>
-        </div>
-
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <Icon className={cn("w-4 h-4", palette.ring)} />
             <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/55 font-medium">
-              Keyword Safety Score
+              Keyword safety
             </p>
           </div>
           <p className="mt-1.5 text-[15px] leading-snug font-medium tracking-tight text-foreground">
