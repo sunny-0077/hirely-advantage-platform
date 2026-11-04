@@ -71,6 +71,13 @@
       "when": 1793814666127,
       "tag": "0009_cover_letter_credit_action",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793816890765,
+      "tag": "0010_interview_prep_guides",
+      "breakpoints": true
     }
   ]
 }
