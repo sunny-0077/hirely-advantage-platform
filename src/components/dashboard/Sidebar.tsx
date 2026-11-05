@@ -3,6 +3,7 @@ import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
+import { PlatformFeedbackButton } from "@/components/feedback/PlatformFeedbackButton";
 import { useEntitlements } from "@/hooks/useEntitlements";
 
 const suite = [
@@ -102,6 +103,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
       ))}
     </nav>
 
+    <PlatformFeedbackButton />
     <UpgradeCard onNavigate={onNavigate} /></>
   </>
   );
