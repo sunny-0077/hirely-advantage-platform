@@ -220,6 +220,36 @@ export type Database = {
           },
         ]
       }
+      document_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          document_id: string
+          document_type: string
+          helpful: boolean
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          document_id: string
+          document_type: string
+          helpful: boolean
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          document_id?: string
+          document_type?: string
+          helpful?: boolean
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       hiring_accounts: {
         Row: {
           account_type: string
@@ -682,6 +712,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_feedback: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          page_path: string | null
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          message: string
+          page_path?: string | null
+          rating: number
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          page_path?: string | null
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
