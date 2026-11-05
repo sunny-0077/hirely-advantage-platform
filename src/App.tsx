@@ -59,8 +59,6 @@ const App = () => (
             <Route path="gap-analysis" element={<GapAnalysis />} />
             <Route path="ats-parse-sim" element={<AtsParseSim />} />
             <Route path="applications" element={<MyApplications />} />
-              }
-            />
             <Route
               path="outreach"
               element={
