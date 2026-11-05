@@ -24,9 +24,8 @@ import Jobs from "./pages/dashboard/Jobs.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
-import { Briefcase, Send, Bookmark } from "lucide-react";
+import { Send, Bookmark } from "lucide-react";
 import {
-  PreviewApplications,
   PreviewOutreach,
   PreviewSaved,
 } from "@/components/dashboard/EmptyState";
