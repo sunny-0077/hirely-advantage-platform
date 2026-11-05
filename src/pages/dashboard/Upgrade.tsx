@@ -1,15 +1,22 @@
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Check } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
-import { BETA_PLANS, useBetaOffer } from "@/components/billing/BetaOffer";
+import { BETA_PLANS, useBetaOffer, type BetaPlan } from "@/components/billing/BetaOffer";
 
 const FEATURES: Record<string, string[]> = {
-  starter_pack: ["Credits for tailoring, cover letters and interview prep", "Use them anytime"],
-  pass_90_day: ["50 credits released every 30 days", "150 credits over 90 days", "Unused credits carry over"],
+  starter_pack: ["25 credits", "One-time credit pack", "Credits never expire"],
+  pass_90_day: ["150 total credits", "50 credits/month across 3 monthly tranches", "Unused credits roll over"],
 };
 
 const Upgrade = () => {
   const { open } = useBetaOffer();
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    const p = params.get("plan");
+    if (p === "starter_pack" || p === "pass_90_day") { open(p as BetaPlan); setParams({}, { replace: true }); }
+  }, [params, open, setParams]);
   return <div className="max-w-4xl mx-auto pb-20">
     <PageHeader eyebrow="Upgrade" title="Get more credits." description="Payments open soon — join the waitlist and get 5 free beta credits today." />
     <div className="grid md:grid-cols-2 gap-5">

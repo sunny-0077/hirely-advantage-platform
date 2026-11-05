@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 
 export type BetaPlan = "starter_pack" | "pass_90_day";
 export const BETA_PLANS: { id: BetaPlan; name: string; price: string; blurb: string }[] = [
-  { id: "starter_pack", name: "Starter Pack", price: "₹249", blurb: "One-time credit pack" },
-  { id: "pass_90_day", name: "90-Day Pass", price: "₹899", blurb: "50 credits every 30 days · 150 total" },
+  { id: "starter_pack", name: "Starter Pack", price: "₹249", blurb: "25 credits · one-time pack, no expiry" },
+  { id: "pass_90_day", name: "90-Day Pass", price: "₹899", blurb: "150 credits · 50/month across 3 tranches, rollover" },
 ];
 
 const Ctx = createContext<{ open: (plan?: BetaPlan) => void }>({ open: () => {} });
