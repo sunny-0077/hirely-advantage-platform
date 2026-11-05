@@ -27,6 +27,11 @@ export default function AdminFeedback() {
     const { data, error } = await supabase.rpc("admin_document_feedback"); if (error) throw error; return data ?? [];
   } });
 
+  const interest = useQuery({ queryKey: ["admin-pi"], enabled: admin.data === true, queryFn: async () => {
+    const { data, error } = await supabase.from("pricing_interest").select("id,user_id,email,plan_tier,price_inr,bonus_granted,created_at").order("created_at", { ascending: false }).limit(1000);
+    if (error) throw error; return data ?? [];
+  } });
+
   if (admin.isPending) return <p role="status">Loading…</p>;
   if (!admin.data) return <Navigate to="/app/home" replace />;
 
@@ -37,7 +42,7 @@ export default function AdminFeedback() {
   return <div className="max-w-6xl mx-auto">
     <PageHeader eyebrow="Admin" title="Feedback" description="Everything users have told you, newest first." />
     <Tabs defaultValue="platform">
-      <TabsList><TabsTrigger value="platform">Platform Feedback ({platform.data?.length ?? 0})</TabsTrigger><TabsTrigger value="docs">Document Ratings ({docs.data?.length ?? 0})</TabsTrigger></TabsList>
+      <TabsList><TabsTrigger value="platform">Platform Feedback ({platform.data?.length ?? 0})</TabsTrigger><TabsTrigger value="docs">Document Ratings ({docs.data?.length ?? 0})</TabsTrigger><TabsTrigger value="interest">Pricing Interest ({interest.data?.length ?? 0})</TabsTrigger></TabsList>
 
       <TabsContent value="platform" className="space-y-4 mt-4">
         <div className="flex flex-wrap gap-2">
@@ -69,6 +74,19 @@ export default function AdminFeedback() {
           <span className="flex-1 min-w-[12rem] text-muted-foreground">{d.comment || "No comment"}</span>
           <span className="text-xs text-muted-foreground">{fmt(d.created_at)}</span>
         </div>)}</div> : <p className="text-sm text-muted-foreground py-6">No document ratings yet.</p>}
+      </TabsContent>
+      <TabsContent value="interest" className="space-y-4 mt-4">
+        <div className="grid grid-cols-2 gap-4 max-w-md">
+          <div className="bg-card border border-border rounded-lg p-4"><p className="text-2xl font-semibold">{(interest.data ?? []).filter(i => i.plan_tier === "starter_pack").length}</p><p className="text-sm text-muted-foreground">Starter Pack · ₹249</p></div>
+          <div className="bg-card border border-border rounded-lg p-4"><p className="text-2xl font-semibold">{(interest.data ?? []).filter(i => i.plan_tier === "pass_90_day").length}</p><p className="text-sm text-muted-foreground">90-Day Pass · ₹899</p></div>
+        </div>
+        {interest.error && <p role="alert" className="text-destructive">Couldn't load pricing interest.</p>}
+        {interest.isPending ? <p role="status">Loading…</p> : interest.data?.length ? <div className="border border-border rounded-lg bg-card divide-y divide-border">{interest.data.map(i => <div key={i.id} className="p-4 flex flex-wrap items-center gap-3 text-sm">
+          <Badge>{i.plan_tier === "starter_pack" ? "Starter Pack" : "90-Day Pass"} · ₹{i.price_inr}</Badge>
+          <span className="flex-1 break-all">{i.email ?? i.user_id}</span>
+          {i.bonus_granted && <Badge variant="secondary">+5 bonus given</Badge>}
+          <span className="text-xs text-muted-foreground">{fmt(i.created_at)}</span>
+        </div>)}</div> : <p className="text-sm text-muted-foreground py-6">No one has clicked to upgrade yet.</p>}
       </TabsContent>
     </Tabs>
   </div>;
