@@ -8,6 +8,7 @@ import Auth from "./pages/Auth.tsx";
 import AuthCallback from "./pages/AuthCallback.tsx";
 import Onboarding from "./pages/Onboarding";
 import WorkspaceHome from "./pages/dashboard/WorkspaceHome";
+import MyApplications from "./pages/dashboard/MyApplications";
 import { MyDocuments, MyProfile } from "./pages/dashboard/CandidatePortal";
 import NotFound from "./pages/NotFound.tsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.tsx";
@@ -58,16 +59,7 @@ const App = () => (
             <Route path="resume-builder" element={<ResumeBuilder />} />
             <Route path="gap-analysis" element={<GapAnalysis />} />
             <Route path="ats-parse-sim" element={<AtsParseSim />} />
-            <Route
-              path="applications"
-              element={
-                <PlaceholderPage
-                  icon={Briefcase}
-                  eyebrow="Applications"
-                  title="Every conversation, in one place."
-                  description="Track every role you've applied to — status, last touch, and what to do next. Filling out soon."
-                  preview={<PreviewApplications />}
-                />
+            <Route path="applications" element={<MyApplications />} />
               }
             />
             <Route
