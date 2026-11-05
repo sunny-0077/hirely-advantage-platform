@@ -56,10 +56,22 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => null);
     const jobId = body?.job_id;
-    if (typeof jobId !== "string" || !/^[0-9a-f-]{36}$/i.test(jobId)) return json({ error: "job_id is required" }, 400);
-
-    const { data: job } = await supabase.from("jobs_catalog").select("id, title, company_name, raw_description").eq("id", jobId).maybeSingle();
-    if (!job) return json({ error: "Job not found" }, 404);
+    const custom = body?.custom;
+    let job: { id: string | null; title: string; company_name: string; raw_description: string | null } | null = null;
+    if (typeof jobId === "string" && /^[0-9a-f-]{36}$/i.test(jobId)) {
+      const { data } = await supabase.from("jobs_catalog").select("id, title, company_name, raw_description").eq("id", jobId).maybeSingle();
+      if (!data) return json({ error: "Job not found" }, 404);
+      job = data;
+    } else if (custom && typeof custom === "object") {
+      // Custom Job Studio: a pasted external job.
+      const title = sanitizeAiInput(String(custom.title ?? ""), 200);
+      const company = sanitizeAiInput(String(custom.company ?? ""), 200);
+      const desc = typeof custom.description === "string" ? custom.description : "";
+      if (title.length < 2) return json({ error: "Please enter a job title." }, 400);
+      if (company.length < 1) return json({ error: "Please enter a company name." }, 400);
+      if (desc.trim().length < 50) return json({ error: "Please paste the job description (at least 50 characters)." }, 400);
+      job = { id: null, title, company_name: company, raw_description: desc };
+    } else return json({ error: "job_id or custom job is required" }, 400);
     const { data: prof } = await supabase.from("profiles").select("master_resume_text").eq("user_id", userId).maybeSingle();
     const resume = sanitizeAiInput(prof?.master_resume_text ?? "");
     if (resume.length < 80) return json({ error: "Add your master resume on My profile before generating a cover letter." }, 400);
