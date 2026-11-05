@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, FolderOpen, UserRound, ClipboardList } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
 import { PlatformFeedbackButton } from "@/components/feedback/PlatformFeedbackButton";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useEntitlements } from "@/hooks/useEntitlements";
 
 const suite = [
@@ -30,7 +31,8 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound, ClipboardList }];
+  const isAdmin = useIsAdmin();
+  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound }, ...(isAdmin ? [{ to: "/app/admin/feedback", label: "Admin Feedback", icon: ShieldCheck }] : [])];
   return (
   <>
     <div className="flex items-center mb-9 px-2">
