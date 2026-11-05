@@ -1,6 +1,7 @@
 // Job feed interview prep: master resume + job description -> structured prep guide (1 credit).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 const corsHeaders = {
@@ -146,6 +147,7 @@ Deno.serve(async (req) => {
         return row;
       },
     );
+    if (letter?.id) await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { interview_prep_id: letter.id });
     return json({ guide: letter });
   } catch (e) {
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
