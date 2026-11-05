@@ -6,6 +6,7 @@ import { AlertTriangle, ArrowRight, Briefcase, CalendarClock, Coins, Download, E
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
+import { useBetaOffer } from "@/components/billing/BetaOffer";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ export default function WorkspaceHome() {
   const [company, setCompany] = useState("");
   const [jd, setJd] = useState("");
   const [busy, setBusy] = useState<Action | null>(null);
+  const beta = useBetaOffer();
 
   const q = useQuery({
     queryKey: ["workspace-home", user?.id], enabled: Boolean(user),
@@ -93,7 +95,7 @@ export default function WorkspaceHome() {
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
 
     <section aria-label="Overview" className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-      <Stat icon={Coins} label="Credits left" value={q.isPending ? "—" : String(profile?.credits_balance ?? 0)} />
+      <Stat icon={Coins} label="Credits left" value={q.isPending ? "—" : String(profile?.credits_balance ?? 0)} action={q.isSuccess && (profile?.credits_balance ?? 0) <= 2 ? <Button size="sm" onClick={() => beta.open()}>Get Credits</Button> : undefined} />
       <Stat icon={CalendarClock} label={PLAN_LABEL[profile?.plan_tier ?? "scout_free"] ?? "Plan"} value={q.isPending ? "—" : profile?.pass_expires_at ? `Until ${fmt(profile.pass_expires_at)}` : "No expiry"} />
       <Stat icon={FileStack} label="Documents generated" value={q.isPending ? "—" : String(q.data?.total ?? 0)} />
     </section>
@@ -141,6 +143,6 @@ export default function WorkspaceHome() {
   </div>;
 }
 
-function Stat({ icon: I, label, value }: { icon: typeof Coins; label: string; value: string }) {
-  return <div className="bg-card border border-border rounded-lg p-5"><I className="size-5 text-muted-foreground mb-3" /><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
+function Stat({ icon: I, label, value, action }: { icon: typeof Coins; label: string; value: string; action?: React.ReactNode }) {
+  return <div className="bg-card border border-border rounded-lg p-5"><div className="flex justify-between items-start mb-3"><I className="size-5 text-muted-foreground" />{action}</div><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
 }

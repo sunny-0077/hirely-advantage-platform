@@ -99,6 +99,13 @@
       "when": 1793877514160,
       "tag": "0013_admin_feedback_and_onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793878117046,
+      "tag": "0014_beta_pricing_interest",
+      "breakpoints": true
     }
   ]
 }

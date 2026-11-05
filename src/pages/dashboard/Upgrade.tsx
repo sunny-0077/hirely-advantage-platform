@@ -1,36 +1,27 @@
-import { Pricing } from "@/components/landing/Pricing";
-import { Reveal } from "@/components/landing/Reveal";
-import { useEntitlements } from "@/hooks/useEntitlements";
-import { PLAN_LABEL } from "@/lib/entitlements";
+import { Check } from "lucide-react";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { Button } from "@/components/ui/button";
+import { BETA_PLANS, useBetaOffer } from "@/components/billing/BetaOffer";
+
+const FEATURES: Record<string, string[]> = {
+  starter_pack: ["Credits for tailoring, cover letters and interview prep", "Use them anytime"],
+  pass_90_day: ["50 credits released every 30 days", "150 credits over 90 days", "Unused credits carry over"],
+};
 
 const Upgrade = () => {
-  const ent = useEntitlements();
-  return (
-    <div className="max-w-7xl mx-auto pb-20">
-      <Reveal>
-        <div className="mb-10">
-          <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/45">
-            Upgrade
-          </span>
-          <h1 className="font-display text-3xl md:text-5xl font-semibold tracking-tight text-foreground mt-3 leading-[1.05]">
-            Unlock the full Hirely suite.
-          </h1>
-          <p className="mt-4 text-[15px] text-foreground/60 max-w-2xl leading-relaxed">
-            Faster rewrites, deeper ATS scoring, unlimited mock interviews — pick the plan that
-            matches how seriously you're job hunting.
-          </p>
-          {!ent.loading && (
-            <p className="mt-3 text-[12.5px] text-foreground/50">
-              You're currently on the{" "}
-              <span className="font-medium text-foreground/80">{PLAN_LABEL[ent.plan]}</span> plan.
-            </p>
-          )}
-        </div>
-      </Reveal>
-
-      <Pricing variant="dashboard" showHeader={false} currentPlan={ent.plan} />
+  const { open } = useBetaOffer();
+  return <div className="max-w-4xl mx-auto pb-20">
+    <PageHeader eyebrow="Upgrade" title="Get more credits." description="Payments open soon — join the waitlist and get 5 free beta credits today." />
+    <div className="grid md:grid-cols-2 gap-5">
+      {BETA_PLANS.map(p => <div key={p.id} className="bg-card border border-border rounded-lg p-6 flex flex-col">
+        <h2 className="text-lg font-semibold">{p.name}</h2>
+        <p className="text-3xl font-semibold my-2">{p.price}</p>
+        <p className="text-sm text-muted-foreground mb-4">{p.blurb}</p>
+        <ul className="space-y-2 mb-6 flex-1">{FEATURES[p.id].map(f => <li key={f} className="flex gap-2 text-sm"><Check className="size-4 text-success shrink-0 mt-0.5" />{f}</li>)}</ul>
+        <Button onClick={() => open(p.id)}>Buy {p.name} · {p.price}</Button>
+      </div>)}
     </div>
-  );
+  </div>;
 };
 
 export default Upgrade;

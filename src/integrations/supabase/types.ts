@@ -758,6 +758,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_interest: {
+        Row: {
+          bonus_granted: boolean
+          created_at: string
+          email: string | null
+          id: string
+          plan_tier: string
+          price_inr: number
+          user_id: string
+        }
+        Insert: {
+          bonus_granted?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          plan_tier: string
+          price_inr: number
+          user_id: string
+        }
+        Update: {
+          bonus_granted?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          plan_tier?: string
+          price_inr?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1172,6 +1202,7 @@ export type Database = {
       }
       ai_actions_paused: { Args: never; Returns: boolean }
       ai_spend_last_24h: { Args: never; Returns: number }
+      claim_beta_offer: { Args: { _plan: string }; Returns: Json }
       credit_cost: {
         Args: { _action: string; _units?: number }
         Returns: number
