@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AlertTriangle, ArrowRight, Briefcase, CalendarClock, Coins, Download, Eye, FileStack, Loader2, Mail, MessagesSquare, Sparkles, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +88,7 @@ export default function WorkspaceHome() {
 
   return <div className="max-w-6xl mx-auto">
     <PageHeader eyebrow="My workspace" title="Your next opportunity starts here." />
+    <GettingStarted />
 
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
 

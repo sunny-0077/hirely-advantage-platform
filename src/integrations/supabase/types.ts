@@ -768,6 +768,7 @@ export type Database = {
           education: Json
           experience: Json
           full_name: string | null
+          getting_started_dismissed_at: string | null
           headline: string | null
           id: string
           master_resume_json: Json
@@ -790,6 +791,7 @@ export type Database = {
           education?: Json
           experience?: Json
           full_name?: string | null
+          getting_started_dismissed_at?: string | null
           headline?: string | null
           id?: string
           master_resume_json?: Json
@@ -812,6 +814,7 @@ export type Database = {
           education?: Json
           experience?: Json
           full_name?: string | null
+          getting_started_dismissed_at?: string | null
           headline?: string | null
           id?: string
           master_resume_json?: Json
@@ -1141,6 +1144,32 @@ export type Database = {
     }
     Functions: {
       activate_pass_90_day: { Args: { _user_id: string }; Returns: undefined }
+      admin_document_feedback: {
+        Args: never
+        Returns: {
+          comment: string
+          created_at: string
+          document_id: string
+          document_type: string
+          email: string
+          helpful: boolean
+          id: string
+          user_id: string
+        }[]
+      }
+      admin_platform_feedback: {
+        Args: never
+        Returns: {
+          category: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          page_path: string
+          rating: number
+          user_id: string
+        }[]
+      }
       ai_actions_paused: { Args: never; Returns: boolean }
       ai_spend_last_24h: { Args: never; Returns: number }
       credit_cost: {
