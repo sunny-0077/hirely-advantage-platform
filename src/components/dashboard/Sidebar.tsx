@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck } from "lucide-react";
+import { Mail, Mic, Briefcase, Send, Bookmark, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
@@ -9,12 +9,6 @@ import { useBetaOffer } from "@/components/billing/BetaOffer";
 import { useWorkspace } from "@/hooks/useWorkspace";
 
 const suite = [
-  { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
-  { to: "/app/resume-builder", label: "Resume Builder", icon: FilePlus2 },
-  { to: "/app/compare", label: "Compare Resumes", icon: GitCompare },
-  { to: "/app/ats-optimizer", label: "ATS Keyword Optimizer", icon: Target },
-  { to: "/app/gap-analysis", label: "Job Gap Analysis", icon: ScanSearch },
-  { to: "/app/ats-parse-sim", label: "ATS Parse Simulator", icon: ScanLine },
   { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
   { to: "/app/interview-prep", label: "Interview Prep", icon: Mic },
 ];
@@ -33,7 +27,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
   const isAdmin = useIsAdmin();
-  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound }, ...(isAdmin ? [{ to: "/app/admin/feedback", label: "Admin Feedback", icon: ShieldCheck }] : [])];
+  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound }];
   return (
   <>
     <div className="flex items-center mb-9 px-2">
@@ -106,6 +100,23 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
     </nav>
 
     <PlatformFeedbackButton />
+    {isAdmin && (
+      <NavLink
+        to="/app/admin/feedback"
+        onClick={onNavigate}
+        className={({ isActive }) =>
+          cn(
+            "group flex items-center gap-2.5 px-3 py-2 mt-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
+            isActive
+              ? "text-foreground font-semibold bg-card/80 border border-foreground/[0.08]"
+              : "text-foreground/75 hover:text-foreground hover:bg-card/60",
+          )
+        }
+      >
+        <ShieldCheck className="w-4 h-4 opacity-90 transition-transform duration-200 group-hover:-rotate-12" />
+        Admin Feedback
+      </NavLink>
+    )}
     <UpgradeCard onNavigate={onNavigate} /></>
   </>
   );
