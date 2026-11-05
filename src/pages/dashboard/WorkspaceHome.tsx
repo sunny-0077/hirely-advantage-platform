@@ -69,7 +69,7 @@ export default function WorkspaceHome() {
     try {
       const custom = { title: title.trim(), company: company.trim(), description: jd.slice(0, JD_MAX) };
       const fn = action === "tailor" ? "tailor-resume" : action === "letter" ? "job-cover-letter" : "job-interview-prep";
-      const body = action === "tailor" ? { target_role: `${custom.title} at ${custom.company}`, job_description: custom.description } : { custom };
+      const body = action === "tailor" ? { target_role: `${custom.title} at ${custom.company}`, job_title: custom.title, company: custom.company, job_description: custom.description } : { custom };
       const { data, error } = await supabase.functions.invoke(fn, { body });
       if (error || data?.error) { toast.error(await errorMessage(error, data)); return; }
       const id = action === "tailor" ? data?.tailoring?.id ?? data?.id : action === "letter" ? data?.letter?.id : data?.guide?.id;
