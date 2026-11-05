@@ -100,6 +100,23 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
     </nav>
 
     <PlatformFeedbackButton />
+    {isAdmin && (
+      <NavLink
+        to="/app/admin/feedback"
+        onClick={onNavigate}
+        className={({ isActive }) =>
+          cn(
+            "group flex items-center gap-2.5 px-3 py-2 mt-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
+            isActive
+              ? "text-foreground font-semibold bg-card/80 border border-foreground/[0.08]"
+              : "text-foreground/75 hover:text-foreground hover:bg-card/60",
+          )
+        }
+      >
+        <ShieldCheck className="w-4 h-4 opacity-90 transition-transform duration-200 group-hover:-rotate-12" />
+        Admin Feedback
+      </NavLink>
+    )}
     <UpgradeCard onNavigate={onNavigate} /></>
   </>
   );
