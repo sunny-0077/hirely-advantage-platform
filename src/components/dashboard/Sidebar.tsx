@@ -5,7 +5,8 @@ import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
 import { PlatformFeedbackButton } from "@/components/feedback/PlatformFeedbackButton";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { useEntitlements } from "@/hooks/useEntitlements";
+import { useBetaOffer } from "@/components/billing/BetaOffer";
+import { useWorkspace } from "@/hooks/useWorkspace";
 
 const suite = [
   { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
@@ -112,70 +113,17 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
 
 const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
   const navigate = useNavigate();
-  const { plan, loading } = useEntitlements();
-
-  if (loading) return null;
-
-  // Advanced users — no upsell, just a subtle plan badge.
-  if (plan === "advanced" || plan === "teams") {
-    return (
-      <div className="mt-auto rounded-2xl p-4 border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/75">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-foreground/60" />
-          <p className="text-[11px] font-medium tracking-tight">
-            {plan === "teams" ? "Hirely Teams" : "Hirely Advanced"}
-          </p>
-        </div>
-        <p className="text-[10.5px] text-foreground/55 mt-1">
-          You're on the highest tier. Enjoy unlimited everything.
-        </p>
-      </div>
-    );
-  }
-
-  // Pro users → push Advanced.
-  if (plan === "pro") {
-    return (
-      <div
-        className="mt-auto rounded-2xl p-4 text-white"
-        style={{ background: "linear-gradient(140deg,#0E0B1F,#3a2d5e)" }}
-      >
-        <p className="text-[11px] font-medium tracking-tight">Hirely Advanced</p>
-        <p className="text-[10.5px] text-white/65 mt-0.5">
-          Unlimited analyses & voice interview mode
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            onNavigate?.();
-            navigate("/app/upgrade");
-          }}
-          className="mt-3 text-[11px] bg-white text-foreground font-medium px-3 py-1.5 rounded-full w-full hover:opacity-90 transition-opacity"
-        >
-          Unlock Advanced
-        </button>
-      </div>
-    );
-  }
-
-  // Free users → existing Pro upsell copy.
+  const { open } = useBetaOffer();
+  const workspace = useWorkspace();
+  const credits = (workspace.data as { credits_balance?: number } | null | undefined)?.credits_balance;
   return (
-    <div
-      className="mt-auto rounded-2xl p-4 text-white"
-      style={{ background: "linear-gradient(140deg,#0E0B1F,#3a2d5e)" }}
-    >
-      <p className="text-[11px] font-medium tracking-tight">Hirely Pro</p>
-      <p className="text-[10.5px] text-white/65 mt-0.5">Unlimited rewrites & mock interviews</p>
-      <button
-        type="button"
-        onClick={() => {
-          onNavigate?.();
-          navigate("/app/upgrade");
-        }}
-        className="mt-3 text-[11px] bg-white text-foreground font-medium px-3 py-1.5 rounded-full w-full hover:opacity-90 transition-opacity"
-      >
-        Upgrade
-      </button>
+    <div className="mt-auto rounded-2xl p-4 bg-primary text-primary-foreground">
+      <p className="text-[11px] font-medium tracking-tight">{credits != null ? `${credits} credits left` : "Credits"}</p>
+      <p className="text-[10.5px] opacity-75 mt-0.5">Starter Pack ₹249 · 90-Day Pass ₹899</p>
+      <div className="mt-3 flex gap-2">
+        <button type="button" onClick={() => open()} className="text-[11px] bg-background text-foreground font-medium px-3 py-1.5 rounded-full flex-1 hover:opacity-90">Get Credits</button>
+        <button type="button" onClick={() => { onNavigate?.(); navigate("/app/upgrade"); }} className="text-[11px] border border-primary-foreground/40 font-medium px-3 py-1.5 rounded-full hover:opacity-90">Plans</button>
+      </div>
     </div>
   );
 };

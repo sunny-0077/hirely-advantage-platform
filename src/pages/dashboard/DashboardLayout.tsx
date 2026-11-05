@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
+import { BetaOfferProvider } from "@/components/billing/BetaOffer";
 import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 
 const DashboardLayout = () => {
@@ -21,6 +22,7 @@ const DashboardLayout = () => {
   if (!workspace.data) return <Navigate to="/onboarding" replace />;
 
   return (
+    <BetaOfferProvider>
     <div className="relative min-h-screen overflow-x-hidden font-display">
       <MeshGradient />
       <div className="relative flex min-h-screen">
@@ -65,6 +67,7 @@ const DashboardLayout = () => {
         </main>
       </div>
     </div>
+    </BetaOfferProvider>
   );
 };
 
