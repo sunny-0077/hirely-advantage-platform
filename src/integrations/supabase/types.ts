@@ -46,11 +46,14 @@ export type Database = {
       }
       applications: {
         Row: {
+          app_key: string | null
           applied_at: string | null
           company: string
           cover_letter_id: string | null
           created_at: string
           id: string
+          interview_prep_id: string | null
+          job_id: string | null
           job_url: string | null
           last_touch_at: string | null
           location: string | null
@@ -60,15 +63,20 @@ export type Database = {
           salary: string | null
           source: string | null
           status: Database["public"]["Enums"]["application_status"]
+          tailoring_id: string | null
+          tracker_status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          app_key?: string | null
           applied_at?: string | null
           company: string
           cover_letter_id?: string | null
           created_at?: string
           id?: string
+          interview_prep_id?: string | null
+          job_id?: string | null
           job_url?: string | null
           last_touch_at?: string | null
           location?: string | null
@@ -78,15 +86,20 @@ export type Database = {
           salary?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["application_status"]
+          tailoring_id?: string | null
+          tracker_status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          app_key?: string | null
           applied_at?: string | null
           company?: string
           cover_letter_id?: string | null
           created_at?: string
           id?: string
+          interview_prep_id?: string | null
+          job_id?: string | null
           job_url?: string | null
           last_touch_at?: string | null
           location?: string | null
@@ -96,6 +109,8 @@ export type Database = {
           salary?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["application_status"]
+          tailoring_id?: string | null
+          tracker_status?: string
           updated_at?: string
           user_id?: string
         }
@@ -961,6 +976,9 @@ export type Database = {
           keywords_to_add: Json
           match_after: number | null
           match_before: number | null
+          match_label: string | null
+          matched_keywords: Json
+          missing_skills: Json
           model: string | null
           resume_id: string | null
           skills: Json
@@ -981,6 +999,9 @@ export type Database = {
           keywords_to_add?: Json
           match_after?: number | null
           match_before?: number | null
+          match_label?: string | null
+          matched_keywords?: Json
+          missing_skills?: Json
           model?: string | null
           resume_id?: string | null
           skills?: Json
@@ -1001,6 +1022,9 @@ export type Database = {
           keywords_to_add?: Json
           match_after?: number | null
           match_before?: number | null
+          match_label?: string | null
+          matched_keywords?: Json
+          missing_skills?: Json
           model?: string | null
           resume_id?: string | null
           skills?: Json
