@@ -1,6 +1,7 @@
 // Tailor resume — generates a role-specific optimized version via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 const corsHeaders = {
@@ -104,6 +105,21 @@ const TOOL_SCHEMA = {
             additionalProperties: false,
           },
         },
+        match_label: {
+          type: "string",
+          enum: ["Strong match", "Good match", "Partial match", "Low match"],
+          description: "Overall fit of the TAILORED resume against the job description.",
+        },
+        matched_keywords: {
+          type: "array",
+          description: "8-15 important job-description keywords/skills that ARE present in the tailored resume.",
+          items: { type: "string" },
+        },
+        missing_skills: {
+          type: "array",
+          description: "Requirements from the job description NOT found in the candidate's original resume (gaps the candidate must address honestly). 0-10 items, short phrases.",
+          items: { type: "string" },
+        },
         match_before: {
           type: "number",
           description: "0–100. Estimated job match before tailoring.",
@@ -119,6 +135,9 @@ const TOOL_SCHEMA = {
         "skills",
         "keywords_to_add",
         "bullets",
+        "match_label",
+        "matched_keywords",
+        "missing_skills",
         "match_before",
         "match_after",
       ],
@@ -151,13 +170,17 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const { resume_id, analysis_id, job_id } = body ?? {};
+    let appJob: { role: string; company: string; job_id?: string | null; job_url?: string | null; location?: string | null } | null =
+      typeof body?.company === "string" && typeof body?.job_title === "string"
+        ? { role: sanitizeAiInput(body.job_title, 200), company: sanitizeAiInput(body.company, 200) } : null;
     let { target_role, job_description } = body ?? {};
     // Job feed: load the job description server-side so the client can't send a mismatched one.
     if (job_id) {
-      const { data: job } = await supabase.from("jobs_catalog").select("title, company_name, raw_description").eq("id", job_id).maybeSingle();
+      const { data: job } = await supabase.from("jobs_catalog").select("title, company_name, raw_description, apply_url, city_hub").eq("id", job_id).maybeSingle();
       if (!job) return json({ error: "Job not found" }, 404);
       target_role = target_role || `${job.title} at ${job.company_name}`;
       job_description = job.raw_description ?? "";
+      appJob = { role: job.title, company: job.company_name, job_id, job_url: job.apply_url, location: job.city_hub };
     }
 
     if (!target_role || typeof target_role !== "string" || target_role.trim().length < 2) {
@@ -300,6 +323,9 @@ Deno.serve(async (req) => {
             parsed.match_before != null ? Math.round(parsed.match_before) : null,
           match_after:
             parsed.match_after != null ? Math.round(parsed.match_after) : null,
+          match_label: typeof parsed.match_label === "string" ? parsed.match_label.slice(0, 40) : null,
+          matched_keywords: cleanList(parsed.matched_keywords, 20),
+          missing_skills: cleanList(parsed.missing_skills, 12),
           model: "google/gemini-3.8-flash",
         })
         .select()
@@ -312,6 +338,7 @@ Deno.serve(async (req) => {
         return inserted;
       },
     );
+    if (appJob && inserted?.id) await upsertApplication(supabase, userId, appJob, { tailoring_id: inserted.id });
     return json({ tailoring: inserted });
   } catch (e) {
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
@@ -320,6 +347,19 @@ Deno.serve(async (req) => {
     return json({ error: "Something went wrong on our side. Any credit used was refunded — please try again." }, 500);
   }
 });
+
+function cleanList(v: unknown, max: number): string[] {
+  if (!Array.isArray(v)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const x of v) {
+    if (typeof x !== "string") continue;
+    const t = x.replace(/[*_`#]/g, "").trim().slice(0, 60);
+    if (t && !seen.has(t.toLowerCase())) { seen.add(t.toLowerCase()); out.push(t); }
+    if (out.length >= max) break;
+  }
+  return out;
+}
 
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {

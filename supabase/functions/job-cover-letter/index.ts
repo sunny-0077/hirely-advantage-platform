@@ -1,6 +1,7 @@
 // Job feed cover letter: master resume + job description -> cover letter (1 credit).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 const corsHeaders = {
@@ -121,6 +122,7 @@ Deno.serve(async (req) => {
         return row;
       },
     );
+    if (letter?.id) await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { cover_letter_id: letter.id });
     return json({ letter });
   } catch (e) {
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);

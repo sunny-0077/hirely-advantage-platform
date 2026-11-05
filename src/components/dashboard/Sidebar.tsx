@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, FolderOpen, UserRound } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine, LayoutDashboard, FolderOpen, UserRound, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
@@ -18,7 +18,6 @@ const suite = [
 ];
 
 const tracking = [
-  { to: "/app/applications", label: "Applications", icon: Briefcase },
   { to: "/app/outreach", label: "Outreach", icon: Send },
   { to: "/app/saved", label: "Saved", icon: Bookmark },
 ];
@@ -31,7 +30,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/profile", label: "My profile", icon: UserRound }];
+  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound, ClipboardList }];
   return (
   <>
     <div className="flex items-center mb-9 px-2">

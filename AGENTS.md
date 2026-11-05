@@ -8,3 +8,4 @@
 - 90-Day Pass state changes only through the activate_pass_90_day / sync_pass_state database functions (synced on spend, on workspace load, and hourly), because tranche release and expiry must be server-enforced.
 - Tailoring uses the chosen uploaded resume, else profiles.master_resume_text, and stores a plain-text tailored_text for document history, because job-feed tailoring must work without an upload.
 - Tailoring and job ingestion must build AI document payloads through _shared/ai-input.ts and pair them with its untrusted-data system rule, because formatting removal alone cannot prevent semantic prompt injection and all document sources need the same bounds.
+- Paid document functions (tailor, cover letter, interview prep) upsert the My Applications row via _shared/applications.ts keyed on (user_id, app_key = role|company), because the tracker must be filled server-side and never fail the paid action.
