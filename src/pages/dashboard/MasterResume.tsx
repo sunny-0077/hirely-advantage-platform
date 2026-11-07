@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, Loader2, Plus, Trash2, X, FileText, AlertTriangle
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { ResumeImporter } from "@/components/dashboard/ResumeImporter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,22 +94,27 @@ export default function MasterResume() {
 
   useEffect(() => { const h = (e: BeforeUnloadEvent) => { if (status === "dirty") e.preventDefault(); }; window.addEventListener("beforeunload", h); return () => window.removeEventListener("beforeunload", h); }, [status]);
 
-  async function save() {
-    if (!r || !user || inFlight.current) return;
-    const parsed = masterResumeSchema.safeParse(r);
+  async function save(candidate: Resume | null = r, imported = false): Promise<boolean> {
+    if (!candidate || !user || inFlight.current) return false;
+    const parsed = masterResumeSchema.safeParse(candidate);
     if (!parsed.success) {
       const map: Record<string, string> = {};
       parsed.error.issues.forEach(i => { map[i.path.join(".")] = i.message; });
-      setErrors(map); setStatus("error"); toast.error("Please fix the highlighted fields before saving."); return;
+      setErrors(map); setStatus("error"); toast.error("Please fix the highlighted fields before saving."); return false;
     }
     setErrors({});
     inFlight.current = true; setStatus("saving");
     const text = toPlainText(parsed.data);
     const payload: { master_resume_json: Resume; master_resume_text?: string | null } = { master_resume_json: parsed.data };
-    if (replaceText) payload.master_resume_text = text || null;
-    const { data, error } = await supabase.from("profiles").update(payload as never).eq("user_id", user.id).select("user_id").maybeSingle();
+    if (replaceText && !imported) payload.master_resume_text = text || null;
+    let data: { user_id: string } | null = null;
+    let error: unknown = null;
+    try {
+      const result = await supabase.from("profiles").update(payload as never).eq("user_id", user.id).select("user_id").maybeSingle();
+      data = result.data; error = result.error;
+    } catch (e) { error = e; }
     inFlight.current = false;
-    if (error || !data) { setStatus("error"); toast.error("Couldn't save your Master Resume. Your previous saved version is unchanged."); return; }
+    if (error || !data) { setStatus("error"); toast.error("Couldn't save your Master Resume. Your previous saved version is unchanged."); return false; }
     setStatus("saved"); setSeeded(false); setR(parsed.data);
     toast.success("Master Resume saved");
     qc.invalidateQueries({ queryKey: ["master-resume"] });
@@ -116,6 +122,7 @@ export default function MasterResume() {
     qc.invalidateQueries({ queryKey: ["resume-availability"] });
     qc.invalidateQueries({ queryKey: ["getting-started"] });
     qc.invalidateQueries({ queryKey: ["my-profile"] });
+    return true;
   }
 
   if (q.isPending || (!r && !q.isError)) return <p role="status" className="p-6">Loading Master Resume…</p>;
@@ -125,6 +132,7 @@ export default function MasterResume() {
 
   return <div className="max-w-4xl mx-auto pb-6">
     <PageHeader eyebrow="Workspace" title="Master Resume" description="Your central career profile. Tailored resumes, cover letters and interview prep are built only from what you enter here." />
+    <ResumeImporter existing={r} disabled={status === "saving"} onConfirm={candidate => save(candidate, true)} />
 
     <section className={`${card} mb-5`} aria-label="Resume completion">
       <div className="flex items-center justify-between flex-wrap gap-2"><h2 className="font-semibold">Completion</h2><Badge variant={comp.label === "Core complete" ? "default" : "secondary"}>{comp.label}</Badge></div>
@@ -261,7 +269,7 @@ export default function MasterResume() {
           <p role="status" aria-live="polite" className={`text-sm font-medium ${status === "error" ? "text-destructive" : status === "dirty" ? "text-amber-700" : "text-muted-foreground"}`}>{statusText}</p>
           {existingText && <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={replaceText} onCheckedChange={setReplaceText} aria-label="Replace pasted resume text" />Also replace the legacy pasted text on save</label>}
         </div>
-        <Button type="button" onClick={save} disabled={status === "saving"}>{status === "saving" ? <><Loader2 className="size-4 animate-spin" />Saving…</> : "Save Master Resume"}</Button>
+        <Button type="button" onClick={() => void save()} disabled={status === "saving"}>{status === "saving" ? <><Loader2 className="size-4 animate-spin" />Saving…</> : "Save Master Resume"}</Button>
       </div>
     </div>
 
