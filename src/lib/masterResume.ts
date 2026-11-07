@@ -25,7 +25,7 @@ export const masterResumeSchema = z.object({
   certifications: z.array(certificationSchema).max(30).default([]),
   additional: z.array(extraSchema).max(40).default([]),
 }).superRefine((r, ctx) => {
-  const check = (list: { startDate: string; endDate: string; current?: boolean }[], key: string) => list.forEach((e, i) => {
+  const check = (list: { startDate?: string; endDate?: string; current?: boolean }[], key: string) => list.forEach((e, i) => {
     if (e.startDate && e.endDate && !e.current && e.endDate < e.startDate) ctx.addIssue({ code: "custom", path: [key, i, "endDate"], message: "End date must be after the start date." });
   });
   check(r.experience, "experience"); check(r.education, "education");
