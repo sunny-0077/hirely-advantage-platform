@@ -1,6 +1,7 @@
 import { extractText, getDocumentProxy } from "npm:unpdf@2.1.0";
 import mammoth from "npm:mammoth@1.12.0";
 import { unzipSync } from "npm:fflate@0.8.2";
+import { Buffer } from "node:buffer";
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 export const MAX_IMPORT_PAGES = 3;

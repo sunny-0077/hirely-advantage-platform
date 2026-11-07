@@ -140,7 +140,7 @@ export function importFields(resume: MasterResume, includeEmpty = false): Import
   const fields: ImportField[] = [];
   const visit = (obj: unknown, path: string[], labels: string[]) => {
     if (Array.isArray(obj)) {
-      if (obj.length === 0 && ["experience", "education", "projects", "certifications", "additional"].includes(path[0])) return;
+      if (obj.length === 0 && path.length === 1 && ["experience", "education", "projects", "certifications", "additional"].includes(path[0])) return;
       if (obj.every(x => typeof x === "string")) { if (obj.length || includeEmpty) fields.push({ path: path.join("."), label: labels.join(" · "), value: obj.join("\n"), list: true }); }
       else obj.forEach((x, i) => visit(x, [...path, String(i)], [...labels, `Entry ${i + 1}`]));
     } else if (obj && typeof obj === "object") {

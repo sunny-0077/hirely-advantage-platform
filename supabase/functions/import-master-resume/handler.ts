@@ -1,12 +1,13 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { extractImport, ImportError, MAX_IMPORT_BYTES } from "./extract.ts";
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" } });
+const headers = { ...corsHeaders, "Access-Control-Allow-Headers": `${corsHeaders["Access-Control-Allow-Headers"]}, x-resume-filename` };
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" } });
 type Client = { auth: { getUser: () => Promise<{ data: { user: { id: string } | null }; error: unknown }> } };
 
 /** No owner/path parameter, storage write, AI call, profile mutation or billing operation. */
 export function importHandler(client: (authorization: string) => Client) {
   return async (req: Request): Promise<Response> => {
-    if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+    if (req.method === "OPTIONS") return new Response(null, { headers });
     if (req.method !== "POST") return json({ error: "Use the resume upload action." }, 405);
     const authorization = req.headers.get("Authorization");
     if (!authorization?.startsWith("Bearer ")) return json({ error: "Please sign in to import a resume." }, 401);
