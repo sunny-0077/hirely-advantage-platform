@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Authentication/onboarding audit: reliable validated sessions, password recovery, resumable three-step profile setup, security verification and focused tests. Live email-link tests require an accessible published app and test inbox.
+
 - [x] Sanitize and cap Gemini resume/job inputs at 4,000 characters; seven guard/credit tests passed, tailoring and ingestion deployed.
 
 - [x] Phase 1A: credits, ledger, usage logs, jobs catalog, $10/24h safety switch, auto-refund (wired into resume tailoring).
