@@ -42,6 +42,7 @@ export default function WorkspaceHome() {
   const [busy, setBusy] = useState<Action | null>(null);
   const beta = useBetaOffer();
   const inFlight = useRef(false);
+  const requestKeys = useRef(new Map<string, string>());
 
   const q = useQuery({
     queryKey: ["workspace-home", user?.id], enabled: Boolean(user),
@@ -81,11 +82,15 @@ export default function WorkspaceHome() {
       const custom = { title: title.trim(), company: company.trim(), description: jd.slice(0, JD_MAX) };
       const fn = action === "tailor" ? "tailor-resume" : action === "letter" ? "job-cover-letter" : "job-interview-prep";
       const body = action === "tailor" ? { target_role: `${custom.title} at ${custom.company}`, job_title: custom.title, company: custom.company, job_description: custom.description } : { custom };
-      const { data, error } = await supabase.functions.invoke(fn, { body: { ...body, request_id: crypto.randomUUID() } });
+      const fingerprint = JSON.stringify({ user: user?.id, fn, body });
+      const requestId = requestKeys.current.get(fingerprint) ?? crypto.randomUUID();
+      requestKeys.current.set(fingerprint, requestId);
+      const { data, error } = await supabase.functions.invoke(fn, { body: { ...body, request_id: requestId } });
       if (error || data?.error) { toast.error(await errorMessage(error, data)); return; }
+      requestKeys.current.delete(fingerprint);
       const id = action === "tailor" ? data?.tailoring?.id ?? data?.id : action === "letter" ? data?.letter?.id : data?.guide?.id;
       const param = action === "tailor" ? "tailoring" : action === "letter" ? "letter" : "prep";
-      toast.success(`Done — 1 credit used. Source: ${data?.resume_source?.label ?? "Saved resume"}.`);
+      toast.success(data?.replayed ? "Previous result recovered — no additional credit used." : `Done — 1 credit used. Source: ${data?.resume_source?.label ?? "Saved resume"}.`);
       if (Object.keys(data?.resume_source?.omitted ?? {}).length) toast.info(`Input limit: whole facts omitted from ${Object.entries(data.resume_source.omitted).map(([k,n]) => `${k} (${n})`).join(", ")}. Review the result against your full resume.`);
       navigate(id ? `/app/documents?${param}=${id}` : "/app/documents");
     } finally { inFlight.current = false; setBusy(null); }

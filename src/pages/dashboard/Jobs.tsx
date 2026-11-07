@@ -60,6 +60,8 @@ export default function Jobs() {
   const navigate = useNavigate();
   const savedResume = useResumeSource();
   const inFlight = useRef(false);
+  const requestKeys = useRef(new Map<string, string>());
+  const retryKey = (key: string) => { const id = requestKeys.current.get(key) ?? crypto.randomUUID(); requestKeys.current.set(key, id); return id; };
   const [city, setCity] = useState<string>("Bengaluru");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,14 +93,15 @@ export default function Jobs() {
     inFlight.current = true;
     setLetterJobId(job.id);
     try {
-      const { data, error } = await supabase.functions.invoke("job-cover-letter", { body: { job_id: job.id, request_id: crypto.randomUUID() } });
+      const { data, error } = await supabase.functions.invoke("job-cover-letter", { body: { job_id: job.id, request_id: retryKey(`letter:${job.id}`) } });
       if (error) {
         const ctx = (error as { context?: Response }).context;
         const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
         throw new Error(body?.error || error.message);
       }
       if (data?.error) throw new Error(data.error);
-      toast.success("Cover letter ready. 1 credit used.");
+      requestKeys.current.delete(`letter:${job.id}`);
+      toast.success(data?.replayed ? "Previous letter recovered — no additional credit used." : "Cover letter ready. 1 credit used.");
       if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.letter?.id;
       navigate(id ? `/app/documents?letter=${id}` : "/app/documents");
@@ -117,14 +120,15 @@ export default function Jobs() {
     inFlight.current = true;
     setPrepJobId(job.id);
     try {
-      const { data, error } = await supabase.functions.invoke("job-interview-prep", { body: { job_id: job.id, request_id: crypto.randomUUID() } });
+      const { data, error } = await supabase.functions.invoke("job-interview-prep", { body: { job_id: job.id, request_id: retryKey(`prep:${job.id}`) } });
       if (error) {
         const ctx = (error as { context?: Response }).context;
         const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
         throw new Error(body?.error || error.message);
       }
       if (data?.error) throw new Error(data.error);
-      toast.success("Interview prep guide ready. 1 credit used.");
+      requestKeys.current.delete(`prep:${job.id}`);
+      toast.success(data?.replayed ? "Previous guide recovered — no additional credit used." : "Interview prep guide ready. 1 credit used.");
       if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.guide?.id;
       navigate(id ? `/app/documents?prep=${id}` : "/app/documents");
@@ -144,7 +148,7 @@ export default function Jobs() {
     setBusyJobId(job.id);
     try {
       const { data, error } = await supabase.functions.invoke("tailor-resume", {
-        body: { job_id: job.id, target_role: job.title, request_id: crypto.randomUUID() },
+        body: { job_id: job.id, target_role: job.title, request_id: retryKey(`tailor:${job.id}`) },
       });
       if (error) {
         const ctx = (error as { context?: Response }).context;
@@ -152,7 +156,8 @@ export default function Jobs() {
         throw new Error(body?.error || error.message);
       }
       if (data?.error) throw new Error(data.error);
-      toast.success("Tailored resume ready. 1 credit used.");
+      requestKeys.current.delete(`tailor:${job.id}`);
+      toast.success(data?.replayed ? "Previous resume recovered — no additional credit used." : "Tailored resume ready. 1 credit used.");
       setTailorJob(null);
       if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.tailoring?.id;
