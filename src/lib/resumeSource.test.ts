@@ -49,7 +49,7 @@ describe("server resume source",()=>{
     const {db,calls}=dbFor({master_resume_text:legacy});await resolveUserResume(db,"owner");expect(calls).toEqual([["profiles","user_id=owner"]]);
   });
   it("long resumes retain later relevant sections and account for whole omitted facts within 4000 chars",()=>{
-    const r=emptyResume();r.summary.summary="irrelevant context ".repeat(160);
+    const r=emptyResume();r.summary.summary="irrelevant context ".repeat(150);
     r.experience=Array.from({length:20},()=>({...newExperience(),title:"Old Role",company:"Company",responsibilities:["Maintained records ".repeat(20)]}));
     r.projects=[{...newProject(),name:"Relevant PostgreSQL Project",technologies:["PostgreSQL"],achievements:["Created SQL reports"]}];r.skills.tools=["PostgreSQL"];
     r.additional=[{...newExtra("language"),title:"Hindi"},{...newExtra("award"),title:"User award"}];

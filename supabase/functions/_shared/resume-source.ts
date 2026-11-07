@@ -1,4 +1,4 @@
-import { sanitizeAiInput, MAX_AI_INPUT_CHARS } from "./ai-input.ts";
+import { sanitizeAiInput, sanitizeDocumentText, MAX_AI_INPUT_CHARS } from "./ai-input.ts";
 
 export const CAREER_FACT_RULE = `Use only career facts explicitly present in resume_text. Never infer or invent skills, experience, qualifications, employers, education, projects, achievements, metrics or percentages. Job requirements and prior analysis are not evidence of candidate experience. Preserve supplied numbers exactly. Omit missing facts. Keep improvement suggestions outside factual resume/letter/answer text (for example: Add a measurable performance result if you have one). For interviews, use answer structures when evidence is missing; label any hypothetical example "Hypothetical example — not your experience" and never present it as personal history. This rule overrides style, length, keyword and quantification requests.`;
 export type ResumeSource = "structured" | "legacy" | "upload";
@@ -40,7 +40,7 @@ function structuredSections(raw: unknown): Section[] | null {
     if (!Array.isArray(rows) || rows.length > max || !rows.every(e => object(e) && validate(e, specs[k]) && (e.current === undefined || typeof e.current === "boolean") && !(str(e.startDate) && str(e.endDate) && !e.current && str(e.endDate) < str(e.startDate)) && !(str(e.issueDate) && str(e.expiryDate) && str(e.expiryDate) < str(e.issueDate)) && (k !== "additional" || e.kind === undefined || ["language","volunteer","award","publication","other"].includes(str(e.kind))))) return null;
   }
   const sections: Section[] = [];
-  const add = (name: string, facts: string[]) => { const clean = facts.map(f => sanitizeAiInput(f)).filter(Boolean); if (clean.length) sections.push({ name, facts: clean }); };
+  const add = (name: string, facts: string[]) => { const clean = facts.map(f => sanitizeDocumentText(f)).filter(Boolean); if (clean.length) sections.push({ name, facts: clean }); };
   const p = (raw.personal ?? {}) as Obj, s = (raw.summary ?? {}) as Obj, sk = (raw.skills ?? {}) as Obj;
   add("Contact", [join([p.fullName,p.email,p.phone,p.city,p.country]),join([p.linkedinUrl,p.githubUrl,p.portfolioUrl])]);
   add("Summary", [str(s.headline),str(s.yearsExperience) ? `Years of experience: ${s.yearsExperience}` : "",str(s.summary)]);
@@ -90,7 +90,7 @@ export function resolveSavedResume(profile: { master_resume_json?:unknown; maste
 function resolveTextResume(text:string,source:ResumeSource,job:string):ResumeResolution {
   const sections:Section[]=[]; let name="Resume";
   for(const line of text.split(/\r?\n/)) {
-    const clean=sanitizeAiInput(line); if(!clean) continue;
+    const clean=sanitizeDocumentText(line); if(!clean) continue;
     if(/^(summary|professional summary|experience|work experience|education|skills|technical skills|tools(?: and technologies)?|projects|certifications|languages|awards|publications|volunteer(?: experience)?|contact)\s*:?$/i.test(clean)) { name=clean.replace(/:$/,""); continue; }
     sections.push({name,facts:[clean]});
   }
