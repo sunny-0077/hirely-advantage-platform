@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useResumeSource } from "@/hooks/useResumeSource";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,8 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
 
 export default function Jobs() {
   const navigate = useNavigate();
+  const savedResume = useResumeSource();
+  const inFlight = useRef(false);
   const [city, setCity] = useState<string>("Bengaluru");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +87,8 @@ export default function Jobs() {
   const [letterJobId, setLetterJobId] = useState<string | null>(null);
   const runCoverLetter = async (job: Job) => {
     if (letterJobId || busyJobId) return;
+    if (inFlight.current) return;
+    inFlight.current = true;
     setLetterJobId(job.id);
     try {
       const { data, error } = await supabase.functions.invoke("job-cover-letter", { body: { job_id: job.id } });
@@ -94,11 +99,13 @@ export default function Jobs() {
       }
       if (data?.error) throw new Error(data.error);
       toast.success("Cover letter ready. 1 credit used.");
+      if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.letter?.id;
       navigate(id ? `/app/documents?letter=${id}` : "/app/documents");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Cover letter failed");
     } finally {
+      inFlight.current = false;
       setLetterJobId(null);
     }
   };
@@ -106,6 +113,8 @@ export default function Jobs() {
   const [prepJobId, setPrepJobId] = useState<string | null>(null);
   const runInterviewPrep = async (job: Job) => {
     if (prepJobId || letterJobId || busyJobId) return;
+    if (inFlight.current) return;
+    inFlight.current = true;
     setPrepJobId(job.id);
     try {
       const { data, error } = await supabase.functions.invoke("job-interview-prep", { body: { job_id: job.id } });
@@ -116,17 +125,21 @@ export default function Jobs() {
       }
       if (data?.error) throw new Error(data.error);
       toast.success("Interview prep guide ready. 1 credit used.");
+      if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.guide?.id;
       navigate(id ? `/app/documents?prep=${id}` : "/app/documents");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Interview prep failed");
     } finally {
+      inFlight.current = false;
       setPrepJobId(null);
     }
   };
 
   const runTailor = async (job: Job | null = tailorJob) => {
     if (!job || busyJobId) return;
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(true);
     setBusyJobId(job.id);
     try {
@@ -141,11 +154,13 @@ export default function Jobs() {
       if (data?.error) throw new Error(data.error);
       toast.success("Tailored resume ready. 1 credit used.");
       setTailorJob(null);
+      if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.tailoring?.id;
       navigate(id ? `/app/documents?tailoring=${id}` : "/app/documents");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Tailoring failed");
     } finally {
+      inFlight.current = false;
       setBusy(false);
       setBusyJobId(null);
     }
@@ -155,6 +170,7 @@ export default function Jobs() {
     <div>
       <PageHeader eyebrow="Job feed" title="Fresh roles in your city" description="Real openings from tech companies hiring in India, each with an honest truth card." />
 
+      {savedResume.data?.available && <p className="text-sm text-muted-foreground mb-4">Career facts source: {savedResume.data.label}</p>}
       <div className="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="City">
         {CITY_HUBS.map((c) => (
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}

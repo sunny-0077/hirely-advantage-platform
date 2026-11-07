@@ -164,7 +164,7 @@ export function MyProfile() {
 
       <div className={section}>
         <h2 className="font-semibold">Master resume</h2>
-        <p className="text-sm text-muted-foreground">Paste your full resume text. Tailor Resume on the job feed uses this when you haven't picked an uploaded file.</p>
+        <p className="text-sm text-muted-foreground">Legacy pasted resume: kept as a fallback. Saved structured Master Resume facts take priority; this text is not combined with them.</p>
         <Textarea aria-label="Master resume text" rows={10} maxLength={20000} value={master} onChange={e => setMaster(e.target.value)} placeholder="Name, summary, experience, skills, education…" />
       </div>
 
