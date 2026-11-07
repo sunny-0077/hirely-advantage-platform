@@ -35,6 +35,12 @@ Deno.test("arbitrary ZIP and macro document rejected", async () => {
   await rejects(zipSync({ "readme.txt": strToU8("not a resume") }), "resume.docx", /real DOCX/);
   await rejects(zipSync({ "word/document.xml": strToU8("<w:document/>"), "[Content_Types].xml": strToU8("macroEnabled"), "word/vbaProject.bin": new Uint8Array([1]) }), "resume.docx", /unsafe/);
 });
+Deno.test("ZIP expansion bomb rejected before decompression", async () => {
+  const zip = zipSync({ "word/document.xml": strToU8("<w:document/>"), "[Content_Types].xml": strToU8("types") });
+  const view = new DataView(zip.buffer);
+  for (let i = 0; i < zip.length - 46; i++) if (view.getUint32(i, true) === 0x02014b50) { view.setUint32(i + 24, 21 * 1024 * 1024, true); break; }
+  await rejects(zip, "resume.docx", /unsafe/);
+});
 Deno.test("server rejects unsigned and invalid sessions before reading document", async () => {
   let authCalls = 0;
   const handler = importHandler(() => ({ auth: { getUser: async () => { authCalls++; return { data: { user: null }, error: null }; } } }));
