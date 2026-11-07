@@ -3,13 +3,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { getPlan } from "../_shared/entitlements.ts";
 
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are an elite interview coach who has prepped candidates for FAANG, top consulting, and senior product roles. You analyze interview answers honestly — never sugarcoat — but always give actionable next steps.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+You are an elite interview coach who has prepped candidates for FAANG, top consulting, and senior product roles. You analyze interview answers honestly — never sugarcoat — but always give actionable next steps.
 
 You score the candidate's answer on SIX axes, each 0–100:
 
@@ -23,10 +26,10 @@ You score the candidate's answer on SIX axes, each 0–100:
 Then return:
 - overall_score (weighted: clarity 20%, confidence 15%, star 25%, metrics 20%, keyword 10%, length 10%)
 - strengths      — 2–4 specific things the candidate did WELL. Quote phrases when useful.
-- gaps           — 2–4 specific gaps. Each is concrete and tells them what to add. Example: "No measurable result — add a number for the impact (e.g., 'reduced churn by 18%')."
+- gaps           — 2–4 specific gaps. Each is concrete and tells them what to add. Example: "Add a measurable performance result if you have one."
 - matched_keywords / missing_keywords — keywords relevant to the question/role
 - star_breakdown — { situation, task, action, result } each with { present: bool, note: string }
-- improved_answer — A REWRITTEN sample answer (≤220 words) that fixes the gaps while staying believable based on what the candidate already said. Use STAR structure. Include at least one fabricated-but-plausible metric ONLY if the candidate gave none — flag it inside the answer in brackets like "[~30% faster]" so they know to replace.
+- improved_answer — A REWRITTEN sample answer (≤220 words) that fixes the gaps while staying believable based on what the candidate already said. Use STAR structure. Never add metrics. If facts are missing, supply an answer structure labeled as a structure, not a completed personal story; put verification suggestions in gaps, outside improved_answer.
 - coaching_note  — ≤180 chars. The single most important thing to fix next time.
 
 NEVER invent a different story than what the candidate told. Stay faithful to their experience; just sharpen it.
@@ -171,18 +174,8 @@ Deno.serve(async (req) => {
     }
     const safeQType = ALLOWED_QUESTION_TYPES.has(question_type) ? question_type : "behavioral";
 
-    // Optional: pull resume context for keyword grounding
-    let resumeText = "";
-    if (resume_id) {
-      const { data: r } = await supabase
-        .from("resumes")
-        .select("user_id, raw_text")
-        .eq("id", resume_id)
-        .single();
-      if (r && r.user_id === userId && r.raw_text) {
-        resumeText = r.raw_text.slice(0, 6000);
-      }
-    }
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: resume_id, job: typeof target_role === "string" ? target_role : "" });
+    const resumeText = resolved.text;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
@@ -289,6 +282,7 @@ Score this answer rigorously and call analyze_answer.`;
 
     return json({ analysis: record, improved_locked: improvedLocked });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     console.error("analyze-interview-answer error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }

@@ -4,21 +4,24 @@ import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a senior resume writer and recruiter who has placed candidates at top tech, finance, and consulting firms.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+You are a senior resume writer and recruiter who has placed candidates at top tech, finance, and consulting firms.
 
 Your job: take a candidate's existing resume and produce a TAILORED version optimized for a specific target role (and optional job description).
 
 Hard rules:
 - Never invent jobs, companies, schools, or credentials.
-- You MAY add tools/skills the candidate plausibly used given their context (e.g. a Data Analyst with "dashboards" almost certainly used SQL — call that out as a recommended addition, not as an outright claim).
-- Every rewritten bullet must keep the original meaning but make it sharper, quantified, and aligned with the target role's keywords.
-- Use realistic, plausible metrics if the original was unquantified. Mark these clearly as suggestions in 'why'.
+- Include only explicitly supplied skills in the factual skill list. Missing skills belong only in recommendations, never in the resume.
+- Every rewritten bullet must keep the original meaning and supplied metrics exactly; improve clarity and relevance without adding facts.
+- If the original has no metric, keep the rewritten bullet unquantified. Suggest adding a real result only in 'why'.
 - The tone should be confident, specific, and senior-level for the target role.
 
 ${UNTRUSTED_INPUT_RULE}
@@ -57,7 +60,7 @@ const TOOL_SCHEMA = {
         },
         keywords_to_add: {
           type: "array",
-          description: "Job-specific keywords/tools missing from the resume that should be injected.",
+          description: "Missing job keywords for separate learning or verification suggestions; never insert them as candidate skills.",
           items: {
             type: "object",
             properties: {
@@ -69,7 +72,7 @@ const TOOL_SCHEMA = {
               confidence: {
                 type: "string",
                 enum: ["high", "medium", "low"],
-                description: "How confident we are that the candidate can plausibly claim this.",
+                description: "Priority of the suggestion, not evidence of possession.",
               },
             },
             required: ["keyword", "reason", "confidence"],
@@ -90,7 +93,7 @@ const TOOL_SCHEMA = {
                   type: "object",
                   properties: {
                     before: { type: "string", description: "Original bullet (verbatim if possible)." },
-                    after: { type: "string", description: "Rewritten bullet, quantified, role-aligned." },
+                    after: { type: "string", description: "Rewritten bullet with original facts and supplied metrics only, role-aligned." },
                     why: {
                       type: "string",
                       description: "≤140 chars. What changed and how it helps for the target role.",
@@ -193,35 +196,19 @@ Deno.serve(async (req) => {
     if (target_role.length < 2) return json({ error: "Please enter a valid target role." }, 400);
     const jdText = sanitizeAiInput(job_description ?? "");
 
-    // Source: an uploaded resume when chosen, otherwise the master resume on the profile.
-    let sourceText = "";
-    let source = "upload";
-    if (resume_id) {
-      const { data: resumeRow } = await supabase.from("resumes").select("id, user_id, raw_text").eq("id", resume_id).maybeSingle();
-      if (!resumeRow || resumeRow.user_id !== userId) return json({ error: "Resume not found" }, 404);
-      sourceText = resumeRow.raw_text ?? "";
-    } else {
-      const { data: prof } = await supabase.from("profiles").select("master_resume_text").eq("user_id", userId).maybeSingle();
-      sourceText = prof?.master_resume_text ?? "";
-      source = "master";
-      if (sourceText.trim().length < 80)
-        return json({ error: "Add your master resume on My profile, or pick an uploaded resume, before tailoring." }, 400);
-    }
-    if (sourceText.trim().length < 80) {
-      return json({ error: "Resume text is empty or too short to tailor" }, 400);
-    }
-    const cleanResume = sanitizeAiInput(sourceText);
-    if (cleanResume.length < 80) {
-      return json({ error: "Resume text is too short after removing formatting. Please add readable resume text." }, 400);
-    }
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: resume_id, job: `${target_role}
+${jdText}` });
+    const source = resolved.source === "upload" ? "upload" : "master";
+    const cleanResume = resolved.text;
 
     // Optional analysis context
     let analysisContext = "";
-    if (analysis_id) {
+    if (analysis_id && resume_id) {
       const { data: a } = await supabase
         .from("resume_analyses")
         .select("overall_score, ats_score, weaknesses, score_breakdown, job_match, extracted")
         .eq("id", analysis_id)
+        .eq("resume_id", resume_id)
         .eq("user_id", userId)
         .single();
       if (a) {
@@ -339,8 +326,9 @@ Deno.serve(async (req) => {
       },
     );
     if (appJob && inserted?.id) await upsertApplication(supabase, userId, appJob, { tailoring_id: inserted.id });
-    return json({ tailoring: inserted });
+    return json({ tailoring: inserted, resume_source: resolved });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
     if (e instanceof HttpError) return json({ error: e.message }, e.status);
     console.error("tailor-resume error", e);

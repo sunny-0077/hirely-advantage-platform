@@ -4,6 +4,8 @@ import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -11,7 +13,8 @@ const corsHeaders = {
 };
 const MODEL = "google/gemini-3.8-flash";
 
-const SYSTEM_PROMPT = `You are an expert interview coach. Build a structured interview prep guide for the candidate applying to the target role, grounded in the job description and the candidate's resume.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+You are an expert interview coach. Build a structured interview prep guide for the candidate applying to the target role, grounded in the job description and the candidate's resume.
 Rules:
 - 6-8 technical questions specific to the job's stack and responsibilities, each with a concise answer approach that references the candidate's real experience.
 - 4-5 behavioral scenarios likely for this role, each with a STAR answer (situation, task, action, result) built only from facts in the resume. If the resume lacks a fitting example, say what kind of example to prepare instead of inventing one.
@@ -100,10 +103,10 @@ Deno.serve(async (req) => {
       found = { id: null, title, company_name: company, raw_description: desc };
     } else return json({ error: "job_id or custom job is required" }, 400);
     const job = found;
-    const { data: prof } = await supabase.from("profiles").select("master_resume_text").eq("user_id", userId).maybeSingle();
-    const resume = sanitizeAiInput(prof?.master_resume_text ?? "");
-    if (resume.length < 80) return json({ error: "Add your master resume on My profile before generating interview prep." }, 400);
     const jd = sanitizeAiInput(job.raw_description ?? "");
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: body?.resume_id, job: `${job.title}
+${jd}` });
+    const resume = resolved.text;
 
     const letter = await runPaidAction(
       { userId, action: "interview_prep", feature: "job-interview-prep", provider: MODEL, estimatedCostUsd: 0.003 },
@@ -119,7 +122,7 @@ Deno.serve(async (req) => {
               model: MODEL,
               messages: [
                 { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: buildTailoringInput(resume, jd, job.title) },
+                { role: "user", content: buildTailoringInput(resume, jd, `${job.title} at ${job.company_name}`) },
               ],
               tools: [TOOL],
               tool_choice: { type: "function", function: { name: "write_interview_prep" } },
@@ -148,8 +151,9 @@ Deno.serve(async (req) => {
       },
     );
     if (letter?.id) await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { interview_prep_id: letter.id });
-    return json({ guide: letter });
+    return json({ guide: letter, resume_source: resolved });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
     if (e instanceof HttpError) return json({ error: e.message }, e.status);
     console.error("job-interview-prep", e);

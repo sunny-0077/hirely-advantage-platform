@@ -3,24 +3,27 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkEntitlement } from "../_shared/entitlements.ts";
 
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a world-class resume writer who has placed senior candidates at FAANG, top consultancies, and unicorn startups.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+You are a world-class resume writer who has placed senior candidates at FAANG, top consultancies, and unicorn startups.
 
 Your job: take a candidate's existing resume PLUS the prior analysis (issues, weak bullets, missing keywords, score breakdown) and produce a SINGLE, fully rewritten, recruiter-ready resume that fixes every issue.
 
 Hard rules:
 - Never invent jobs, companies, schools, degrees, or dates. Keep all factual anchors verbatim.
-- You MAY add tools/skills the candidate plausibly used given their context. Mark these in 'added_keywords' with a confidence level.
-- Every bullet must follow: strong action verb → what you did → quantified impact. If the original had no metric, infer a realistic, plausible one — AND record it in 'verifiable_claims' so the user can confirm before using.
-- 'verifiable_claims' must list EVERY metric/percentage/count/dollar figure you added that wasn't in the original resume. Be exhaustive — missing claims = lost user trust.
+- Only supplied skills belong in the factual resume. Missing keywords are separate learning suggestions.
+- Use strong verbs and supplied outcomes. Never add a metric absent from the source.
+- Return verifiable_claims as an empty array; never generate inferred numerical claims.
 - Fix every weak bullet, missing section, ATS issue, formatting problem, and grammar issue from the analysis.
 - Tone: confident, specific, senior. No fluff, no clichés ("team player", "results-driven", "passionate about").
-- Summary: 2-3 sentences, third-person-implied, role-aligned, with one quantified headline achievement.
+- Summary: 2-3 sentences, third-person-implied, role-aligned, with a headline achievement only if supplied.
 - Group skills into 3-5 logical clusters (e.g. Languages, Frameworks, Cloud, Domain).
 - Output a clean changelog so the user understands exactly what changed and why.
 
@@ -64,7 +67,7 @@ const TOOL_SCHEMA = {
         },
         summary: {
           type: "string",
-          description: "2-3 sentence professional summary with one quantified achievement. ≤380 chars.",
+          description: "2-3 sentence professional summary with supplied achievements only. ≤380 chars.",
         },
         skills: {
           type: "array",
@@ -91,7 +94,7 @@ const TOOL_SCHEMA = {
               dates: { type: "string" },
               bullets: {
                 type: "array",
-                description: "3-6 rewritten bullets per role. Each starts with a strong verb and ends with quantified impact.",
+                description: "3-6 rewritten bullets per role. Each starts with a strong verb and preserves original outcomes without adding metrics.",
                 items: { type: "string" },
               },
             },
@@ -161,7 +164,7 @@ const TOOL_SCHEMA = {
         },
         added_keywords: {
           type: "array",
-          description: "Keywords/tools we injected. Confidence reflects how plausibly the candidate can claim them.",
+          description: "Separate keyword learning suggestions; never factual skills to inject.",
           items: {
             type: "object",
             properties: {
@@ -252,21 +255,8 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const { resume_id, analysis_id, target_role: requestedRole } = body ?? {};
 
-    if (!resume_id) return json({ error: "resume_id is required" }, 400);
-    const cleanRequestedRole =
-      typeof requestedRole === "string" ? requestedRole.trim().slice(0, 80) : "";
-
-    const { data: resumeRow, error: resumeErr } = await supabase
-      .from("resumes")
-      .select("id, user_id, raw_text")
-      .eq("id", resume_id)
-      .single();
-    if (resumeErr || !resumeRow || resumeRow.user_id !== userId) {
-      return json({ error: "Resume not found" }, 404);
-    }
-    if (!resumeRow.raw_text || resumeRow.raw_text.trim().length < 80) {
-      return json({ error: "Resume text is empty or too short" }, 400);
-    }
+    const cleanRequestedRole = typeof requestedRole === "string" ? requestedRole.trim().slice(0, 80) : "";
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: resume_id, job: cleanRequestedRole });
 
     const gate = await checkEntitlement(userId, "enhanced_resume");
     if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
@@ -306,7 +296,7 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
 
     const effectiveRole = cleanRequestedRole || targetRole;
-    const truncated = resumeRow.raw_text.slice(0, 16000);
+    const truncated = resolved.text;
     const pageGuidance = `LENGTH TARGET: ONE printed page (≈450–550 words total).\n- Summary: 2 sentences max.\n- Skills: 3–4 tight clusters, ~6–10 items each.\n- Experience: 3–4 bullets per role, each ≤1 line when printed.\n- Projects: at most 2, one line each.\n- Trim ruthlessly — keep only the highest-impact content.`;
 
     const userPrompt = `Rewrite this resume into a single recruiter-ready version that fixes every issue from the analysis.${
@@ -408,6 +398,7 @@ Now call enhance_resume.`;
 
     return json({ enhancement: inserted });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     console.error("enhance-resume error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }
