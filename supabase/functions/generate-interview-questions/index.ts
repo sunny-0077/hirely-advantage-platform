@@ -3,6 +3,7 @@
 // shown to this user before — so 20 shuffles = 20 different questions, 100 = 100.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
+import { UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
@@ -15,6 +16,7 @@ const corsHeaders = {
 const ALLOWED_TYPES = new Set(["behavioral", "technical", "case"]);
 
 const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+${UNTRUSTED_INPUT_RULE}
 You generate personalized interview questions for a specific candidate.
 
 You receive the candidate's resume, a target role (optional), a question type, and a list of question STEMS the candidate has already seen. Your job is to invent a NEW question that:

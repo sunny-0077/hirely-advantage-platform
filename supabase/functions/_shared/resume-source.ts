@@ -76,7 +76,7 @@ export function selectResumeFacts(sections: Section[], job = ""): { text: string
   const omitted:Record<string,number>={};
   for(const s of ranked) if(s.chosen.length<s.facts.length) omitted[s.name]=s.facts.length-s.chosen.length;
   const text=ranked.filter(s=>s.chosen.length).map(s=>`${s.name.toUpperCase()}\n${s.chosen.sort((a,b)=>a.i-b.i).map(f=>f.text).join("\n")}`).join("\n\n");
-  return { text: text+(Object.keys(omitted).length ? `\n\nCONTEXT SELECTION (whole facts omitted; not missing qualifications):\n${Object.entries(omitted).map(([k,n])=>`${k}: ${n}`).join("; ")}` : ""), omitted };
+  return { text: text ? text+(Object.keys(omitted).length ? `\n\nCONTEXT SELECTION (whole facts omitted; not missing qualifications):\n${Object.entries(omitted).map(([k,n])=>`${k}: ${n}`).join("; ")}` : "") : "", omitted };
 }
 
 export function resolveSavedResume(profile: { master_resume_json?:unknown; master_resume_text?:unknown }, job=""): ResumeResolution {

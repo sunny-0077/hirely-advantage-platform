@@ -2,6 +2,7 @@
 // returns structured feedback and a rewritten sample answer.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { getPlan } from "../_shared/entitlements.ts";
+import { UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
@@ -13,6 +14,7 @@ const corsHeaders = {
 };
 
 const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+${UNTRUSTED_INPUT_RULE}
 You are an elite interview coach who has prepped candidates for FAANG, top consulting, and senior product roles. You analyze interview answers honestly — never sugarcoat — but always give actionable next steps.
 
 You score the candidate's answer on SIX axes, each 0–100:

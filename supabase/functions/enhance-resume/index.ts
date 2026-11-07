@@ -2,6 +2,7 @@
 // every issue surfaced by the analyzer. Returns structured JSON via tool calling.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkEntitlement } from "../_shared/entitlements.ts";
+import { UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
 import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
@@ -13,6 +14,7 @@ const corsHeaders = {
 };
 
 const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+${UNTRUSTED_INPUT_RULE}
 You are a world-class resume writer who has placed senior candidates at FAANG, top consultancies, and unicorn startups.
 
 Your job: take a candidate's existing resume PLUS the prior analysis (issues, weak bullets, missing keywords, score breakdown) and produce a SINGLE, fully rewritten, recruiter-ready resume that fixes every issue.
@@ -263,13 +265,14 @@ Deno.serve(async (req) => {
 
     let analysisContext = "";
     let targetRole = "";
-    if (analysis_id) {
+    if (analysis_id && resume_id) {
       const { data: a } = await supabase
         .from("resume_analyses")
         .select(
           "overall_score, ats_score, summary, target_role, weaknesses, issues, score_breakdown, job_match, quick_wins, bullet_rewrites, extracted",
         )
         .eq("id", analysis_id)
+        .eq("resume_id", resume_id)
         .eq("user_id", userId)
         .single();
       if (a) {
@@ -359,7 +362,7 @@ Now call enhance_resume.`;
       .from("resume_enhancements")
       .insert({
         user_id: userId,
-        resume_id,
+        resume_id: resume_id ?? null,
         analysis_id: analysis_id ?? null,
         contact: parsed.contact ?? {},
         headline: parsed.headline ?? null,
