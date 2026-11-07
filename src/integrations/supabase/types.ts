@@ -983,7 +983,7 @@ export type Database = {
           id: string
           model: string | null
           projects: Json
-          resume_id: string
+          resume_id: string | null
           skills: Json
           summary: string | null
           user_id: string
@@ -1004,7 +1004,7 @@ export type Database = {
           id?: string
           model?: string | null
           projects?: Json
-          resume_id: string
+          resume_id?: string | null
           skills?: Json
           summary?: string | null
           user_id: string
@@ -1025,7 +1025,7 @@ export type Database = {
           id?: string
           model?: string | null
           projects?: Json
-          resume_id?: string
+          resume_id?: string | null
           skills?: Json
           summary?: string | null
           user_id?: string

@@ -1,0 +1,2 @@
+ALTER TABLE public.resume_enhancements ALTER COLUMN resume_id DROP NOT NULL;
+COMMENT ON COLUMN public.resume_enhancements.resume_id IS 'Optional: explicit uploaded source; NULL uses the saved Master Resume or labeled legacy fallback.';
