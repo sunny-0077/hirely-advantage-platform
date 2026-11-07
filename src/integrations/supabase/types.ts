@@ -137,6 +137,7 @@ export type Database = {
           model: string | null
           notes: string | null
           proof: string | null
+          request_id: string | null
           resume_id: string | null
           resume_skills: Json
           role: string
@@ -164,6 +165,7 @@ export type Database = {
           model?: string | null
           notes?: string | null
           proof?: string | null
+          request_id?: string | null
           resume_id?: string | null
           resume_skills?: Json
           role: string
@@ -191,6 +193,7 @@ export type Database = {
           model?: string | null
           notes?: string | null
           proof?: string | null
+          request_id?: string | null
           resume_id?: string | null
           resume_skills?: Json
           role?: string
@@ -406,6 +409,7 @@ export type Database = {
           id: string
           job_id: string | null
           model: string | null
+          request_id: string | null
           role: string
           user_id: string
         }
@@ -417,6 +421,7 @@ export type Database = {
           id?: string
           job_id?: string | null
           model?: string | null
+          request_id?: string | null
           role: string
           user_id: string
         }
@@ -428,6 +433,7 @@ export type Database = {
           id?: string
           job_id?: string | null
           model?: string | null
+          request_id?: string | null
           role?: string
           user_id?: string
         }
@@ -1043,6 +1049,7 @@ export type Database = {
           matched_keywords: Json
           missing_skills: Json
           model: string | null
+          request_id: string | null
           resume_id: string | null
           skills: Json
           source: string
@@ -1066,6 +1073,7 @@ export type Database = {
           matched_keywords?: Json
           missing_skills?: Json
           model?: string | null
+          request_id?: string | null
           resume_id?: string | null
           skills?: Json
           source?: string
@@ -1089,6 +1097,7 @@ export type Database = {
           matched_keywords?: Json
           missing_skills?: Json
           model?: string | null
+          request_id?: string | null
           resume_id?: string | null
           skills?: Json
           source?: string

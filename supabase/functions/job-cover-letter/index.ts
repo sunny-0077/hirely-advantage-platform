@@ -1,8 +1,12 @@
 // Job feed cover letter: master resume + job description -> cover letter (1 credit).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { requestKey, completedRequest } from "../_shared/document-replay.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
+
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +15,8 @@ const corsHeaders = {
 };
 const MODEL = "google/gemini-3.8-flash";
 
-const SYSTEM_PROMPT = `You are an expert career writer. Write a compelling, professional, customized cover letter for the candidate applying to the target role.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+You are an expert career writer. Write a compelling, professional, customized cover letter for the candidate applying to the target role.
 Rules:
 - 250-380 words, 4 short paragraphs: hook, relevant experience with concrete proof from the resume, fit with the role/company, confident closing.
 - Never invent employers, degrees, numbers or credentials not in the resume.
@@ -56,6 +61,10 @@ Deno.serve(async (req) => {
     const userId = u.user.id;
 
     const body = await req.json().catch(() => null);
+    let requestId: string | null;
+    try { requestId = requestKey(body?.request_id); } catch { return json({error:"Invalid generation request key."},400); }
+    const replay = await completedRequest(supabase, "cover_letters", userId, requestId);
+    if (replay) return json({ letter: replay, replayed: true });
     const jobId = body?.job_id;
     const custom = body?.custom;
     let found: { id: string | null; title: string; company_name: string; raw_description: string | null } | null = null;
@@ -74,10 +83,10 @@ Deno.serve(async (req) => {
       found = { id: null, title, company_name: company, raw_description: desc };
     } else return json({ error: "job_id or custom job is required" }, 400);
     const job = found;
-    const { data: prof } = await supabase.from("profiles").select("master_resume_text").eq("user_id", userId).maybeSingle();
-    const resume = sanitizeAiInput(prof?.master_resume_text ?? "");
-    if (resume.length < 80) return json({ error: "Add your master resume on My profile before generating a cover letter." }, 400);
     const jd = sanitizeAiInput(job.raw_description ?? "");
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: body?.resume_id, job: `${job.title}
+${jd}` });
+    const resume = resolved.text;
 
     const letter = await runPaidAction(
       { userId, action: "cover_letter", feature: "job-cover-letter", provider: MODEL, estimatedCostUsd: 0.002 },
@@ -93,7 +102,7 @@ Deno.serve(async (req) => {
               model: MODEL,
               messages: [
                 { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: buildTailoringInput(resume, jd, job.title) },
+                { role: "user", content: buildTailoringInput(resume, jd, `${job.title} at ${job.company_name}`) },
               ],
               tools: [TOOL],
               tool_choice: { type: "function", function: { name: "write_cover_letter" } },
@@ -113,7 +122,9 @@ Deno.serve(async (req) => {
         const full = (parsed.full_letter ?? "").replace(/\*\*|__|`|^#+\s*/gm, "").trim();
         if (full.length < 200) throw new HttpError("The AI sent back an incomplete letter. Your credit was refunded — please try again.", 502);
 
+        assertSuppliedMetrics(full,resume);
         const { data: row, error } = await supabase.from("cover_letters").insert({
+          request_id: requestId,
           user_id: userId, job_id: job.id, company: job.company_name, role: job.title,
           job_description: jd || null, tone: "professional", hook: parsed.hook ?? null,
           full_letter: full, model: MODEL,
@@ -122,9 +133,10 @@ Deno.serve(async (req) => {
         return row;
       },
     );
-    if (letter?.id) await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { cover_letter_id: letter.id });
-    return json({ letter });
+    if (letter?.id) { try { await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { cover_letter_id: letter.id }); } catch { console.error("Application link unavailable; document remains saved."); } }
+    return json({ letter, resume_source: resolved });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     if (e instanceof PaidActionError) return json({ error: e.message, code: e.code }, e.status);
     if (e instanceof HttpError) return json({ error: e.message }, e.status);
     console.error("job-cover-letter", e);

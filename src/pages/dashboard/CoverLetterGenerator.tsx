@@ -11,6 +11,7 @@ import {
   Maximize2,
   Mail,
 } from "lucide-react";
+import { ResumeSourceSelect } from "@/components/dashboard/ResumeSourceSelect";
 import { EmptyState, PreviewCoverLetter } from "@/components/dashboard/EmptyState";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
@@ -73,25 +74,6 @@ const CoverLetterGenerator = () => {
 
   const [resumeId, setResumeId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from("resumes")
-        .select("id")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (cancelled || !data) return;
-      setResumeId(data.id);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id]);
-
   // Esc closes fullscreen + lock body scroll while open
   useEffect(() => {
     if (!fullscreen) return;
@@ -124,6 +106,7 @@ const CoverLetterGenerator = () => {
   };
 
   const generate = async () => {
+    if (generating) return;
     if (!user) {
       toast.error("Please sign in first.");
       return;
@@ -138,28 +121,7 @@ const CoverLetterGenerator = () => {
     }
     setGenerating(true);
     try {
-      let senderFill = {
-        senderName: "",
-        senderEmail: "",
-        senderPhone: "",
-        senderLocation: "",
-      };
-      if (resumeId) {
-        const { data: resumeRow } = await supabase
-          .from("resumes")
-          .select("raw_text")
-          .eq("id", resumeId)
-          .maybeSingle();
-        if (resumeRow?.raw_text) {
-          const parsed = parseResumeContact(resumeRow.raw_text);
-          senderFill = {
-            senderName: parsed.name || "",
-            senderEmail: parsed.email || "",
-            senderPhone: parsed.phone || "",
-            senderLocation: parsed.location || "",
-          };
-        }
-      }
+      let senderFill = { senderName: "", senderEmail: "", senderPhone: "", senderLocation: "" };
       const jdParsed = parseJobDescription(jd);
       const companyForRequest = (doc.companyName.trim() || jdParsed.company || "").trim();
       // Extract role from JD using common patterns; fall back to "this role".
@@ -198,6 +160,11 @@ const CoverLetterGenerator = () => {
       const letterPayload = (data as {
         letter?: { full_letter?: string; match_score?: number | null };
       })?.letter;
+      const source = data?.resume_source;
+      if (source?.text) {
+        const parsed = parseResumeContact(source.text);
+        senderFill = { senderName: parsed.name || "", senderEmail: parsed.email || "", senderPhone: parsed.phone || "", senderLocation: parsed.location || "" };
+      }
       const full = letterPayload?.full_letter ?? "";
       if (!full) throw new Error("No letter returned");
       setMatchScore(typeof letterPayload?.match_score === "number" ? letterPayload.match_score : null);
@@ -222,7 +189,7 @@ const CoverLetterGenerator = () => {
       setHasLetter(true);
       setLibraryKey((k) => k + 1);
       ent.refresh();
-      toast.success("Cover letter ready — edit before downloading.");
+      toast.success(`Cover letter ready. Source: ${data?.resume_source?.label ?? "Saved resume"}. Review before downloading.`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -288,6 +255,7 @@ const CoverLetterGenerator = () => {
             </p>
           </div>
           <div className="px-5 sm:px-6 py-3 space-y-3">
+            <ResumeSourceSelect value={resumeId} onChange={setResumeId} disabled={generating} />
             <div>
               <div className="flex items-center justify-between">
                 <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">

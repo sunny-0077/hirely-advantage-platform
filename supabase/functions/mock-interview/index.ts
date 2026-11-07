@@ -4,6 +4,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
+import { UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -32,7 +34,9 @@ const FOCUS_GUIDE: Record<string, string> = {
   mixed: "Mix behavioral, technical, and case as a real loop would.",
 };
 
-const SYSTEM_PROMPT = `You are an elite interview simulator running a live mock interview.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+${UNTRUSTED_INPUT_RULE}
+You are an elite interview simulator running a live mock interview.
 
 Your job each turn:
 1. Read the full conversation so far.
@@ -143,6 +147,7 @@ Deno.serve(async (req) => {
 
     return json({ error: "Unknown action. Use start | respond | end." }, 400);
   } catch (e) {
+    if(e instanceof ResumeSourceError) return json({error:e.message},e.status);
     console.error("mock-interview error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }
@@ -172,30 +177,8 @@ async function handleStart(
   const gate = await checkEntitlement(userId, "mock_interviews");
   if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "mock_interviews" }, gate.status);
 
-  // Resume is REQUIRED — every question must be grounded in the candidate's
-  // actual resume. Reject the start if the resume is missing, doesn't belong
-  // to the user, or has no extracted text.
-  if (!resume_id || typeof resume_id !== "string") {
-    return json(
-      { error: "Upload your resume first — mock interview questions are based on your resume.", code: "RESUME_REQUIRED" },
-      400,
-    );
-  }
-  const { data: r } = await supabase
-    .from("resumes")
-    .select("user_id, raw_text")
-    .eq("id", resume_id)
-    .single();
-  if (!r || r.user_id !== userId) {
-    return json({ error: "Resume not found", code: "RESUME_REQUIRED" }, 404);
-  }
-  const resumeText = (r.raw_text ?? "").slice(0, 6000);
-  if (resumeText.trim().length < 80) {
-    return json(
-      { error: "We couldn't read text from your resume. Re-upload a text-based PDF.", code: "RESUME_REQUIRED" },
-      400,
-    );
-  }
+  const resolved = await resolveUserResume(supabase, userId, {resumeId:resume_id,job:target_role});
+  const resumeText = resolved.text;
 
   const { data: session, error: sErr } = await supabase
     .from("mock_interview_sessions")
@@ -286,15 +269,8 @@ async function handleRespond(
     .update({ answer: answer.trim() })
     .eq("id", lastTurn.id);
 
-  let resumeText = "";
-  if (session.resume_id) {
-    const { data: r } = await supabase
-      .from("resumes")
-      .select("user_id, raw_text")
-      .eq("id", session.resume_id)
-      .single();
-    if (r && r.user_id === userId && r.raw_text) resumeText = r.raw_text.slice(0, 6000);
-  }
+  const resolved = await resolveUserResume(supabase, userId, {resumeId:session.resume_id,job:session.target_role});
+  const resumeText = resolved.text;
 
   // Build chat history.
   const chatMessages: ChatMsg[] = [{ role: "system", content: buildSystem(session, resumeText) }];
@@ -399,15 +375,8 @@ async function handleEnd(
     }
   }
 
-  let resumeText = "";
-  if (session.resume_id) {
-    const { data: r } = await supabase
-      .from("resumes")
-      .select("user_id, raw_text")
-      .eq("id", session.resume_id)
-      .single();
-    if (r && r.user_id === userId && r.raw_text) resumeText = r.raw_text.slice(0, 6000);
-  }
+  const resolved = await resolveUserResume(supabase, userId, {resumeId:session.resume_id,job:session.target_role});
+  const resumeText = resolved.text;
 
   const chatMessages: ChatMsg[] = [{ role: "system", content: buildSystem(session, resumeText) }];
   for (const t of turns ?? []) {

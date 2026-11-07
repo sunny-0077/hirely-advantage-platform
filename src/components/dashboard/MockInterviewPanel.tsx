@@ -11,6 +11,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useResumeSource } from "@/hooks/useResumeSource";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -68,6 +69,7 @@ const DURATIONS = [5, 10, 15, 20, 30] as const;
 
 export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) => {
   const ent = useEntitlements();
+  const savedResume = useResumeSource();
   const mockLimit = ent.limit("mock_interviews");
   const [showUpgrade, setShowUpgrade] = useState(false);
   // Setup state
@@ -114,8 +116,8 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
   }, [timeUp]);
 
   const start = async () => {
-    if (!resumeId) {
-      toast.error("Upload your resume first — questions are based on your resume.");
+    if (!resumeId && !savedResume.data?.available) {
+      toast.error("Add your Master Resume or select an uploaded resume first.");
       return;
     }
     if (targetRole.trim().length < 2) {

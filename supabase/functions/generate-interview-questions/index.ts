@@ -4,6 +4,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -12,7 +14,8 @@ const corsHeaders = {
 
 const ALLOWED_TYPES = new Set(["behavioral", "technical", "case"]);
 
-const SYSTEM_PROMPT = `You generate personalized interview questions for a specific candidate.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+You generate personalized interview questions for a specific candidate.
 
 You receive the candidate's resume, a target role (optional), a question type, and a list of question STEMS the candidate has already seen. Your job is to invent a NEW question that:
 - Is concretely grounded in something on the resume (a specific project, technology, role, achievement, gap, education, certification, or claim) — never generic.
@@ -99,29 +102,12 @@ Deno.serve(async (req) => {
       count = 1,
     } = body ?? {};
 
-    if (!resume_id || typeof resume_id !== "string") {
-      return json({ error: "resume_id is required" }, 400);
-    }
     const safeType = ALLOWED_TYPES.has(question_type) ? question_type : "behavioral";
     const safeCount = Math.max(1, Math.min(5, Number(count) || 1));
-
-    // Resume must belong to the user.
-    const { data: resume } = await supabase
-      .from("resumes")
-      .select("id, user_id, raw_text, file_name")
-      .eq("id", resume_id)
-      .single();
-    if (!resume || resume.user_id !== userId) {
-      return json({ error: "Resume not found" }, 404);
-    }
-
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: resume_id, job: typeof target_role === "string" ? target_role : "" });
+    const resumeText = resolved.text;
     const gate = await checkEntitlement(userId, "interview_questions");
     if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
-
-    const resumeText = (resume.raw_text ?? "").slice(0, 8000);
-    if (resumeText.length < 80) {
-      return json({ error: "Resume text is empty — re-upload your resume." }, 400);
-    }
 
     // Pull all previously-seen questions for this user (any resume / type) so we
     // can avoid repeats globally. Cap to the most recent 200 to keep prompts small.
@@ -208,7 +194,7 @@ Now propose ONE new ${safeType} question grounded in this resume. Vary the focus
         .from("interview_questions")
         .insert({
           user_id: userId,
-          resume_id: resume.id,
+          resume_id: resume_id ?? null,
           question_type: safeType,
           target_role: target_role?.toString().trim() || null,
           question: cleanQ,
@@ -248,8 +234,9 @@ Now propose ONE new ${safeType} question grounded in this resume. Vary the focus
       await incrementUsage(userId, "interview_questions");
     }
 
-    return json({ questions: generated });
+    return json({ questions: generated, resume_source: resolved });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     console.error("generate-interview-questions error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }

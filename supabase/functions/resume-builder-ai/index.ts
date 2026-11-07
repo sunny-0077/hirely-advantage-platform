@@ -33,7 +33,7 @@ const ACTION_PROMPTS: Record<Action, string> = {
   remove_weak:
     "Rewrite the text to remove weak, vague, or hedging wording (\"helped with\", \"responsible for\", \"various\", \"a lot of\"). Replace with strong, specific action verbs. Keep facts intact.",
   add_impact:
-    "Add ONE measurable impact phrase ONLY IF the input strongly implies a metric (e.g., team size, time saved). If the input does not clearly imply a metric, return the original text unchanged. Do not invent numbers.",
+    "Emphasize a measurable impact only when the exact metric is explicitly supplied in the input. Otherwise return the original unchanged. Never infer numbers.",
 };
 
 Deno.serve(async (req) => {

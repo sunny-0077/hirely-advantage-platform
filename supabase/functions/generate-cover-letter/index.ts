@@ -1,6 +1,10 @@
 // Cover letter generator — produces a structured, personalized 5-part cover letter via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { sanitizeAiInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
+
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
+import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,7 +12,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are an elite cover letter writer who has helped candidates land roles at top tech, finance, and consulting firms. You write letters that sound like a real, confident, specific human — never like generic AI fluff.
+const SYSTEM_PROMPT = `${CAREER_FACT_RULE}
+${UNTRUSTED_INPUT_RULE}
+You are an elite cover letter writer who has helped candidates land roles at top tech, finance, and consulting firms. You write letters that sound like a real, confident, specific human — never like generic AI fluff.
 
 HARD BANS — never use any of these openings or phrases:
 - "I am writing to apply for…"
@@ -42,7 +48,7 @@ VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like
 
 Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
 
-HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) 3–4 concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
+HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) available concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
 
 Use ONE of these proven opener templates (rotate naturally — pick whichever fits best, vary wording so it doesn't feel templated):
 1. "I'm applying for the {ROLE} position because my experience with {SKILL_1}, {SKILL_2}, {SKILL_3}, and {SKILL_4} directly matches the {JD_FOCUS_1}, {JD_FOCUS_2}, and {JD_FOCUS_3} work described in the posting."
@@ -56,9 +62,9 @@ Starting the letter with "I" IS ALLOWED when using templates above. What's banne
 ROLE ANCHORING — the exact role title (as provided, e.g. "Junior Data Analyst", "Data Analyst Intern", "Entry-Level Data Analyst", "Business Analyst") MUST appear by name AT LEAST 3 TIMES across the letter — once in the hook, once in alignment or proof, and once in the closing. NEVER substitute "this role", "the role", "this position", or "the position" when you can name the actual title. Vague references like "this role" are only allowed AFTER the title has already been used at least twice in that paragraph.
 
 FORMATTING — the letter must be SCANNABLE (recruiters spend 10–15 seconds). Structure 'full_letter' as 4 short, distinct paragraphs separated by ONE BLANK LINE between each. NEVER produce one wall of text. Each paragraph has ONE clear job and a LOAD-BEARING TOPIC SENTENCE (the first sentence must carry the point so a recruiter skimming only the openers still gets the case):
-  • Para 1 — HOOK (2–3 sentences). Topic sentence names the exact role + 3–4 concrete tools/skills from the resume that map to the JD. No mission talk, no industry commentary.
+  • Para 1 — HOOK (2–3 sentences). Topic sentence names the exact role + available concrete tools/skills from the resume that map to the JD. No mission talk, no industry commentary.
   • Para 2 — SKILLS MATCH (3–4 sentences). Topic sentence: "Three things in the {ROLE} JD line up with what I already do:" (or a natural variant). Then map 2–3 specific JD requirements to specific resume tools/skills — pair them tightly (JD ask → my proof). One concrete artifact (a reusable template, a dashboard, a script, a dataset size).
-  • Para 3 — PROOF (3–4 sentences). ONE specific story from the resume — name the employer/project, the tools used, what was built, and a real number/outcome. No second example. No vague "various projects".
+  • Para 3 — PROOF (3–4 sentences). ONE specific story from the resume — name the employer/project, the tools used, what was built, and a supplied outcome, if available. No second example. No vague "various projects".
   • Para 4 — CLOSE (2–3 sentences). Names the exact role title once, gives ONE specific reason this employer (not a generic compliment), and a clear next step ("Happy to walk through the {project} in a quick call.").
 RECRUITER-FLOW RULES:
 - Each paragraph must START with a substantive sentence — NEVER with a transition word ("Furthermore", "Moreover", "Additionally", "In addition", "What's more").
@@ -72,9 +78,9 @@ RECRUITER-FLOW RULES:
 For longer length targets (two_page, three_page) keep the same 4-bucket logic but split paras 2 and 3 into 2–3 paragraphs each, each with its own topic sentence and concrete artifact. Always preserve blank lines between paragraphs in 'full_letter'.
 
 Return both as separate fields and assembled into 'full_letter' (greeting + paragraphs + sign-off, blank line between each):
-1. hook            — Para 1. Direct opener using one of the templates above. Names exact role title + 3+ concrete skills.
+1. hook            — Para 1. Direct opener using one of the templates above. Names exact role title + only the concrete skills actually supplied.
 2. alignment       — Para 2. Map 2–3 of the candidate's most relevant skills directly to JD requirements. Reference the role by name at least once.
-3. proof           — Para 3. One concrete internship/project/achievement with a real metric from the resume, framed for the {ROLE}.
+3. proof           — Para 3. One concrete internship/project/achievement with a metric only if supplied in the resume, framed for the {ROLE}.
 4. culture_fit     — Optional. Only include as its own block when there's a SPECIFIC, non-generic reason rooted in the company. Otherwise leave brief or fold into para 2/4. NEVER write generic mission-statement filler.
 5. closing         — Para 4. Confident close. MUST reference the exact role title by name.
 
@@ -356,7 +362,7 @@ Deno.serve(async (req) => {
     const safeStyle = ALLOWED_STYLES.has(letter_style) ? letter_style : "modern";
     const safeReloc = ALLOWED_RELOC.has(relocation_preference) ? relocation_preference : null;
     const safeHiringManager = typeof hiring_manager === "string" ? hiring_manager.trim().slice(0, 120) : "";
-    const safeAchievement = typeof strongest_achievement === "string" ? strongest_achievement.trim().slice(0, 600) : "";
+    const safeAchievement = ""; // Career proof is resolved from saved facts, not a client claim.
     const safeSalary = typeof salary_expectation === "string" ? salary_expectation.trim().slice(0, 80) : "";
 
     // Page-aware targets. A standard cover letter page (Times/Georgia 11pt,
@@ -370,23 +376,12 @@ Deno.serve(async (req) => {
       three_page: "980–1150 words (must fill ~THREE printed pages — write 9–11 substantive paragraphs with deep specifics)",
     };
 
-    // Pull resume text if provided & owned by user
-    let resumeText = "";
-    if (resume_id) {
-      const { data: r } = await supabase
-        .from("resumes")
-        .select("user_id, raw_text")
-        .eq("id", resume_id)
-        .single();
-      if (r && r.user_id === userId && r.raw_text) {
-        resumeText = r.raw_text.slice(0, 12000);
-      }
-    }
-
+    const jd = sanitizeAiInput(typeof job_description === "string" ? job_description : "");
+    const resolved = await resolveUserResume(supabase, userId, { resumeId: resume_id, job: `${role}
+${jd}` });
+    const resumeText = resolved.text;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
-
-    const jd = (job_description ?? "").toString().slice(0, 6000);
 
     // ---- Personalization step 1: company mission from URL (best-effort) ----
     let companyMission = "";
@@ -397,7 +392,7 @@ Deno.serve(async (req) => {
       try {
         new URL(withProto);
         safeCompanyUrl = withProto;
-        companyMission = await fetchCompanyMission(withProto);
+        companyMission = sanitizeAiInput(await fetchCompanyMission(withProto));
       } catch {
         safeCompanyUrl = null;
       }
@@ -420,7 +415,7 @@ Deno.serve(async (req) => {
               {
                 role: "system",
                 content:
-                  "Extract job keywords and resume skills. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. Always lowercase. Always call the tool.",
+                  "Extract job keywords and resume skills. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. Always lowercase. Always call the tool. " + CAREER_FACT_RULE + " " + UNTRUSTED_INPUT_RULE,
               },
               {
                 role: "user",
@@ -448,6 +443,7 @@ Deno.serve(async (req) => {
         console.warn("Keyword extraction failed, falling back", e);
       }
     }
+    resumeSkills = resumeSkills.filter(k => normalize(resumeText).includes(normalize(k)));
     if (!jdKeywords.length && jd) jdKeywords = fallbackKeywords(jd, 12);
     if (!resumeSkills.length && resumeText) resumeSkills = fallbackKeywords(resumeText, 18);
 
@@ -476,10 +472,10 @@ Deno.serve(async (req) => {
     };
 
     const levelGuide: Record<string, string> = {
-      fresher: "Candidate is a FRESHER (no full-time experience yet). Lean on coursework, projects, internships, and learning velocity. Never invent jobs.",
+      fresher: "Target tone: fresher; do not override actual saved experience. Lean on coursework, projects, internships, and learning velocity. Never invent jobs.",
       intern: "Candidate is targeting an INTERNSHIP. Emphasize curiosity, projects, and ability to ship. Keep tone humble and eager but confident.",
-      junior: "Candidate is JUNIOR (0–2 years). Highlight growth trajectory and the most concrete recent wins.",
-      experienced: "Candidate is EXPERIENCED (3+ years). Lead with seniority, scope, and measurable business impact.",
+      junior: "Target tone: junior. Actual seniority must come only from resume facts.",
+      experienced: "Target tone: experienced. Do not infer seniority or impact absent from resume facts.",
     };
 
     const userPrompt = `Write a cover letter for:
@@ -513,11 +509,11 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
 
 STRUCTURE CHECKLIST (must pass before you return):
 [ ] Exactly 4 paragraphs (or 5–7 for two_page / 8–10 for three_page), separated by ONE blank line.
-[ ] Para 1 = Hook. Para 2 = Skills-match (JD ask → my proof pairs). Para 3 = ONE proof story with a number. Para 4 = Close with a specific reason + next step.
+[ ] Para 1 = Hook. Para 2 = Skills-match (JD ask → my proof pairs). Para 3 = ONE supplied proof story; a number only if supplied. Para 4 = Close with a specific reason + next step.
 [ ] No paragraph starts with a transition word ("Furthermore", "Moreover", "Additionally") or "I am/I'm a".
 [ ] Every paragraph contains at least one concrete noun from the resume (tool, project, number, employer).
 [ ] Para 2 contains at least 2 explicit JD-requirement → resume-skill pairs.
-[ ] Para 3 names the employer/project and includes a real metric.
+[ ] Para 3 names the employer/project and includes a metric only if present in the resume.
 [ ] Para 4 references the exact role title and proposes a concrete next step.
 If any box fails, REWRITE before returning.`;
 
@@ -747,6 +743,7 @@ If any box fails, REWRITE before returning.`;
       ? Math.round((matched.length / jdKeywords.length) * 100)
       : null;
 
+    assertSuppliedMetrics(fullLetter,resumeText);
     const { data: inserted, error: insertErr } = await supabase
       .from("cover_letters")
       .insert({
@@ -781,8 +778,9 @@ If any box fails, REWRITE before returning.`;
     }
 
     await incrementUsage(userId, "cover_letters");
-    return json({ letter: inserted });
+    return json({ letter: inserted, resume_source: resolved });
   } catch (e) {
+    if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
     console.error("generate-cover-letter error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }

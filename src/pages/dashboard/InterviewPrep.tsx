@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
+import { ResumeSourceSelect } from "@/components/dashboard/ResumeSourceSelect";
+import { useResumeSource } from "@/hooks/useResumeSource";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { toast } from "sonner";
@@ -83,6 +85,7 @@ const focusLineFor = (type: GenerableType, focusArea?: string | null): string =>
 const InterviewPrep = () => {
   const { user } = useAuth();
   const ent = useEntitlements();
+  const savedResume = useResumeSource();
   const [tab, setTab] = useState("practice");
 
   // form
@@ -94,6 +97,7 @@ const InterviewPrep = () => {
 
   // resume + question generation
   const [resumeId, setResumeId] = useState<string | null>(null);
+  const resumeReady = Boolean(resumeId || savedResume.data?.available);
   const [resumeName, setResumeName] = useState<string | null>(null);
   const [resumeLoading, setResumeLoading] = useState(true);
   const [generatingQ, setGeneratingQ] = useState(false);
@@ -122,24 +126,10 @@ const InterviewPrep = () => {
     if (!user) return;
     (async () => {
       setResumeLoading(true);
-      const [{ data: rows }, { data: r }] = await Promise.all([
-        supabase
-          .from("interview_answers")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(30),
-        supabase
-          .from("resumes")
-          .select("id, file_name")
-          .order("created_at", { ascending: false })
-          .limit(1),
-      ]);
+      const { data: rows } = await supabase.from("interview_answers").select("*").order("created_at", { ascending: false }).limit(30);
       setHistory((rows ?? []) as unknown as Analysis[]);
       if (rows?.[0]) setActiveId(rows[0].id);
-      if (r?.[0]) {
-        setResumeId(r[0].id);
-        setResumeName(r[0].file_name ?? null);
-      }
+      setResumeName(savedResume.data?.label ?? "Saved Master Resume");
       setResumeLoading(false);
     })();
   }, [user?.id]);
@@ -159,8 +149,9 @@ const InterviewPrep = () => {
   );
 
   const generateQuestion = async (type: GenerableType = qType) => {
-    if (!resumeId) {
-      toast.error("Upload your resume first.");
+    if (generatingQ) return;
+    if (!resumeReady) {
+      toast.error("Add your Master Resume or select an uploaded resume first.");
       return;
     }
     if (!ent.can("interview_questions")) {
@@ -210,7 +201,7 @@ const InterviewPrep = () => {
   const switchType = async (t: GenerableType) => {
     if (t === qType) return;
     setQType(t);
-    if (resumeId) {
+    if (resumeReady) {
       await generateQuestion(t);
     }
   };
@@ -288,6 +279,7 @@ const InterviewPrep = () => {
 
 
       <div className="mt-6">
+        <ResumeSourceSelect value={resumeId} onChange={id => { setResumeId(id); setResumeName(id ? "Selected uploaded resume" : savedResume.data?.label ?? "Saved Master Resume"); }} disabled={generatingQ || analyzing} />
         <SegmentedTabs
           tabs={[...tabs, { value: "history", label: "History", count: history.length || undefined }]}
           value={tab}
@@ -297,7 +289,7 @@ const InterviewPrep = () => {
 
       {tab === "mock" && <div className="mt-5"><MockInterviewPanel resumeId={resumeId} /></div>}
 
-      {tab === "practice" && !resumeLoading && !resumeId && user && (
+      {tab === "practice" && !resumeLoading && !resumeReady && user && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
             <SectionCard tone="dark" className="lg:col-span-5 xl:col-span-4 p-5 flex flex-col justify-center">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
@@ -330,7 +322,7 @@ const InterviewPrep = () => {
         </div>
       )}
 
-      {tab === "practice" && resumeId && !practiceStarted && (
+      {tab === "practice" && resumeReady && !practiceStarted && (
         <div className="mt-5 grid grid-cols-1 xl:grid-cols-12 gap-4">
           <SectionCard className="xl:col-span-10 xl:col-start-2 p-0 overflow-visible">
             <div className="px-6 sm:px-8 pt-6 pb-5">
@@ -416,7 +408,7 @@ const InterviewPrep = () => {
         </div>
       )}
 
-      {tab === "practice" && resumeId && practiceStarted && (
+      {tab === "practice" && resumeReady && practiceStarted && (
         <div className="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Composer */}
           <SectionCard className="md:col-span-7 lg:col-span-6 xl:col-span-5 p-0 overflow-visible">
@@ -629,7 +621,7 @@ const InterviewPrep = () => {
         </div>
       )}
 
-      {tab === "practice" && resumeId && practiceStarted && (
+      {tab === "practice" && resumeReady && practiceStarted && (
         <StarChecklistOverlay answer={answer} />
       )}
 
