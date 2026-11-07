@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Audit Master Resume sources/toggle and run available checks: 22 automated tests passed, local serialization/truncation checks passed, deployed empty-resume rejection verified. Generation behavior unchanged.
+- [ ] Complete live Master Resume save/reload/title-update, three generated-output fact checks and dashboard-warning checks; blocked by the requesting account's unfinished onboarding. Do not bypass onboarding or invent profile facts.
+
 - [x] Authentication/onboarding repairs: validated race-safe sessions, password recovery, resumable three-step profile setup, live logout/session/routing/isolation checks and focused tests.
 - [ ] Complete live fresh registration, inbox confirmation, email/password login and recovery-link password update; blocked by a fresh test inbox and accessible published app. No live password was changed.
 
