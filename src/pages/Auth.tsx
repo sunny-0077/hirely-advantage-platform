@@ -8,6 +8,10 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { authRedirectUrl, safeReturnPath } from "@/lib/authNavigation";
 import { signupOutcome } from "@/lib/signupOutcome";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorkspace } from "@/hooks/useWorkspace";
+import { authErrorMessage, workspaceDestination } from "@/lib/onboarding";
+import { passwordResetRedirectUrl } from "@/lib/authNavigation";
 
 const emailSchema = z
   .string()
@@ -22,6 +26,11 @@ const passwordSchema = z
 const Auth = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const auth = useAuth();
+  const workspace = useWorkspace();
+  const [forgot, setForgot] = useState(params.get("reset") === "1");
+  const [resetSent, setResetSent] = useState(false);
+  const [authError, setAuthError] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">(
     params.get("mode") === "signup" ? "signup" : "signin",
   );
@@ -60,18 +69,10 @@ const Auth = () => {
 
 
   useEffect(() => {
-    let active = true;
-    const finish = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (active && data.user && !error) navigate(returnPath, { replace: true });
-    };
-    void finish();
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Auth callbacks run under the auth lock: defer all client calls until it releases.
-      if (session) window.setTimeout(() => { if (active) void finish(); }, 0);
-    });
-    return () => { active = false; sub.subscription.unsubscribe(); };
-  }, [navigate, returnPath]);
+    if (auth.loading || !auth.user) return;
+    if (auth.recovering) { navigate("/reset-password", { replace: true }); return; }
+    if (workspace.isSuccess) navigate(workspaceDestination(workspace.data?.onboarding_completed, returnPath), { replace: true });
+  }, [auth.loading, auth.user, auth.recovering, workspace.isSuccess, workspace.data, navigate, returnPath]);
 
   const checkConfirmation = async () => {
     const pending = pendingSignup.current;
@@ -107,6 +108,7 @@ const Auth = () => {
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setAuthError("");
     try {
       const emailParsed = emailSchema.safeParse(email);
       if (!emailParsed.success) throw new Error(emailParsed.error.issues[0].message);
@@ -114,13 +116,13 @@ const Auth = () => {
       if (!passParsed.success) throw new Error(passParsed.error.issues[0].message);
 
       if (mode === "signup") {
-        if (!name.trim()) throw new Error("Enter your full name");
+        const validName = z.string().trim().min(1, "Enter your full name").max(100).parse(name);
         const { data, error } = await supabase.auth.signUp({
           email: emailParsed.data,
           password: passParsed.data,
           options: {
             emailRedirectTo: authRedirectUrl(),
-            data: { full_name: name.trim() || emailParsed.data },
+            data: { full_name: validName },
           },
         });
         if (error) throw error;
@@ -142,8 +144,8 @@ const Auth = () => {
         if (error) throw error;
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong";
-      toast.error(msg);
+      const msg = err instanceof Error && ["Enter a valid email", "Email too long", "At least 8 characters", "Too long"].includes(err.message) ? err.message : authErrorMessage(err);
+      setAuthError(msg);
     } finally {
       setLoading(false);
     }
@@ -162,7 +164,7 @@ const Auth = () => {
       if (error) throw error;
       setResendNotice("Confirmation requested. Check your inbox and spam folder.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Couldn't request confirmation. Please try again.");
+      toast.error(authErrorMessage(error));
     } finally {
       setResendUntil(Date.now() + 60000);
       setNow(Date.now());
@@ -187,7 +189,7 @@ const Auth = () => {
         },
       });
       if (result.error) {
-        toast.error(result.error.message || "Sign-in failed. Please try again.");
+        toast.error("Sign-in failed. Please try again.");
         setLoading(false);
         return;
       }
@@ -201,9 +203,23 @@ const Auth = () => {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      toast.error(error instanceof Error ? error.message : "Sign-in failed. Please try again.");
+      toast.error("Sign-in failed. Please try again.");
     }
   };
+
+  async function requestReset(event: React.FormEvent) {
+    event.preventDefault(); setLoading(true); setAuthError("");
+    try {
+      const parsed = emailSchema.parse(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(parsed, { redirectTo: passwordResetRedirectUrl() });
+      if (error) throw error;
+      setResetSent(true);
+    } catch (error) { setAuthError(authErrorMessage(error)); }
+    finally { setLoading(false); }
+  }
+
+  if (auth.loading || (auth.user && workspace.isPending)) return <main className="min-h-screen flex items-center justify-center bg-background" role="status">Checking your account…</main>;
+  if (auth.user && workspace.error) return <main className="min-h-screen flex flex-col items-center justify-center gap-4"><p role="alert">Couldn't load your account.</p><Button onClick={() => workspace.refetch()}>Retry</Button></main>;
 
   return (
     <div
@@ -241,7 +257,7 @@ const Auth = () => {
             key={`h-${mode}`}
             className="mt-2.5 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] animate-fade-in"
           >
-            {mode === "signin" ? "Sign in to continue." : "Create your account."}
+            {forgot ? "Forgot your password?" : mode === "signin" ? "Sign in to continue." : "Create your account."}
           </h1>
         </div>
 
@@ -288,7 +304,14 @@ const Auth = () => {
             </div>
           </div>
 
-          {existingEmail ? (
+          {forgot ? <form onSubmit={requestReset} className="space-y-4">
+            <p className="text-sm text-muted-foreground">Enter your email to request a secure password reset link.</p>
+            <input aria-label="Email" type="email" autoComplete="email" placeholder="Email" maxLength={255} required value={email} onChange={event => setEmail(event.target.value)} className="w-full rounded-lg border border-input bg-background px-4 py-3" />
+            {resetSent && <p role="status" className="text-sm">If this email has an account, a reset link has been requested. Check your inbox and spam folder.</p>}
+            {authError && <p role="alert" className="text-sm text-destructive">{authError}</p>}
+            <Button type="submit" className="w-full" disabled={loading || resetSent}>{loading ? "Sending…" : "Send reset link"}</Button>
+            <Button type="button" variant="link" onClick={() => { setForgot(false); setResetSent(false); setAuthError(""); }}>Back to sign in</Button>
+          </form> : existingEmail ? (
             <div role="alert" className="space-y-4 py-6 text-center">
               <h2 className="text-xl font-semibold">You already have an account</h2>
               <p className="text-muted-foreground break-words">
@@ -320,6 +343,8 @@ const Auth = () => {
               <div className="overflow-hidden min-h-0">
                 <input
                   type="text"
+                  aria-label="Full name"
+                  autoComplete="name"
                   placeholder="Full name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -332,6 +357,8 @@ const Auth = () => {
 
             <input
               type="email"
+              aria-label="Email"
+              autoComplete="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -342,6 +369,8 @@ const Auth = () => {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                aria-label="Password"
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -359,6 +388,8 @@ const Auth = () => {
               </Button>
             </div>
 
+            {authError && <p role="alert" className="text-sm text-destructive">{authError}</p>}
+            {mode === "signin" && <Button variant="link" type="button" className="px-0" onClick={() => { setForgot(true); setAuthError(""); }}>Forgot password?</Button>}
             <Button
               type="submit"
               disabled={loading}
@@ -372,7 +403,7 @@ const Auth = () => {
             {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
             <Button variant="link"
               type="button"
-              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setConfirmationEmail(""); setExistingEmail(""); }}
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setConfirmationEmail(""); setExistingEmail(""); setForgot(false); setAuthError(""); }}
               className="text-foreground font-semibold hover:underline"
             >
               {mode === "signin" ? "Create an account" : "Sign in"}

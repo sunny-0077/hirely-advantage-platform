@@ -18,7 +18,7 @@ export default function AuthCallback() {
     const finish = async () => {
       const hash = new URLSearchParams(window.location.hash.slice(1));
       const failure = params.get("error_description") ?? hash.get("error_description");
-      if (failure) { toast.error(failure); navigate("/auth", { replace: true }); return; }
+      if (failure) { toast.error("This sign-in link is invalid or expired. Please request a new one."); navigate("/auth", { replace: true }); return; }
       for (let attempt = 0; attempt < 40 && active; attempt++) {
         const { data, error } = await supabase.auth.getUser();
         if (data.user && !error && active) {
