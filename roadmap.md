@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Audit Master Resume sources/toggle, run focused persistence/generation checks, and report minimal integration recommendations without changing features.
+
 - [x] Authentication/onboarding repairs: validated race-safe sessions, password recovery, resumable three-step profile setup, live logout/session/routing/isolation checks and focused tests.
 - [ ] Complete live fresh registration, inbox confirmation, email/password login and recovery-link password update; blocked by a fresh test inbox and accessible published app. No live password was changed.
 
