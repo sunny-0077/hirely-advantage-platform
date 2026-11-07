@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Add authenticated PDF/DOCX Master Resume extraction, deterministic mapping, editable review and explicit save without credits or automatic overwrites.
+- [ ] Run importer fixture/security/preservation tests and available live checks; report any session-gated blockers.
+
 - [x] Repair central structured resume resolution, main/Suite generation inputs, source labels and dashboard availability; preserve legacy/uploads and existing credit behavior.
 - [x] Run focused checks: 43 Vitest tests and 10 Deno tests passed; deployed missing-resume rejection for all three main tools, unchanged ledger, owner-only profile reads and signed-in onboarding gate verified. No live model output or debit/refund was generated.
 
