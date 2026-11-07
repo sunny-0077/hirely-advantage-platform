@@ -136,15 +136,16 @@ export function mapResumeText(text: string) {
 
 export type ImportField = { path: string; label: string; value: string | boolean; list: boolean };
 const titles: Record<string, string> = { personal: "Personal information", fullName: "Full name", linkedinUrl: "LinkedIn URL", githubUrl: "GitHub URL", portfolioUrl: "Portfolio URL", yearsExperience: "Years of experience", experience: "Work experience", education: "Education", projects: "Projects", certifications: "Certifications", additional: "Additional information", employmentType: "Employment type", startDate: "Start date", endDate: "End date", current: "Currently working here", issueDate: "Issue date", expiryDate: "Expiration date", credentialUrl: "Credential URL" };
-export function importFields(resume: MasterResume): ImportField[] {
+export function importFields(resume: MasterResume, includeEmpty = false): ImportField[] {
   const fields: ImportField[] = [];
   const visit = (obj: unknown, path: string[], labels: string[]) => {
     if (Array.isArray(obj)) {
-      if (obj.every(x => typeof x === "string")) { if (obj.length) fields.push({ path: path.join("."), label: labels.join(" · "), value: obj.join("\n"), list: true }); }
+      if (obj.length === 0 && ["experience", "education", "projects", "certifications", "additional"].includes(path[0])) return;
+      if (obj.every(x => typeof x === "string")) { if (obj.length || includeEmpty) fields.push({ path: path.join("."), label: labels.join(" · "), value: obj.join("\n"), list: true }); }
       else obj.forEach((x, i) => visit(x, [...path, String(i)], [...labels, `Entry ${i + 1}`]));
     } else if (obj && typeof obj === "object") {
       Object.entries(obj).forEach(([k, v]) => { if (!["id", "version", "kind"].includes(k)) visit(v, [...path, k], [...labels, titles[k] ?? k[0].toUpperCase() + k.slice(1)]); });
-    } else if (obj) fields.push({ path: path.join("."), label: labels.join(" · "), value: obj as string | boolean, list: false });
+    } else if (obj || includeEmpty) fields.push({ path: path.join("."), label: labels.join(" · "), value: obj as string | boolean, list: false });
   };
   visit(resume, [], []); return fields;
 }
