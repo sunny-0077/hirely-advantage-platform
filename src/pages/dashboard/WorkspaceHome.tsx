@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AlertTriangle, ArrowRight, Briefcase, CalendarClock, Coins, Download, Eye, FileStack, Loader2, Mail, MessagesSquare, Sparkles, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import { useResumeSource } from "@/hooks/useResumeSource";
 import { supabase } from "@/integrations/supabase/client";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import { useBetaOffer } from "@/components/billing/BetaOffer";
@@ -33,6 +34,7 @@ async function errorMessage(error: unknown, data: unknown) {
 export default function WorkspaceHome() {
   const { user } = useAuth();
   const workspace = useWorkspace();
+  const resumeSource = useResumeSource();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -65,12 +67,13 @@ export default function WorkspaceHome() {
   });
 
   const profile = q.data?.profile;
-  const resumeEmpty = q.isSuccess && (profile?.master_resume_text ?? "").trim().length < 80;
+  const resumeEmpty = resumeSource.isSuccess && !resumeSource.data.available;
   const ready = title.trim().length >= 2 && company.trim().length >= 1 && jd.trim().length >= 50;
 
   async function run(action: Action) {
     if (!ready) { toast.error("Add a job title, company and job description (at least 50 characters)."); return; }
-    if (resumeEmpty) { toast.error("Add your master resume on My profile first."); return; }
+    if (busy) return;
+    if (resumeEmpty) { toast.error("Add career information to your Master Resume first."); return; }
     setBusy(action);
     try {
       const custom = { title: title.trim(), company: company.trim(), description: jd.slice(0, JD_MAX) };
@@ -80,7 +83,8 @@ export default function WorkspaceHome() {
       if (error || data?.error) { toast.error(await errorMessage(error, data)); return; }
       const id = action === "tailor" ? data?.tailoring?.id ?? data?.id : action === "letter" ? data?.letter?.id : data?.guide?.id;
       const param = action === "tailor" ? "tailoring" : action === "letter" ? "letter" : "prep";
-      toast.success("Done — 1 credit used.");
+      toast.success(`Done — 1 credit used. Source: ${data?.resume_source?.label ?? "Saved resume"}.`);
+      if (Object.keys(data?.resume_source?.omitted ?? {}).length) toast.info(`Input limit: whole facts omitted from ${Object.entries(data.resume_source.omitted).map(([k,n]) => `${k} (${n})`).join(", ")}. Review the result against your full resume.`);
       navigate(id ? `/app/documents?${param}=${id}` : "/app/documents");
     } finally { setBusy(null); }
   }
@@ -104,13 +108,14 @@ export default function WorkspaceHome() {
     </section>
     {resumeEmpty && <div role="alert" className="mb-8 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
       <AlertTriangle className="size-5 text-destructive" />
-      <p className="flex-1 font-medium">Your master resume is empty. Add it so we can tailor resumes, letters and prep for you.</p>
+      <p className="flex-1 font-medium">{resumeSource.data?.reason ?? "Add career information to your Master Resume to generate documents."}</p>
       <Button asChild size="sm"><Link to="/app/master-resume">Add master resume<ArrowRight /></Link></Button>
     </div>}
 
     <section aria-labelledby="studio" className="bg-card border border-border rounded-lg p-6 mb-8 mt-4">
       <div className="flex items-center gap-2 mb-1"><Wand2 className="size-5 text-primary" /><h2 id="studio" className="text-xl font-semibold">Custom Job Studio</h2></div>
-      <p className="text-sm text-muted-foreground mb-5">Found a job somewhere else? Paste it here and we'll use your master resume.</p>
+      <p className="text-sm text-muted-foreground mb-5">Found a job somewhere else? Paste it here. {resumeSource.data?.available ? `Source: ${resumeSource.data.label}.` : "We'll check your saved resume before generating."}</p>
+      {resumeSource.isError && <p role="alert" className="text-sm text-destructive mb-3">Couldn't check your saved resume. Generation will check again.</p>}
       <div className="grid sm:grid-cols-2 gap-4 mb-4">
         <div className="space-y-1.5"><Label htmlFor="cjs-title">Job title</Label><Input id="cjs-title" maxLength={200} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Data Analyst" /></div>
         <div className="space-y-1.5"><Label htmlFor="cjs-company">Company name</Label><Input id="cjs-company" maxLength={200} value={company} onChange={e => setCompany(e.target.value)} placeholder="e.g. Swiggy" /></div>
