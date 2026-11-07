@@ -87,8 +87,7 @@ export default function MasterResume() {
 
   const comp = useMemo(() => r ? completion(r) : null, [r]);
   const existingText = (q.data?.master_resume_text ?? "").trim();
-  const update = (fn: (d: Resume) => void) => setR(prev => { if (!prev) return prev; const d = structuredClone(prev); fn(d); return d; }) || setStatus("dirty");
-  const edit = (fn: (d: Resume) => void) => { update(fn); setStatus("dirty"); };
+  const edit = (fn: (d: Resume) => void) => { setR(prev => { if (!prev) return prev; const d = structuredClone(prev); fn(d); return d; }); setStatus("dirty"); };
   const confirmDelete = (label: string, run: () => void) => setPending({ label, run });
 
   useEffect(() => { const h = (e: BeforeUnloadEvent) => { if (status === "dirty") e.preventDefault(); }; window.addEventListener("beforeunload", h); return () => window.removeEventListener("beforeunload", h); }, [status]);
