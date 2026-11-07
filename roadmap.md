@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Authentication/onboarding audit: reliable validated sessions, password recovery, resumable three-step profile setup, security verification and focused tests. Live email-link tests require an accessible published app and test inbox.
+- [x] Authentication/onboarding repairs: validated race-safe sessions, password recovery, resumable three-step profile setup, live logout/session/routing/isolation checks and focused tests.
+- [ ] Complete live fresh registration, inbox confirmation, email/password login and recovery-link password update; blocked by a fresh test inbox and accessible published app. No live password was changed.
 
 - [x] Sanitize and cap Gemini resume/job inputs at 4,000 characters; seven guard/credit tests passed, tailoring and ingestion deployed.
 
