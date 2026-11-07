@@ -41,13 +41,13 @@ export function mapResumeText(text: string) {
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.trim(); if (!line) continue;
     const heading = line.toLowerCase().replace(/:$/, "");
+    if (/^(responsibilities|achievements)\s*:$/i.test(line) && (section === "experience" || section === "projects")) { bulletMode = /^responsibilities/i.test(line) ? "responsibilities" : "achievements"; continue; }
     if (headings[heading]) {
       section = headings[heading]; bulletMode = null;
       experience = undefined; education = undefined; project = undefined; certification = undefined;
       skillCategory = heading === "technical skills" ? "technical" : heading === "soft skills" ? "soft" : heading === "tools and technologies" ? "tools" : "other";
       continue;
     }
-    if (/^(responsibilities|achievements)\s*:$/i.test(line) && (section === "experience" || section === "projects")) { bulletMode = /^responsibilities/i.test(line) ? "responsibilities" : "achievements"; continue; }
     const pair = line.match(/^([\w /]+):\s*(.+)$/);
     const label = pair?.[1].trim().toLowerCase(), value = pair?.[2].trim() ?? "";
     if (section === "contact") {
