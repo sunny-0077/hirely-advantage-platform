@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Repair central structured resume resolution, main/Suite generation inputs, source labels and dashboard availability; preserve legacy/uploads and existing credit behavior.
+- [ ] Run focused deterministic integration/refund tests and permitted signed-in checks; report live onboarding/inbox/model-output blockers accurately.
+
 - [x] Audit Master Resume sources/toggle and run available checks: 22 automated tests passed, local serialization/truncation checks passed, deployed empty-resume rejection verified. Generation behavior unchanged.
 - [ ] Complete live Master Resume save/reload/title-update, three generated-output fact checks and dashboard-warning checks; blocked by the requesting account's unfinished onboarding. Do not bypass onboarding or invent profile facts.
 
