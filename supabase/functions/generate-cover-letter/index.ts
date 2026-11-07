@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { sanitizeAiInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
@@ -47,7 +48,7 @@ VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like
 
 Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
 
-HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) 3–4 concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
+HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) available concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
 
 Use ONE of these proven opener templates (rotate naturally — pick whichever fits best, vary wording so it doesn't feel templated):
 1. "I'm applying for the {ROLE} position because my experience with {SKILL_1}, {SKILL_2}, {SKILL_3}, and {SKILL_4} directly matches the {JD_FOCUS_1}, {JD_FOCUS_2}, and {JD_FOCUS_3} work described in the posting."
@@ -61,7 +62,7 @@ Starting the letter with "I" IS ALLOWED when using templates above. What's banne
 ROLE ANCHORING — the exact role title (as provided, e.g. "Junior Data Analyst", "Data Analyst Intern", "Entry-Level Data Analyst", "Business Analyst") MUST appear by name AT LEAST 3 TIMES across the letter — once in the hook, once in alignment or proof, and once in the closing. NEVER substitute "this role", "the role", "this position", or "the position" when you can name the actual title. Vague references like "this role" are only allowed AFTER the title has already been used at least twice in that paragraph.
 
 FORMATTING — the letter must be SCANNABLE (recruiters spend 10–15 seconds). Structure 'full_letter' as 4 short, distinct paragraphs separated by ONE BLANK LINE between each. NEVER produce one wall of text. Each paragraph has ONE clear job and a LOAD-BEARING TOPIC SENTENCE (the first sentence must carry the point so a recruiter skimming only the openers still gets the case):
-  • Para 1 — HOOK (2–3 sentences). Topic sentence names the exact role + 3–4 concrete tools/skills from the resume that map to the JD. No mission talk, no industry commentary.
+  • Para 1 — HOOK (2–3 sentences). Topic sentence names the exact role + available concrete tools/skills from the resume that map to the JD. No mission talk, no industry commentary.
   • Para 2 — SKILLS MATCH (3–4 sentences). Topic sentence: "Three things in the {ROLE} JD line up with what I already do:" (or a natural variant). Then map 2–3 specific JD requirements to specific resume tools/skills — pair them tightly (JD ask → my proof). One concrete artifact (a reusable template, a dashboard, a script, a dataset size).
   • Para 3 — PROOF (3–4 sentences). ONE specific story from the resume — name the employer/project, the tools used, what was built, and a supplied outcome, if available. No second example. No vague "various projects".
   • Para 4 — CLOSE (2–3 sentences). Names the exact role title once, gives ONE specific reason this employer (not a generic compliment), and a clear next step ("Happy to walk through the {project} in a quick call.").
@@ -77,7 +78,7 @@ RECRUITER-FLOW RULES:
 For longer length targets (two_page, three_page) keep the same 4-bucket logic but split paras 2 and 3 into 2–3 paragraphs each, each with its own topic sentence and concrete artifact. Always preserve blank lines between paragraphs in 'full_letter'.
 
 Return both as separate fields and assembled into 'full_letter' (greeting + paragraphs + sign-off, blank line between each):
-1. hook            — Para 1. Direct opener using one of the templates above. Names exact role title + 3+ concrete skills.
+1. hook            — Para 1. Direct opener using one of the templates above. Names exact role title + only the concrete skills actually supplied.
 2. alignment       — Para 2. Map 2–3 of the candidate's most relevant skills directly to JD requirements. Reference the role by name at least once.
 3. proof           — Para 3. One concrete internship/project/achievement with a metric only if supplied in the resume, framed for the {ROLE}.
 4. culture_fit     — Optional. Only include as its own block when there's a SPECIFIC, non-generic reason rooted in the company. Otherwise leave brief or fold into para 2/4. NEVER write generic mission-statement filler.
@@ -742,6 +743,7 @@ If any box fails, REWRITE before returning.`;
       ? Math.round((matched.length / jdKeywords.length) * 100)
       : null;
 
+    assertSuppliedMetrics(fullLetter,resumeText);
     const { data: inserted, error: insertErr } = await supabase
       .from("cover_letters")
       .insert({

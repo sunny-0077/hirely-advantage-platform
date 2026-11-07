@@ -5,6 +5,7 @@ import { requestKey, completedRequest } from "../_shared/document-replay.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
@@ -147,6 +148,7 @@ ${jd}` });
         if (!parsed?.technical?.length || !parsed?.behavioral?.length) throw new HttpError("The AI sent back an incomplete guide. Your credit was refunded — please try again.", 502);
         const text = guideToText(job.title, job.company_name, parsed);
 
+        assertSuppliedMetrics(text,resume);
         const { data: row, error } = await supabase.from("interview_prep_guides").insert({
           request_id: requestId,
           user_id: userId, job_id: job.id, company: job.company_name, role: job.title,

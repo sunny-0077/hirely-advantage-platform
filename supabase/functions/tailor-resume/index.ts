@@ -5,6 +5,7 @@ import { requestKey, completedRequest } from "../_shared/document-replay.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
@@ -289,6 +290,9 @@ ${jdText}` });
         throw new HttpError("The AI sent back an unreadable result. Your credit was refunded — please try again.", 502);
       }
   
+      if (!parsed || typeof parsed.summary !== "string" || !Array.isArray(parsed.skills) || !Array.isArray(parsed.bullets)) throw new HttpError("The AI sent an incomplete result. Your credit was refunded.",502);
+      parsed.skills = parsed.skills.filter((g:any)=>g && typeof g === "object").map((g:any)=>({...g,items:suppliedSkills(g.items,cleanResume)}));
+      assertSuppliedMetrics(JSON.stringify({summary:parsed.summary,bullets:parsed.bullets}),cleanResume);
       const { data: inserted, error: insertErr } = await supabase
         .from("resume_tailorings")
         .insert({

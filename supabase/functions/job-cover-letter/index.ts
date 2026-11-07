@@ -5,6 +5,7 @@ import { requestKey, completedRequest } from "../_shared/document-replay.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
@@ -121,6 +122,7 @@ ${jd}` });
         const full = (parsed.full_letter ?? "").replace(/\*\*|__|`|^#+\s*/gm, "").trim();
         if (full.length < 200) throw new HttpError("The AI sent back an incomplete letter. Your credit was refunded — please try again.", 502);
 
+        assertSuppliedMetrics(full,resume);
         const { data: row, error } = await supabase.from("cover_letters").insert({
           request_id: requestId,
           user_id: userId, job_id: job.id, company: job.company_name, role: job.title,

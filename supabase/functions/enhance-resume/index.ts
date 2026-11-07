@@ -3,6 +3,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkEntitlement } from "../_shared/entitlements.ts";
 
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
@@ -352,6 +353,8 @@ Now call enhance_resume.`;
       return json({ error: "AI returned invalid JSON" }, 500);
     }
 
+    assertSuppliedMetrics(JSON.stringify({summary:parsed.summary,experience:parsed.experience,projects:parsed.projects,achievements:parsed.achievements}),resolved.text);
+    parsed.skills = (Array.isArray(parsed.skills) ? parsed.skills : []).map((g:any)=>({...g,items:suppliedSkills(g.items,resolved.text)}));
     const { data: inserted, error: insertErr } = await supabase
       .from("resume_enhancements")
       .insert({

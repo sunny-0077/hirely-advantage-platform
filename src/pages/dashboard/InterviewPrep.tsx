@@ -126,18 +126,7 @@ const InterviewPrep = () => {
     if (!user) return;
     (async () => {
       setResumeLoading(true);
-      const [{ data: rows }, { data: r }] = await Promise.all([
-        supabase
-          .from("interview_answers")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(30),
-        supabase
-          .from("resumes")
-          .select("id, file_name")
-          .order("created_at", { ascending: false })
-          .limit(1),
-      ]);
+      const { data: rows } = await supabase.from("interview_answers").select("*").order("created_at", { ascending: false }).limit(30);
       setHistory((rows ?? []) as unknown as Analysis[]);
       if (rows?.[0]) setActiveId(rows[0].id);
       setResumeName(savedResume.data?.label ?? "Saved Master Resume");

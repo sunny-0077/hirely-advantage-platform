@@ -3,6 +3,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { getPlan } from "../_shared/entitlements.ts";
 
+import { assertSuppliedMetrics, suppliedSkills } from "../_shared/career-output.ts";
 import { resolveUserResume, ResumeSourceError, CAREER_FACT_RULE } from "../_shared/resume-source.ts";
 
 const corsHeaders = {
@@ -238,6 +239,7 @@ Score this answer rigorously and call analyze_answer.`;
       return json({ error: "AI returned invalid JSON" }, 500);
     }
 
+    assertSuppliedMetrics(parsed.improved_answer ?? "", resumeText);
     // Free plan: hide improved_answer and coaching_note (locked feature).
     const plan = await getPlan(userId);
     const improvedLocked = plan === "free";
