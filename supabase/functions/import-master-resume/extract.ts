@@ -46,13 +46,14 @@ export async function extractImport(bytes: Uint8Array, filename: string) {
   try {
     if (ext === "pdf") {
       if (new TextDecoder().decode(bytes.subarray(0, 5)) !== "%PDF-") throw new ImportError("This file is not a valid PDF document.");
-      const pdf = await getDocumentProxy(bytes, { isEvalSupported: false, useSystemFonts: false });
+      const options = { isEvalSupported: false, useSystemFonts: false, useWasm: false };
+      const pdf = await getDocumentProxy(bytes, options);
       try {
         pages = pdf.numPages;
         if (pages > MAX_IMPORT_PAGES) throw new ImportError("Choose a PDF resume with 3 pages or fewer.");
         const result = await extractText(pdf, { mergePages: true });
         text = result.text;
-      } finally { await pdf.destroy(); }
+      } finally { await pdf.loadingTask.destroy(); }
     } else {
       if (bytes[0] !== 0x50 || bytes[1] !== 0x4b || bytes[2] !== 3 || bytes[3] !== 4) throw new ImportError("This file is not a valid DOCX document.");
       validateDocx(bytes);
