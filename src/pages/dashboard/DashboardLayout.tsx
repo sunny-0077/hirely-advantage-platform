@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
 import { Menu, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,12 +15,15 @@ import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 const DashboardLayout = () => {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
+  const queryClient = useQueryClient();
+  const { user, loading, recovering } = useAuth();
   const workspace = useWorkspace();
   if (loading || (user && workspace.isPending)) return <main className="min-h-screen bg-background flex items-center justify-center" role="status">Loading workspace…</main>;
   if (!user) return <Navigate to={`/auth?next=${encodeURIComponent(pathname)}`} replace />;
+  if (recovering) return <Navigate to="/reset-password" replace />;
   if (workspace.error) return <main className="min-h-screen flex flex-col gap-4 items-center justify-center"><p role="alert">Couldn't load your workspace.</p><Button onClick={() => workspace.refetch()}>Retry</Button></main>;
-  if (!workspace.data) return <Navigate to="/onboarding" replace />;
+  if (!workspace.data?.onboarding_completed) return <Navigate to="/onboarding" replace />;
 
   return (
     <BetaOfferProvider>
@@ -57,7 +61,12 @@ const DashboardLayout = () => {
           {/* Desktop usage strip — top-right of main pane */}
           <div className="flex justify-end items-center gap-3 mb-3">
             <div className="hidden md:block"><UsageMeterStrip /></div>
-            <Button variant="ghost" size="sm" onClick={async () => { const { error } = await supabase.auth.signOut(); if (error) toast.error(error.message); }}><LogOut />Sign out</Button>
+            <Button variant="ghost" size="sm" disabled={signingOut} onClick={async () => {
+              setSigningOut(true);
+              try { const { error } = await supabase.auth.signOut(); if (error) toast.error("Couldn't sign out. Please try again."); else queryClient.clear(); }
+              catch { toast.error("Couldn't sign out. Please try again."); }
+              finally { setSigningOut(false); }
+            }}><LogOut />{signingOut ? "Signing out…" : "Sign out"}</Button>
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}

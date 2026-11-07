@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { AlertTriangle, ArrowRight, Briefcase, CalendarClock, Coins, Download, Eye, FileStack, Loader2, Mail, MessagesSquare, Sparkles, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import { useBetaOffer } from "@/components/billing/BetaOffer";
@@ -31,6 +32,7 @@ async function errorMessage(error: unknown, data: unknown) {
 
 export default function WorkspaceHome() {
   const { user } = useAuth();
+  const workspace = useWorkspace();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -41,7 +43,8 @@ export default function WorkspaceHome() {
   const q = useQuery({
     queryKey: ["workspace-home", user?.id], enabled: Boolean(user),
     queryFn: async () => {
-      const uid = user!.id;
+      if (!user) throw new Error("Please sign in.");
+      const uid = user.id;
       const { data: profile } = await supabase.from("profiles").select("plan_tier,pass_expires_at,credits_balance,master_resume_text,city_hub").eq("user_id", uid).maybeSingle();
       const [t, l, p, tc, lc, pc, jobs] = await Promise.all([
         supabase.from("resume_tailorings").select("id,target_role,tailored_text,created_at").eq("user_id", uid).not("tailored_text", "is", null).order("created_at", { ascending: false }).limit(3),
@@ -89,7 +92,7 @@ export default function WorkspaceHome() {
   const fmt = (s: string) => new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
   return <div className="max-w-6xl mx-auto">
-    <PageHeader eyebrow="My workspace" title="Your next opportunity starts here." />
+    <PageHeader eyebrow="My workspace" title={workspace.data?.full_name ? `Welcome, ${workspace.data.full_name}.` : "Your next opportunity starts here."} />
     <GettingStarted />
 
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}

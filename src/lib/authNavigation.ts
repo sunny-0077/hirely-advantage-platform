@@ -14,3 +14,7 @@ export function authRedirectUrl(origin: string = window.location.origin): string
 export function isVerifiedSignup(kind: string | null, user: { email_confirmed_at?: string | null } | null): boolean {
   return kind === "signup" && Boolean(user?.email_confirmed_at);
 }
+
+export function passwordResetRedirectUrl(origin: string = window.location.origin): string {
+  return new URL("/reset-password", authRedirectUrl(origin)).toString();
+}

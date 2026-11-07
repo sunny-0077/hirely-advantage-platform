@@ -1,4 +1,4 @@
-import { createContext, createElement, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, createElement, useContext, useEffect, useState, type ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,6 +6,7 @@ type AuthState = {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  recovering: boolean;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -14,52 +15,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const syncSession = useCallback(async () => {
-    try {
-      const {
-        data: { session: currentSession },
-      } = await supabase.auth.getSession();
-
-      if (!currentSession) {
-        setSession(null);
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      const {
-        data: { user: confirmedUser },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error || !confirmedUser) {
-        setSession(null);
-        setUser(null);
-      } else {
-        setSession(currentSession);
-        setUser(confirmedUser);
-      }
-    } catch {
-      setSession(null);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [recovering, setRecovering] = useState(() => window.location.pathname === "/reset-password" && new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery");
 
   useEffect(() => {
     let active = true;
-    const applySession = (sess: Session | null) => {
-      if (!active) return;
-      setSession(sess);
-      setUser(sess?.user ?? null);
-      setLoading(false);
+    let generation = 0;
+    const syncSession = async () => {
+      const request = ++generation;
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const result = currentSession ? await supabase.auth.getUser() : null;
+        if (!active || request !== generation) return;
+        const validated = result?.error ? null : result?.data.user;
+        setSession(validated ? currentSession : null);
+        setUser(validated ?? null);
+      } catch {
+        if (!active || request !== generation) return;
+        setSession(null);
+        setUser(null);
+      } finally {
+        if (active && request === generation) setLoading(false);
+      }
     };
 
     // Listener FIRST so OAuth/session callbacks cannot race the initial read.
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
-      applySession(sess);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (!active) return;
+      ++generation;
+      if (event === "PASSWORD_RECOVERY") setRecovering(true);
+      if (!sess) {
+        setSession(null); setUser(null); setLoading(false); setRecovering(false);
+        return;
+      }
+      // Never expose an event's unvalidated user to private routes.
+      setLoading(true);
       window.setTimeout(() => {
         if (active) void syncSession();
       }, 0);
@@ -81,10 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [syncSession]);
+  }, []);
 
   return createElement(AuthContext.Provider, {
-    value: { session, user, loading },
+    value: { session, user, loading, recovering },
     children,
   });
 };

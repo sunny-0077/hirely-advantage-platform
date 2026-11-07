@@ -792,69 +792,99 @@ export type Database = {
         Row: {
           avatar_url: string | null
           city_hub: string
+          country: string | null
           created_at: string
           credits_balance: number
           display_name: string | null
           education: Json
+          email: string | null
+          employment_preference: string | null
           experience: Json
+          experience_level: string | null
           full_name: string | null
           getting_started_dismissed_at: string | null
           headline: string | null
           id: string
           master_resume_json: Json
           master_resume_text: string | null
+          onboarding_completed: boolean
+          onboarding_step: number
           pass_expires_at: string | null
           pass_started_at: string | null
           pass_tranches_granted: number
           plan: Database["public"]["Enums"]["app_plan"]
           plan_tier: string
+          preferred_currency: string | null
+          preferred_job_location: string | null
+          preferred_location: string | null
           skills: string[]
+          target_job_role: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
           city_hub?: string
+          country?: string | null
           created_at?: string
           credits_balance?: number
           display_name?: string | null
           education?: Json
+          email?: string | null
+          employment_preference?: string | null
           experience?: Json
+          experience_level?: string | null
           full_name?: string | null
           getting_started_dismissed_at?: string | null
           headline?: string | null
           id?: string
           master_resume_json?: Json
           master_resume_text?: string | null
+          onboarding_completed?: boolean
+          onboarding_step?: number
           pass_expires_at?: string | null
           pass_started_at?: string | null
           pass_tranches_granted?: number
           plan?: Database["public"]["Enums"]["app_plan"]
           plan_tier?: string
+          preferred_currency?: string | null
+          preferred_job_location?: string | null
+          preferred_location?: string | null
           skills?: string[]
+          target_job_role?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
           city_hub?: string
+          country?: string | null
           created_at?: string
           credits_balance?: number
           display_name?: string | null
           education?: Json
+          email?: string | null
+          employment_preference?: string | null
           experience?: Json
+          experience_level?: string | null
           full_name?: string | null
           getting_started_dismissed_at?: string | null
           headline?: string | null
           id?: string
           master_resume_json?: Json
           master_resume_text?: string | null
+          onboarding_completed?: boolean
+          onboarding_step?: number
           pass_expires_at?: string | null
           pass_started_at?: string | null
           pass_tranches_granted?: number
           plan?: Database["public"]["Enums"]["app_plan"]
           plan_tier?: string
+          preferred_currency?: string | null
+          preferred_job_location?: string | null
+          preferred_location?: string | null
           skills?: string[]
+          target_job_role?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1170,7 +1200,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_profiles: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          email: string | null
+          employment_preference: string | null
+          experience_level: string | null
+          full_name: string | null
+          id: string | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
+          preferred_currency: string | null
+          preferred_job_location: string | null
+          preferred_location: string | null
+          target_job_role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          email?: string | null
+          employment_preference?: string | null
+          experience_level?: string | null
+          full_name?: string | null
+          id?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          preferred_currency?: string | null
+          preferred_job_location?: string | null
+          preferred_location?: string | null
+          target_job_role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          email?: string | null
+          employment_preference?: string | null
+          experience_level?: string | null
+          full_name?: string | null
+          id?: string | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          preferred_currency?: string | null
+          preferred_job_location?: string | null
+          preferred_location?: string | null
+          target_job_role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       activate_pass_90_day: { Args: { _user_id: string }; Returns: undefined }
