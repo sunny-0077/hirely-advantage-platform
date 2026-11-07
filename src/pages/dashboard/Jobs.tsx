@@ -91,7 +91,7 @@ export default function Jobs() {
     inFlight.current = true;
     setLetterJobId(job.id);
     try {
-      const { data, error } = await supabase.functions.invoke("job-cover-letter", { body: { job_id: job.id } });
+      const { data, error } = await supabase.functions.invoke("job-cover-letter", { body: { job_id: job.id, request_id: crypto.randomUUID() } });
       if (error) {
         const ctx = (error as { context?: Response }).context;
         const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
@@ -117,7 +117,7 @@ export default function Jobs() {
     inFlight.current = true;
     setPrepJobId(job.id);
     try {
-      const { data, error } = await supabase.functions.invoke("job-interview-prep", { body: { job_id: job.id } });
+      const { data, error } = await supabase.functions.invoke("job-interview-prep", { body: { job_id: job.id, request_id: crypto.randomUUID() } });
       if (error) {
         const ctx = (error as { context?: Response }).context;
         const body = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
@@ -144,7 +144,7 @@ export default function Jobs() {
     setBusyJobId(job.id);
     try {
       const { data, error } = await supabase.functions.invoke("tailor-resume", {
-        body: { job_id: job.id, target_role: job.title },
+        body: { job_id: job.id, target_role: job.title, request_id: crypto.randomUUID() },
       });
       if (error) {
         const ctx = (error as { context?: Response }).context;

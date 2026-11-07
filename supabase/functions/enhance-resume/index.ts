@@ -178,18 +178,17 @@ const TOOL_SCHEMA = {
         },
         verifiable_claims: {
           type: "array",
-          description:
-            "EVERY metric, percentage, count, dollar amount, or quantified outcome you ADDED or INFERRED that was not explicitly stated in the original resume. The user must confirm these before using. Be exhaustive — if you wrote 'improved performance by 30%' and the original didn't say 30%, list it here. Do NOT include numbers that were already in the source resume.",
+          description: "Must be empty. Never add or infer numerical career claims.",
           items: {
             type: "object",
             properties: {
               text: {
                 type: "string",
-                description: "The exact phrase/bullet sentence containing the inferred metric, as it appears in the rewritten resume. ≤220 chars.",
+                description: "The exact phrase/bullet sentence containing a supplied metric, as it appears in the rewritten resume. ≤220 chars.",
               },
               metric: {
                 type: "string",
-                description: "Just the inferred number/claim (e.g. '15%', '$2M ARR', '15 bugs'). ≤40 chars.",
+                description: "Supplied number/claim only. ≤40 chars.",
               },
               location: {
                 type: "string",
@@ -198,11 +197,11 @@ const TOOL_SCHEMA = {
               confidence: {
                 type: "string",
                 enum: ["high", "medium", "low"],
-                description: "How plausible the inferred metric is given the candidate's context.",
+                description: "Not used; inferred claims are prohibited.",
               },
               reason: {
                 type: "string",
-                description: "Why this number is plausible / how the user should sanity-check it. ≤160 chars.",
+                description: "Not used; never invent a number. ≤160 chars.",
               },
             },
             required: ["text", "metric", "location", "confidence", "reason"],

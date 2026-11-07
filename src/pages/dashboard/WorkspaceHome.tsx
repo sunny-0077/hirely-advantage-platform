@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -41,6 +41,7 @@ export default function WorkspaceHome() {
   const [jd, setJd] = useState("");
   const [busy, setBusy] = useState<Action | null>(null);
   const beta = useBetaOffer();
+  const inFlight = useRef(false);
 
   const q = useQuery({
     queryKey: ["workspace-home", user?.id], enabled: Boolean(user),
@@ -72,21 +73,22 @@ export default function WorkspaceHome() {
 
   async function run(action: Action) {
     if (!ready) { toast.error("Add a job title, company and job description (at least 50 characters)."); return; }
-    if (busy) return;
+    if (inFlight.current) return;
     if (resumeEmpty) { toast.error("Add career information to your Master Resume first."); return; }
+    inFlight.current = true;
     setBusy(action);
     try {
       const custom = { title: title.trim(), company: company.trim(), description: jd.slice(0, JD_MAX) };
       const fn = action === "tailor" ? "tailor-resume" : action === "letter" ? "job-cover-letter" : "job-interview-prep";
       const body = action === "tailor" ? { target_role: `${custom.title} at ${custom.company}`, job_title: custom.title, company: custom.company, job_description: custom.description } : { custom };
-      const { data, error } = await supabase.functions.invoke(fn, { body });
+      const { data, error } = await supabase.functions.invoke(fn, { body: { ...body, request_id: crypto.randomUUID() } });
       if (error || data?.error) { toast.error(await errorMessage(error, data)); return; }
       const id = action === "tailor" ? data?.tailoring?.id ?? data?.id : action === "letter" ? data?.letter?.id : data?.guide?.id;
       const param = action === "tailor" ? "tailoring" : action === "letter" ? "letter" : "prep";
       toast.success(`Done — 1 credit used. Source: ${data?.resume_source?.label ?? "Saved resume"}.`);
       if (Object.keys(data?.resume_source?.omitted ?? {}).length) toast.info(`Input limit: whole facts omitted from ${Object.entries(data.resume_source.omitted).map(([k,n]) => `${k} (${n})`).join(", ")}. Review the result against your full resume.`);
       navigate(id ? `/app/documents?${param}=${id}` : "/app/documents");
-    } finally { setBusy(null); }
+    } finally { inFlight.current = false; setBusy(null); }
   }
 
   const docLink = (d: Doc) => `/app/documents?${d.kind}=${d.id}`;

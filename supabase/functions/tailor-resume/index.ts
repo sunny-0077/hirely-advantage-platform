@@ -1,6 +1,7 @@
 // Tailor resume — generates a role-specific optimized version via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { requestKey, completedRequest } from "../_shared/document-replay.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
@@ -172,6 +173,10 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json();
+    let requestId: string | null;
+    try { requestId = requestKey(body?.request_id); } catch { return json({error:"Invalid generation request key."},400); }
+    const replay = await completedRequest(supabase, "resume_tailorings", userId, requestId);
+    if (replay) return json({ tailoring: replay, replayed: true });
     const { resume_id, analysis_id, job_id } = body ?? {};
     let appJob: { role: string; company: string; job_id?: string | null; job_url?: string | null; location?: string | null } | null =
       typeof body?.company === "string" && typeof body?.job_title === "string"
@@ -287,9 +292,10 @@ ${jdText}` });
       const { data: inserted, error: insertErr } = await supabase
         .from("resume_tailorings")
         .insert({
+          request_id: requestId,
           user_id: userId,
           resume_id: resume_id ?? null,
-          source,
+          source: resolved.source === "legacy" ? "legacy" : source,
           job_id: job_id ?? null,
           tailored_text: [
             parsed.summary ? `SUMMARY\n${parsed.summary}` : "",
@@ -325,7 +331,7 @@ ${jdText}` });
         return inserted;
       },
     );
-    if (appJob && inserted?.id) await upsertApplication(supabase, userId, appJob, { tailoring_id: inserted.id });
+    if (appJob && inserted?.id) { try { await upsertApplication(supabase, userId, appJob, { tailoring_id: inserted.id }); } catch { console.error("Application link unavailable; document remains saved."); } }
     return json({ tailoring: inserted, resume_source: resolved });
   } catch (e) {
     if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);

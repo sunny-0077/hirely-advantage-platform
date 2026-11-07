@@ -1,6 +1,7 @@
 // Job feed interview prep: master resume + job description -> structured prep guide (1 credit).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { runPaidAction, PaidActionError } from "../_shared/credits.ts";
+import { requestKey, completedRequest } from "../_shared/document-replay.ts";
 import { upsertApplication } from "../_shared/applications.ts";
 import { sanitizeAiInput, buildTailoringInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 
@@ -85,6 +86,10 @@ Deno.serve(async (req) => {
     const userId = u.user.id;
 
     const body = await req.json().catch(() => null);
+    let requestId: string | null;
+    try { requestId = requestKey(body?.request_id); } catch { return json({error:"Invalid generation request key."},400); }
+    const replay = await completedRequest(supabase, "interview_prep_guides", userId, requestId);
+    if (replay) return json({ guide: replay, replayed: true });
     const jobId = body?.job_id;
     const custom = body?.custom;
     let found: { id: string | null; title: string; company_name: string; raw_description: string | null } | null = null;
@@ -143,6 +148,7 @@ ${jd}` });
         const text = guideToText(job.title, job.company_name, parsed);
 
         const { data: row, error } = await supabase.from("interview_prep_guides").insert({
+          request_id: requestId,
           user_id: userId, job_id: job.id, company: job.company_name, role: job.title,
           guide_json: parsed, guide_text: text, model: MODEL,
         }).select("id, company, role, guide_text, created_at").single();
@@ -150,7 +156,7 @@ ${jd}` });
         return row;
       },
     );
-    if (letter?.id) await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { interview_prep_id: letter.id });
+    if (letter?.id) { try { await upsertApplication(supabase, userId, { role: job.title, company: job.company_name, job_id: job.id }, { interview_prep_id: letter.id }); } catch { console.error("Application link unavailable; document remains saved."); } }
     return json({ guide: letter, resume_source: resolved });
   } catch (e) {
     if (e instanceof ResumeSourceError) return json({ error: e.message }, e.status);
