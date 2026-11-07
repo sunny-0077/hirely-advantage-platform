@@ -121,7 +121,7 @@ export default function MasterResume() {
   const e = (k: string) => errors[k];
   const statusText = { idle: "All changes saved", dirty: "Unsaved changes", saving: "Saving…", saved: "Saved", error: "Not saved" }[status];
 
-  return <div className="max-w-4xl mx-auto pb-28">
+  return <div className="max-w-4xl mx-auto pb-6">
     <PageHeader eyebrow="Workspace" title="Master Resume" description="Your central career profile. Tailored resumes, cover letters and interview prep are built only from what you enter here." />
 
     <section className={`${card} mb-5`} aria-label="Resume completion">
@@ -253,8 +253,8 @@ export default function MasterResume() {
       </Section>
     </div>
 
-    <div className="fixed bottom-0 inset-x-0 lg:left-72 z-30 border-t border-border bg-background/95 backdrop-blur">
-      <div className="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
+    <div className="sticky bottom-0 z-30 mt-6 rounded-xl border border-border bg-background/95 backdrop-blur shadow-lg">
+      <div className="px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
         <div className="flex flex-col gap-1">
           <p role="status" aria-live="polite" className={`text-sm font-medium ${status === "error" ? "text-destructive" : status === "dirty" ? "text-amber-700" : "text-muted-foreground"}`}>{statusText}</p>
           {existingText && <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={replaceText} onCheckedChange={setReplaceText} aria-label="Replace pasted resume text" />Use this as the resume text for AI tools</label>}

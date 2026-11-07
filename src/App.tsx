@@ -9,6 +9,7 @@ import AuthCallback from "./pages/AuthCallback.tsx";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import WorkspaceHome from "./pages/dashboard/WorkspaceHome";
+import MasterResume from "./pages/dashboard/MasterResume";
 import MyApplications from "./pages/dashboard/MyApplications";
 import AdminFeedback from "./pages/dashboard/AdminFeedback";
 import { MyDocuments, MyProfile } from "./pages/dashboard/CandidatePortal";
@@ -47,12 +48,14 @@ const App = () => (
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/master-resume" element={<Navigate to="/app/master-resume" replace />} />
           <Route path="/app" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/app/home" replace />} />
             <Route path="home" element={<WorkspaceHome />} />
             <Route path="jobs" element={<Jobs />} />
             <Route path="documents" element={<MyDocuments />} />
             <Route path="profile" element={<MyProfile />} />
+            <Route path="master-resume" element={<MasterResume />} />
             <Route path="resume" element={<ResumeAnalyzer />} />
             <Route path="compare" element={<CompareResumes />} />
             <Route path="cover-letter" element={<CoverLetterGenerator />} />
