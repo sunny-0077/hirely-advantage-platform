@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Mic, Briefcase, Send, Bookmark, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck } from "lucide-react";
+import { Mail, Mic, Briefcase, Send, Bookmark, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
@@ -27,7 +27,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
   const isAdmin = useIsAdmin();
-  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound }];
+  const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/master-resume", label: "Master Resume", icon: FileUser }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound }];
   return (
   <>
     <div className="flex items-center mb-9 px-2">

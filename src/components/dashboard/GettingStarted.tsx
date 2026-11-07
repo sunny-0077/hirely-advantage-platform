@@ -38,7 +38,7 @@ export function GettingStarted() {
 
   if (!q.data || q.data.dismissed || done === 3) return null;
   const items = [
-    { label: "Save your Master Resume in My profile", to: "/app/profile" },
+    { label: "Save your Master Resume", to: "/app/master-resume" },
     { label: "Generate your first Tailored Resume, Cover Letter or Interview Prep guide", to: "/app/jobs" },
     { label: "Track your job status in Applications", to: "/app/applications" },
   ];

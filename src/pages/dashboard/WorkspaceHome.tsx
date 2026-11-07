@@ -105,7 +105,7 @@ export default function WorkspaceHome() {
     {resumeEmpty && <div role="alert" className="mb-8 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
       <AlertTriangle className="size-5 text-destructive" />
       <p className="flex-1 font-medium">Your master resume is empty. Add it so we can tailor resumes, letters and prep for you.</p>
-      <Button asChild size="sm"><Link to="/app/profile">Add master resume<ArrowRight /></Link></Button>
+      <Button asChild size="sm"><Link to="/app/master-resume">Add master resume<ArrowRight /></Link></Button>
     </div>}
 
     <section aria-labelledby="studio" className="bg-card border border-border rounded-lg p-6 mb-8 mt-4">
