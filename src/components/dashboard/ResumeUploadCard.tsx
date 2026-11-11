@@ -262,7 +262,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
               "shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center",
               busy
                 ? "bg-foreground/5"
-                : "bg-gradient-to-br from-[#0E0B1F] to-[#3a2d5e] text-white",
+                : "bg-highlight text-highlight-foreground",
             )}
           >
             {busy ? (
@@ -309,7 +309,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
               className="h-full rounded-full animate-pulse"
               style={{
                 width: stage === "extracting" ? "30%" : stage === "uploading" ? "60%" : "92%",
-                background: "linear-gradient(90deg,#0E0B1F,#6D54B3)",
+                background: "hsl(var(--accent-foreground))",
                 transition: "width 600ms ease",
               }}
             />

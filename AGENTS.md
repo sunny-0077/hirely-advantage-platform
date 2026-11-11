@@ -1,6 +1,7 @@
 # Project implementation rules
 
-- Public and authenticated interfaces share semantic CSS tokens and shared control variants; compatibility surface classes remain available without decorative effects so existing tools retain behavior.
+- Public and authenticated interfaces share semantic surface, action, ink and highlight tokens and shared control variants; compatibility classes map to those roles so existing tools retain behavior and document typography remains independent.
+- Workspace pages use a shared fluid content shell and a collapsible icon-rail sidebar; form section navigation stays local to its page so density improves without adding global routes.
 
 - Require a validated signed-in user and completed profile onboarding for dashboard routes, because personal workspaces must not render for signed-out visitors.
 - Reuse `profiles` for onboarding and expose `user_profiles` only as a security-invoker identity view; use server-created identities and explicit onboarding completion, because duplicate stores and name-only gates lose reliable progress.

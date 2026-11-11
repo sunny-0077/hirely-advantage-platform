@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,16 +96,16 @@ export function CoverLetterLibrary({
       ) : (
         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[520px] overflow-y-auto pr-1">
           {rows.map((r) => (
-            <button
+            <Button variant="ghost"
               key={r.id}
               type="button"
               onClick={() => onOpen?.(r)}
               className={cn(
-                "group text-left rounded-2xl p-4 transition-all",
-                "bg-white/40 dark:bg-white/[0.04] backdrop-blur-md",
-                "border border-white/40 dark:border-white/[0.08]",
-                "shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(124,58,237,0.10)]",
-                "hover:border-violet-400/40 hover:-translate-y-0.5",
+                "h-auto block whitespace-normal group text-left rounded-lg p-4 transition-colors",
+                "bg-card",
+                "border border-border",
+                "shadow-subtle",
+                "hover:border-primary/40 ",
               )}
             >
               <div className="flex items-start justify-between gap-2">
@@ -122,11 +123,11 @@ export function CoverLetterLibrary({
                 {snippet(r.full_letter)}
               </p>
               {r.tone && (
-                <span className="mt-3 inline-flex items-center text-[10px] font-medium tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/20">
+                <span className="mt-3 inline-flex items-center text-[10px] font-medium tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-primary/10 text-accent-foreground ring-1 ring-primary/20">
                   {r.tone}
                 </span>
               )}
-            </button>
+            </Button>
           ))}
         </div>
       )}

@@ -32,29 +32,29 @@ export function PageHeader({
     <div
       ref={ref}
       className={cn(
-        "reveal mb-7 flex items-start justify-between gap-4",
+        "reveal mb-5 flex flex-wrap items-start justify-between gap-3",
         mounted && "in-view",
         className,
       )}
     >
       <div className="min-w-0">
         {eyebrow && (
-          <p className="text-[11px] uppercase tracking-normal text-muted-foreground font-medium">
+          <p className="text-[10px] uppercase tracking-normal text-muted-foreground font-semibold">
             {eyebrow}
           </p>
         )}
-        <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.3] mt-1.5">
+        <h1 className="font-display font-extrabold text-foreground text-[26px] sm:text-[32px] leading-[1.2] mt-1">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-2xl">
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-3xl">
             {description}
           </p>
         )}
       </div>
 
       {statusLabel && (
-        <span className="bg-accent text-primary shrink-0 rounded-md px-3 py-1.5 text-[11px] font-medium text-foreground/70 tracking-tight whitespace-nowrap">
+        <span className="bg-accent text-accent-foreground rounded-md px-3 py-1.5 text-[11px] font-semibold max-w-full">
           {statusLabel}
         </span>
       )}

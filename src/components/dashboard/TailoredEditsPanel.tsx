@@ -264,14 +264,7 @@ export const TailoredEditsPanel = ({
             </div>
             <p className="mt-2 text-[28px] sm:text-[32px] leading-[1.1] font-semibold tracking-[-0.035em] text-foreground">
               Here is your optimized version for{" "}
-              <span
-                style={{
-                  background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  color: "transparent",
-                }}
-              >
+              <span className="text-accent-foreground">
                 {active.target_role}
               </span>
               .
@@ -413,7 +406,7 @@ export const TailoredEditsPanel = ({
                       </div>
                       <div>
                         <div className="flex items-center justify-between">
-                          <p className="text-[10px] tracking-[0.18em] uppercase text-[hsl(258_38%_52%)] font-medium">
+                          <p className="text-[10px] tracking-[0.18em] uppercase text-accent-foreground font-medium">
                             After
                           </p>
                           <button

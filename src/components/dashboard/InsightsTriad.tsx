@@ -26,8 +26,8 @@ const TONE: Record<Tone, { dot: string; chip: string; label: string }> = {
     label: "Gaps",
   },
   violet: {
-    dot: "bg-[hsl(258_45%_58%)] shadow-[0_0_0_3px_hsl(258_45%_58%/0.18)]",
-    chip: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
+    dot: "bg-primary",
+    chip: "bg-accent text-accent-foreground",
     label: "Risks",
   },
 };

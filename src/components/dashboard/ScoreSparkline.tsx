@@ -55,7 +55,7 @@ export const ScoreSparkline = ({ data = DEFAULT_DATA, className }: ScoreSparklin
             <p className="text-[20px] font-semibold tracking-[-0.025em] text-foreground leading-none tabular-nums">
               {start} <span className="text-foreground/30">→</span> {end}
             </p>
-            <span className="text-[11.5px] font-medium text-[hsl(258_38%_52%)]">
+            <span className="text-[11.5px] font-medium text-accent-foreground">
               {delta >= 0 ? "+" : ""}
               {delta} pts
             </span>
@@ -74,12 +74,12 @@ export const ScoreSparkline = ({ data = DEFAULT_DATA, className }: ScoreSparklin
       >
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#0E0B1F" />
-            <stop offset="100%" stopColor="#6D54B3" />
+            <stop offset="0%" stopColor="hsl(var(--highlight))" />
+            <stop offset="100%" stopColor="hsl(var(--accent-foreground))" />
           </linearGradient>
           <linearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#6D54B3" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#6D54B3" stopOpacity="0" />
+            <stop offset="0%" stopColor="hsl(var(--accent-foreground))" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="hsl(var(--accent-foreground))" stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -97,8 +97,8 @@ export const ScoreSparkline = ({ data = DEFAULT_DATA, className }: ScoreSparklin
           cx={lastX}
           cy={lastY}
           r="2.4"
-          fill="#fff"
-          stroke="#6D54B3"
+          fill="hsl(var(--card))"
+          stroke="hsl(var(--accent-foreground))"
           strokeWidth="1.4"
           vectorEffect="non-scaling-stroke"
         />
