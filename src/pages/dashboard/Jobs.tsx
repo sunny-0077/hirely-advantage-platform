@@ -188,7 +188,7 @@ export default function Jobs() {
       ) : jobs.length === 0 ? (
         <EmptyState icon={Briefcase} title={`No ${city} roles yet`} description="New jobs are added regularly. Try another city for now." />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {jobs.map((j) => (
             <article key={j.id} className={cn("rounded-2xl border border-border bg-card p-5 shadow-sm flex flex-col gap-4")}>
               <div>
@@ -199,23 +199,23 @@ export default function Jobs() {
                 </p>
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button size="lg" className="flex-1 font-semibold" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+              <div className="mt-auto grid grid-cols-1 lg:grid-cols-2 gap-2">
+                <Button size="lg" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Tailor Resume for ${j.title}`}>
-                  {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-                  {busyJobId === j.id ? "Tailoring…" : "Tailor Resume · 1 credit"}
+                  {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4 xl:hidden" />}
+                  {busyJobId === j.id ? "Tailoring…" : <span className="truncate">Tailor Resume<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="lg" variant="secondary" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Generate Cover Letter for ${j.title}`}>
-                  {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-                  {letterJobId === j.id ? "Writing…" : "Cover Letter · 1 credit"}
+                  {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4 xl:hidden" />}
+                  {letterJobId === j.id ? "Writing…" : <span className="truncate">Cover Letter<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="lg" variant="secondary" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Interview Prep for ${j.title}`}>
-                  {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4" />}
-                  {prepJobId === j.id ? "Preparing…" : "Interview Prep · 1 credit"}
+                  {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4 xl:hidden" />}
+                  {prepJobId === j.id ? "Preparing…" : <span className="truncate">Interview Prep<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button asChild size="lg" variant="outline" className="flex-1" disabled={!j.apply_url}>
+                <Button asChild size="lg" variant="outline" className="flex-1 text-sm px-3 min-w-0" disabled={!j.apply_url}>
                   <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>
                 </Button>
               </div>
