@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Redesign public pages, shared controls and authenticated workspace with the new restrained visual identity, preserving all product behavior.
-- [ ] Inspect desktop/mobile pages and run existing regression tests; do not save profile changes or generate paid documents during visual checks.
+- [x] Redesign public pages, shared controls and authenticated workspace with the new restrained visual identity; backend, auth, payment and credit handlers unchanged.
+- [x] Inspect all public sections at desktop/tablet/mobile sizes, verify illustrative tabs and mobile navigation, inspect sign-in/signup/onboarding, and run 54 existing regression tests. No paid generation or profile saves performed.
+- [ ] Inspect real authenticated workspace pages at desktop/mobile sizes; current authorized session redirects to onboarding Personal information (Step 1 of 3). No account switching, invented facts or onboarding bypass.
 
 - [x] Add authenticated PDF/DOCX Master Resume extraction, deterministic mapping, editable review and explicit save without credits or automatic overwrites.
 - [x] Run importer tests: 29 Vitest and 12 Deno tests passed; deployed PDF/DOCX extraction, scanned-PDF rejection, unsigned denial, owner-only profile reads and unchanged profile/credits verified.

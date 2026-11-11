@@ -91,6 +91,7 @@
  .auth-page input { border-radius: 6px; background: hsl(var(--card)); border-color: hsl(var(--input)); font-size: 16px; }
  .auth-page input:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / .1); }
  .auth-page button { border-radius: 6px; }
+ .auth-page [class*="tracking-"], .landing-container [class*="tracking-"] { letter-spacing: 0; }
 }
 @keyframes skeleton-pulse { 50% { opacity: .5; } }
 @keyframes step-pop { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
