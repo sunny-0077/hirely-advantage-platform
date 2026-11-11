@@ -31,10 +31,10 @@ export function JobFeedCard({ job, disabled, busyAction, onTailor, onLetter, onP
   const warnings = [truth.is_ghost_job && "Possible ghost job", truth.is_corporate_fluff && "Corporate fluff", ...(truth.red_flags ?? []).slice(0, 2)].filter(Boolean);
 
   return (
-    <article className="overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-job)] transition-shadow motion-reduce:transition-none lg:grid lg:grid-cols-[minmax(0,1fr)_240px]">
+    <article className="overflow-hidden rounded-[8px] border border-border bg-card shadow-[var(--shadow-job)] transition-shadow motion-reduce:transition-none lg:grid lg:grid-cols-[minmax(0,1fr)_240px]">
       <div className="min-w-0 p-5 sm:p-6">
         <div className="flex items-start gap-3.5">
-          <div aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-jobs-accent/15 bg-jobs-soft text-lg font-semibold text-jobs-accent">{job.company_name.trim().slice(0, 2).toUpperCase()}</div>
+          <div aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-[8px] border border-jobs-accent/15 bg-jobs-soft text-lg font-semibold text-jobs-accent">{job.company_name.trim().slice(0, 2).toUpperCase()}</div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-muted-foreground">{job.company_name}</p>
             <h2 className="mt-1 break-words text-lg font-semibold leading-snug text-foreground sm:text-xl">{job.title}</h2>
@@ -47,7 +47,7 @@ export function JobFeedCard({ job, disabled, busyAction, onTailor, onLetter, onP
           {age && <span className="inline-flex items-center gap-1.5 text-xs"><Clock3 className="size-3.5 shrink-0" />Imported {age}</span>}
         </div>
 
-        {stack.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{stack.map((skill) => <span key={skill} className="rounded-md border border-border bg-secondary/60 px-2.5 py-1 text-xs font-medium text-foreground">{skill}</span>)}</div>}
+        {stack.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{stack.map((skill) => <span key={skill} className="rounded-[4px] border border-border bg-secondary/60 px-2.5 py-1 text-xs font-medium text-foreground">{skill}</span>)}</div>}
 
         <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
           <Button variant="jobs" className="flex-1 sm:flex-none" onClick={onTailor} disabled={disabled} aria-label={`Tailor Resume for ${job.title}`}>
