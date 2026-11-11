@@ -5,56 +5,13 @@ import { useResumeSource } from "@/hooks/useResumeSource";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { JobFeedCard, type Job } from "@/components/dashboard/JobFeedCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Briefcase, ExternalLink, Loader2, Mail, MessagesSquare, MapPin, Sparkles, Wallet } from "lucide-react";
+import { Briefcase, Loader2, Search, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 export const CITY_HUBS = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Delhi NCR", "Remote"] as const;
-
-type TruthCard = {
-  true_tech_stack?: string[];
-  estimated_ctc_range?: string;
-  is_ghost_job?: boolean;
-  is_corporate_fluff?: boolean;
-  red_flags?: string[];
-};
-type Job = {
-  id: string; title: string; company_name: string; city_hub: string; work_mode: string | null;
-  apply_url: string | null; raw_description: string | null; truth_card_json: TruthCard; fetched_at: string;
-};
-
-function TruthCardBadge({ t }: { t: TruthCard }) {
-  const stack = (t.true_tech_stack ?? []).slice(0, 6);
-  return (
-    <div className="rounded-xl border border-border bg-muted/50 p-3 space-y-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">3-second truth</span>
-        <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-          <Wallet className="size-3.5 text-primary" />{t.estimated_ctc_range || "CTC not disclosed"}
-        </span>
-      </div>
-      {stack.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {stack.map((s) => <Badge key={s} variant="secondary" className="font-medium">{s}</Badge>)}
-        </div>
-      )}
-      {(t.is_ghost_job || t.is_corporate_fluff) && (
-        <div className="flex flex-wrap gap-1.5">
-          {t.is_ghost_job && <Badge variant="destructive" className="gap-1"><AlertTriangle className="size-3" />Possible ghost job</Badge>}
-          {t.is_corporate_fluff && <Badge variant="outline" className="gap-1 border-destructive/50 text-destructive"><AlertTriangle className="size-3" />Corporate fluff</Badge>}
-        </div>
-      )}
-      {(t.red_flags ?? []).length > 0 && (
-        <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-0.5">
-          {t.red_flags!.slice(0, 3).map((f) => <li key={f}>{f}</li>)}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 export default function Jobs() {
   const navigate = useNavigate();
@@ -65,31 +22,31 @@ export default function Jobs() {
   const [city, setCity] = useState<string>("Bengaluru");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tailorJob, setTailorJob] = useState<Job | null>(null);
-  const [resumes, setResumes] = useState<{ id: string; file_name: string }[]>([]);
-  const [resumeId, setResumeId] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
+  const [workMode, setWorkMode] = useState("all");
+  const [loadError, setLoadError] = useState(false);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+    setLoadError(false);
     supabase.from("jobs_catalog").select("*").eq("city_hub", city).order("fetched_at", { ascending: false }).limit(60)
       .then(({ data, error }) => {
         if (!alive) return;
-        if (error) toast.error("Couldn't load jobs");
+        if (error) { setLoadError(true); toast.error("Couldn't load jobs"); }
         setJobs((data ?? []) as unknown as Job[]);
         setLoading(false);
       });
     return () => { alive = false; };
-  }, [city]);
+  }, [city, refresh]);
 
   const [busyJobId, setBusyJobId] = useState<string | null>(null);
-  void setResumes; void setResumeId;
-
   const [letterJobId, setLetterJobId] = useState<string | null>(null);
+  const [prepJobId, setPrepJobId] = useState<string | null>(null);
+
   const runCoverLetter = async (job: Job) => {
-    if (letterJobId || busyJobId) return;
-    if (inFlight.current) return;
+    if (letterJobId || busyJobId || inFlight.current) return;
     inFlight.current = true;
     setLetterJobId(job.id);
     try {
@@ -113,10 +70,8 @@ export default function Jobs() {
     }
   };
 
-  const [prepJobId, setPrepJobId] = useState<string | null>(null);
   const runInterviewPrep = async (job: Job) => {
-    if (prepJobId || letterJobId || busyJobId) return;
-    if (inFlight.current) return;
+    if (prepJobId || letterJobId || busyJobId || inFlight.current) return;
     inFlight.current = true;
     setPrepJobId(job.id);
     try {
@@ -140,11 +95,9 @@ export default function Jobs() {
     }
   };
 
-  const runTailor = async (job: Job | null = tailorJob) => {
-    if (!job || busyJobId) return;
-    if (inFlight.current) return;
+  const runTailor = async (job: Job) => {
+    if (busyJobId || inFlight.current) return;
     inFlight.current = true;
-    setBusy(true);
     setBusyJobId(job.id);
     try {
       const { data, error } = await supabase.functions.invoke("tailor-resume", {
@@ -158,7 +111,6 @@ export default function Jobs() {
       if (data?.error) throw new Error(data.error);
       requestKeys.current.delete(`tailor:${job.id}`);
       toast.success(data?.replayed ? "Previous resume recovered — no additional credit used." : "Tailored resume ready. 1 credit used.");
-      setTailorJob(null);
       if(data?.resume_source?.label) toast.info(`Source: ${data.resume_source.label}${Object.keys(data.resume_source.omitted ?? {}).length ? `. Input limit omitted whole facts from: ${Object.entries(data.resume_source.omitted).map(([k,n])=>`${k} (${n})`).join(", ")}` : ""}.`);
       const id = data?.tailoring?.id;
       navigate(id ? `/app/documents?tailoring=${id}` : "/app/documents");
@@ -166,84 +118,57 @@ export default function Jobs() {
       toast.error(e instanceof Error ? e.message : "Tailoring failed");
     } finally {
       inFlight.current = false;
-      setBusy(false);
       setBusyJobId(null);
     }
   };
 
-  return (
-    <div>
-      <PageHeader eyebrow="Job feed" title="Fresh roles in your city" description="Real openings from tech companies hiring in India, each with an honest truth card." />
+  const query = search.trim().toLowerCase();
+  const visibleJobs = jobs.filter((job) => {
+    const matchesQuery = !query || [job.title, job.company_name, ...(job.truth_card_json?.true_tech_stack ?? [])].some((value) => value.toLowerCase().includes(query));
+    const mode = (job.work_mode ?? "").toLowerCase().replace(/[-\s]/g, "");
+    return matchesQuery && (workMode === "all" || mode === workMode);
+  });
 
-      {savedResume.data?.available && <p className="text-sm text-muted-foreground mb-4">Career facts source: {savedResume.data.label}</p>}
-      <div className="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="City">
-        {CITY_HUBS.map((c) => (
-          <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
-            className="rounded-full" onClick={() => setCity(c)}>{c}</Button>
-        ))}
+  return (
+    <div className="space-y-6 [letter-spacing:0]">
+      <PageHeader eyebrow="Your next chapter" title="Jobs" description="Open roles. Clearer insights. Your next move." className="mb-0" />
+      <div className="space-y-4 border-b border-border pb-5">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3.5 top-3 size-4 text-muted-foreground" />
+            <Input aria-label="Search jobs" placeholder="Search roles, companies or skills" value={search} onChange={(event) => setSearch(event.target.value)} className="rounded-lg bg-card pl-10 pr-10 focus-visible:ring-jobs-accent" />
+            {search && <Button variant="ghost" size="icon" className="absolute right-1 top-1 size-8" aria-label="Clear search" onClick={() => setSearch("")}><X /></Button>}
+          </div>
+          <Select value={workMode} onValueChange={setWorkMode}>
+            <SelectTrigger aria-label="Work mode" className="w-full gap-2 rounded-lg bg-card sm:w-44"><SlidersHorizontal className="size-4 shrink-0 text-muted-foreground" /><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="all">All work modes</SelectItem><SelectItem value="remote">Remote</SelectItem><SelectItem value="onsite">On-site</SelectItem><SelectItem value="hybrid">Hybrid</SelectItem></SelectContent>
+          </Select>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="City">
+          {CITY_HUBS.map((hub) => <Button key={hub} size="sm" role="tab" aria-selected={city === hub} variant={city === hub ? "jobs" : "outline"} className="shrink-0 rounded-full" onClick={() => setCity(hub)}>{hub}</Button>)}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <p className="text-sm"><span className="font-semibold text-foreground">{loading ? "Finding roles…" : `${visibleJobs.length} ${visibleJobs.length === 1 ? "role" : "roles"}`}</span> in {city}</p>
+        <p>{savedResume.data?.available ? `Career facts: ${savedResume.data.label}` : "Company career feeds"} · Newest imports first</p>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>
-      ) : jobs.length === 0 ? (
-        <EmptyState icon={Briefcase} title={`No ${city} roles yet`} description="New jobs are added regularly. Try another city for now." />
+        <div className="flex justify-center py-16" role="status" aria-label="Loading jobs"><Loader2 className="size-6 animate-spin text-jobs-accent" /></div>
+      ) : loadError ? (
+        <div className="py-12 text-center"><p className="mb-4 text-muted-foreground">Jobs couldn't be loaded. Please try again.</p><Button variant="outline" onClick={() => setRefresh((value) => value + 1)}>Try again</Button></div>
+      ) : visibleJobs.length === 0 ? (
+        <div><EmptyState icon={Briefcase} title={jobs.length ? "No matching roles" : `No ${city} roles yet`} description={jobs.length ? "Try a different search or work mode." : "New jobs are added regularly. Try another city for now."} />
+          {(search || workMode !== "all") && <div className="text-center"><Button variant="outline" onClick={() => { setSearch(""); setWorkMode("all"); }}>Clear filters</Button></div>}
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {jobs.map((j) => (
-            <article key={j.id} className={cn("rounded-2xl border border-border bg-card p-5 shadow-sm flex flex-col gap-4")}>
-              <div>
-                <h3 className="font-semibold text-foreground leading-snug">{j.title}</h3>
-                <p className="text-sm text-muted-foreground">{j.company_name}</p>
-                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <MapPin className="size-3.5" />{j.city_hub} · {j.work_mode ?? "On-site"}
-                </p>
-              </div>
-              <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button size="lg" className="flex-1 font-semibold" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
-                  aria-label={`Tailor Resume for ${j.title}`}>
-                  {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-                  {busyJobId === j.id ? "Tailoring…" : "Tailor Resume · 1 credit"}
-                </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
-                  aria-label={`Generate Cover Letter for ${j.title}`}>
-                  {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-                  {letterJobId === j.id ? "Writing…" : "Cover Letter · 1 credit"}
-                </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
-                  aria-label={`Interview Prep for ${j.title}`}>
-                  {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4" />}
-                  {prepJobId === j.id ? "Preparing…" : "Interview Prep · 1 credit"}
-                </Button>
-                <Button asChild size="lg" variant="outline" className="flex-1" disabled={!j.apply_url}>
-                  <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>
-                </Button>
-              </div>
-            </article>
-          ))}
+        <div className="grid gap-4">
+          {visibleJobs.map((job) => <JobFeedCard key={job.id} job={job} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+            busyAction={busyJobId === job.id ? "tailor" : letterJobId === job.id ? "letter" : prepJobId === job.id ? "prep" : null}
+            onTailor={() => runTailor(job)} onLetter={() => runCoverLetter(job)} onPrep={() => runInterviewPrep(job)} />)}
         </div>
       )}
-
-      <Dialog open={!!tailorJob} onOpenChange={(o) => !o && setTailorJob(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tailor your resume</DialogTitle>
-            <DialogDescription>For {tailorJob?.title} at {tailorJob?.company_name}. This uses 1 credit, refunded if it fails.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Select value={resumeId} onValueChange={setResumeId}>
-              <SelectTrigger aria-label="Resume to tailor"><SelectValue placeholder="Choose a resume" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="master">Master resume (from My profile)</SelectItem>
-                {resumes.map((r) => <SelectItem key={r.id} value={r.id}>{r.file_name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Button className="w-full" onClick={() => runTailor()} disabled={busy}>
-              {busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}Tailor for 1 credit
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
