@@ -106,3 +106,8 @@
  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
  .reveal { opacity:1; transform:none; }
 }
+@layer utilities {
+ /* Mint is an action fill; mint text on white lacks contrast, so text uses forest green. */
+ .text-primary { color: hsl(var(--forest)); }
+ .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary)); }
+}
