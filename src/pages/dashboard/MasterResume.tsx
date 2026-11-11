@@ -19,7 +19,7 @@ import {
 } from "@/lib/masterResume";
 
 type Status = "idle" | "dirty" | "saving" | "saved" | "error";
-const card = "bg-card border border-border rounded-xl p-5 sm:p-6 space-y-4";
+const card = "resume-section space-y-5";
 
 function Field({ label, id, error, children }: { label: string; id: string; error?: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label htmlFor={id}>{label}</Label>{children}{error && <p className="text-xs text-destructive">{error}</p>}</div>;
@@ -52,7 +52,7 @@ function Tags({ label, items, onChange }: { label: string; items: string[]; onCh
 
 function Section({ title, missing, action, children }: { title: string; missing?: boolean; action?: React.ReactNode; children: React.ReactNode }) {
   return <section className={card} aria-label={title}>
-    <div className="flex items-center justify-between gap-3 flex-wrap"><h2 className="font-semibold text-lg flex items-center gap-2">{title}{missing && <Badge variant="outline" className="text-amber-700 border-amber-300">Missing</Badge>}</h2>{action}</div>
+    <div className="flex items-center justify-between gap-3 flex-wrap"><h2 className="font-semibold text-lg flex items-center gap-2">{title}{missing && <Badge variant="outline" className="text-warning border-warning/30">Missing</Badge>}</h2>{action}</div>
     {children}
   </section>;
 }
@@ -144,7 +144,7 @@ export default function MasterResume() {
 
     {!hasContent(r) && <div className={`${card} mb-5 text-center`}><FileText className="size-8 mx-auto text-muted-foreground" /><h2 className="font-semibold">Your Master Resume is empty</h2><p className="text-sm text-muted-foreground">Start with your personal information below. Nothing is filled in for you.</p></div>}
     {seeded && <p className="mb-5 rounded-lg border border-border bg-secondary/50 p-3 text-sm">We filled in details you already gave during onboarding or in My profile. Review them, then save. Nothing is stored until you press Save.</p>}
-    {existingText && !replaceText && <div className="mb-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm space-y-2 text-amber-900">
+    {existingText && !replaceText && <div className="mb-5 rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm space-y-2 text-foreground">
       <p className="flex gap-2"><AlertTriangle className="size-4 shrink-0 mt-0.5" />Your pasted resume text stays unchanged. Generators prefer usable saved Master Resume facts; pasted text is a separate fallback only when saved structured career information is unavailable.</p>
       <details><summary className="cursor-pointer font-medium">View pasted resume text</summary><pre className="mt-2 whitespace-pre-wrap font-sans max-h-64 overflow-auto">{existingText}</pre></details>
     </div>}
@@ -263,10 +263,10 @@ export default function MasterResume() {
       </Section>
     </div>
 
-    <div className="sticky bottom-0 z-30 mt-6 rounded-xl border border-border bg-background/95 backdrop-blur shadow-lg">
+    <div className="sticky bottom-0 z-30 mt-6 rounded-lg border border-border bg-card shadow-subtle">
       <div className="px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
         <div className="flex flex-col gap-1">
-          <p role="status" aria-live="polite" className={`text-sm font-medium ${status === "error" ? "text-destructive" : status === "dirty" ? "text-amber-700" : "text-muted-foreground"}`}>{statusText}</p>
+          <p role="status" aria-live="polite" className={`text-sm font-medium ${status === "error" ? "text-destructive" : status === "dirty" ? "text-warning" : "text-muted-foreground"}`}>{statusText}</p>
           {existingText && <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={replaceText} onCheckedChange={setReplaceText} aria-label="Replace pasted resume text" />Also replace the legacy pasted text on save</label>}
         </div>
         <Button type="button" onClick={() => void save()} disabled={status === "saving"}>{status === "saving" ? <><Loader2 className="size-4 animate-spin" />Saving…</> : "Save Master Resume"}</Button>

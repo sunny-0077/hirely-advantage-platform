@@ -39,22 +39,22 @@ export function PageHeader({
     >
       <div className="min-w-0">
         {eyebrow && (
-          <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/40 font-medium">
+          <p className="text-[11px] uppercase tracking-normal text-muted-foreground font-medium">
             {eyebrow}
           </p>
         )}
-        <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.15] mt-1.5">
+        <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.3] mt-1.5">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 text-[13.5px] text-muted-foreground leading-relaxed max-w-2xl">
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-2xl">
             {description}
           </p>
         )}
       </div>
 
       {statusLabel && (
-        <span className="glass-subtle shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium text-foreground/70 tracking-tight whitespace-nowrap">
+        <span className="bg-accent text-primary shrink-0 rounded-md px-3 py-1.5 text-[11px] font-medium text-foreground/70 tracking-tight whitespace-nowrap">
           {statusLabel}
         </span>
       )}

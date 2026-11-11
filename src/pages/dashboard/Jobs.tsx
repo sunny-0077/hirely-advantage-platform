@@ -29,7 +29,7 @@ type Job = {
 function TruthCardBadge({ t }: { t: TruthCard }) {
   const stack = (t.true_tech_stack ?? []).slice(0, 6);
   return (
-    <div className="rounded-xl border border-border bg-muted/50 p-3 space-y-2.5">
+    <div className="rounded-md border-t border-border bg-background p-3 space-y-2.5">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">3-second truth</span>
         <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
@@ -179,7 +179,7 @@ export default function Jobs() {
       <div className="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="City">
         {CITY_HUBS.map((c) => (
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
-            className="rounded-full" onClick={() => setCity(c)}>{c}</Button>
+            className="rounded-md" onClick={() => setCity(c)}>{c}</Button>
         ))}
       </div>
 
@@ -190,7 +190,7 @@ export default function Jobs() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {jobs.map((j) => (
-            <article key={j.id} className={cn("rounded-2xl border border-border bg-card p-5 shadow-sm flex flex-col gap-4")}>
+            <article key={j.id} className={cn("rounded-lg border border-border bg-card p-5 flex flex-col gap-4")}>
               <div>
                 <h3 className="font-semibold text-foreground leading-snug">{j.title}</h3>
                 <p className="text-sm text-muted-foreground">{j.company_name}</p>

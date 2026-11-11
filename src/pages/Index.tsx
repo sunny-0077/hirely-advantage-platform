@@ -1,96 +1,19 @@
-import { MeshGradient } from "@/components/landing/MeshGradient";
+import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { Stats } from "@/components/landing/Stats";
-import { SectionHeader } from "@/components/landing/SectionHeader";
-import { FeatureBlock } from "@/components/landing/FeatureBlock";
-import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
-
 import { HowItWorks } from "@/components/landing/HowItWorks";
-import { Testimonials } from "@/components/landing/Testimonials";
-import { ResumeCompare } from "@/components/landing/ResumeCompare";
-import { ProductShowcase } from "@/components/landing/ProductShowcase";
-import { HiredWall } from "@/components/landing/HiredWall";
-import { ProofQuote } from "@/components/landing/ProofQuote";
 import { Pricing } from "@/components/landing/Pricing";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
-
-const Index = () => {
-  return (
-    <main className="relative min-h-screen overflow-x-hidden">
-      <MeshGradient />
-      <Navbar />
-      <Hero />
-      <section className="px-4 -mt-8 md:-mt-16 pb-12 md:pb-16 relative z-10">
-        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-          <div className="lg:col-span-3">
-            <Stats embedded />
-          </div>
-          <div className="lg:col-span-2">
-            <ProofQuote embedded />
-          </div>
-        </div>
-      </section>
-
-      <section id="features" className="pt-12">
-        <SectionHeader
-          eyebrow="Core Capabilities"
-          title="Three engines, engineered for offers."
-          description="Each module is built to compress weeks of guesswork into minutes of decisive feedback."
-        />
-
-        <FeatureBlock
-          index={1}
-          eyebrow="ATS Simulator & Resume Architect"
-          title="Bypass the filter. Earn the read."
-          description="We simulate a real enterprise Applicant Tracking System and rewrite your resume with data-driven, action-oriented impact statements."
-          bullets={[
-            "Definitive 0–100 Market Readiness Score against your target role.",
-            "Side-by-side Impact Rewrites that turn duties into achievements.",
-            "Exact missing keywords required to clear automated HR filters.",
-          ]}
-          visual={<VisualATS />}
-        />
-
-        <FeatureBlock
-          index={2}
-          eyebrow="Contextual Pitch & Outreach Engine"
-          title="Cover letters are table stakes."
-          description="A complete suite for professional networking — every message tuned to the human on the other side."
-          bullets={[
-            "Hyper-personalized cover letters that reference the company's actual roadmap.",
-            "Punchy 50-word LinkedIn cold DMs tailored to the hiring manager.",
-            "Polite, persistent follow-up emails for every stage of the loop.",
-          ]}
-          visual={<VisualOutreach />}
-          reverse
-        />
-
-        <FeatureBlock
-          index={3}
-          eyebrow="Immersive Behavioral Voice Coach"
-          title="Practice under pressure. Walk in fluent."
-          description="A high-stakes, voice-first simulation that listens to your delivery — not just your words."
-          bullets={[
-            "STAR Method analyzer flags missing Situation, Task, Action, or Result.",
-            "Delivery metrics on pacing, filler words, and conversational confidence.",
-            "Curveball generation injects high-stress questions to test adaptability.",
-          ]}
-          visual={<VisualVoiceCoach />}
-        />
-      </section>
-
-      <ResumeCompare />
-      <HowItWorks />
-      <ProductShowcase />
-      <Testimonials />
-      <HiredWall />
-      <Pricing />
-      <FinalCTA />
-      <Footer />
-    </main>
-  );
-};
-
-export default Index;
+const features = [
+ {n:"01", title:"A career foundation that stays yours.", text:"Keep your experience, skills and achievements in one Master Resume. Import a PDF or Word file, review it, and choose what to keep.",label:"Master Resume",to:"/app/master-resume"},
+ {n:"02", title:"Look beyond the job description.", text:"Browse roles by city. See extracted technology requirements, estimated compensation and possible red flags before deciding where to apply.",label:"Jobs & truth cards",to:"/app/jobs"},
+ {n:"03", title:"Make every application intentional.", text:"Create role-specific resumes and cover letters from your saved career facts. Prepare interview questions and keep your documents together.",label:"Application studio",to:"/app/home"},
+ {n:"04", title:"Keep your next steps in view.", text:"Track applications from preparation to outcome, keep personal notes, and return to the documents you created for each role.",label:"Application tracking",to:"/app/applications"},
+];
+export default function Index(){ return <main className="min-h-screen bg-background"><Navbar /><Hero />
+ <section id="features" className="bg-card border-y border-border py-16 md:py-24"><div className="landing-container">
+ <div className="grid md:grid-cols-2 gap-6 md:gap-20 mb-12"><div><p className="text-xs font-semibold text-primary mb-4">Built around your next move</p><h2 className="text-3xl md:text-[40px] font-semibold leading-tight">One workspace.<br />The whole job search.</h2></div><p className="text-muted-foreground text-base leading-relaxed self-end max-w-md">Not another disconnected document tool. A considered place to discover opportunities, prepare applications and keep moving forward.</p></div>
+ <div className="grid md:grid-cols-2 gap-x-16">{features.map(f=><article key={f.n} className="border-t border-border py-8"><span className="text-xs text-muted-foreground">{f.n} / {f.label}</span><h3 className="text-xl font-semibold mt-4 mb-3">{f.title}</h3><p className="text-sm leading-relaxed text-muted-foreground max-w-md">{f.text}</p><Link to={f.to} className="inline-flex items-center gap-2 text-sm font-semibold mt-5 text-primary">Explore {f.label.toLowerCase()}<ArrowUpRight className="size-4" /></Link></article>)}</div>
+ </div></section><HowItWorks /><Pricing /><FinalCTA /><Footer /></main>; }
