@@ -151,7 +151,7 @@ export function MyProfile() {
     toast.success("Profile updated");
     qc.invalidateQueries({ queryKey: ["my-profile"] });
   }
-  const section = "bg-card border border-border rounded-lg p-6 space-y-4";
+  const section = "border-b border-border py-6 space-y-4";
   return <div className="max-w-2xl mx-auto">
     <PageHeader eyebrow="Candidate portal" title="My profile" description="Your skills, experience and education help Hirely tailor your resume and prep." />
     {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="space-y-5">
@@ -238,7 +238,7 @@ function CreditHistory() {
       return data;
     },
   });
-  return <div className="bg-card border border-border rounded-lg p-6 space-y-4 mt-5">
+  return <div className="border-t border-border py-6 space-y-4 mt-5">
     <h2 className="font-semibold">Credit history</h2>
     {q.isPending ? <p role="status" className="text-sm text-muted-foreground">Loading…</p>
       : q.isError ? <p className="text-sm text-destructive">Couldn't load your credit history.</p>

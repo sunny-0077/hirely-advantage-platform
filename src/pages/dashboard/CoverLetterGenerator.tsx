@@ -308,7 +308,7 @@ const CoverLetterGenerator = () => {
                     className={cn(
                       "rounded-full px-3 py-1.5 text-left transition-all border",
                       tone === t.value
-                        ? "bg-violet-500/12 border-violet-500/40 ring-1 ring-violet-500/25 text-violet-800 shadow-[0_1px_2px_rgba(124,58,237,0.15)]"
+                        ? "bg-accent border-primary/40 ring-1 ring-primary/15 text-primary"
                         : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/75 hover:bg-foreground/[0.06] hover:border-foreground/[0.12]",
                     )}
                   >
@@ -316,7 +316,7 @@ const CoverLetterGenerator = () => {
                     <p
                       className={cn(
                         "text-[11px] tracking-tight",
-                        tone === t.value ? "text-violet-700/70" : "text-foreground/50",
+                        tone === t.value ? "text-primary" : "text-muted-foreground",
                       )}
                     >
                       {t.hint}

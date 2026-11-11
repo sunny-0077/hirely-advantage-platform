@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -33,13 +34,12 @@ export const EmptyState = ({
 }: EmptyStateProps) => (
   <div
     className={cn(
-      "glass-strong rounded-[24px] p-8 sm:p-12 flex flex-col items-center text-center",
+      "py-10 px-5 sm:py-14 flex flex-col items-center text-center",
       className,
     )}
   >
     <div
-      className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_18px_40px_-18px_hsl(252_46%_8%/0.55)]"
-      style={{ background: "linear-gradient(160deg,#0E0B1F,#3a2d5e)" }}
+      className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground"
     >
       <Icon className="w-[22px] h-[22px]" strokeWidth={1.6} />
     </div>
@@ -54,8 +54,7 @@ export const EmptyState = ({
     {(preview || previewImage) && (
       <div
         aria-hidden
-        className="mt-8 w-full max-w-md pointer-events-none select-none opacity-[0.35]"
-        style={{ filter: "blur(1.4px) saturate(0.85)" }}
+        className="mt-6 w-full max-w-md pointer-events-none select-none opacity-25"
       >
         {preview ?? (
           <img src={previewImage} alt="" className="w-full rounded-xl" />
@@ -64,13 +63,13 @@ export const EmptyState = ({
     )}
 
     {ctaLabel && onCta && (
-      <button
+      <Button
         type="button"
         onClick={onCta}
-        className="shine-button mt-8 inline-flex items-center justify-center rounded-full bg-foreground text-background px-5 py-2.5 text-[13px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+        className="mt-6"
       >
         {ctaLabel}
-      </button>
+      </Button>
     )}
   </div>
 );
@@ -90,11 +89,10 @@ export const PreviewScoreCard = () => (
       <div className="relative w-14 h-14">
         <div className="absolute inset-0 rounded-full border-[5px] border-foreground/10" />
         <div
-          className="absolute inset-0 rounded-full border-[5px] border-transparent"
-          style={{ borderTopColor: "hsl(258 38% 52%)", transform: "rotate(120deg)" }}
+          className="absolute inset-0 rounded-full border-[5px] border-transparent border-t-primary rotate-90"
         />
         <div className="absolute inset-0 flex items-center justify-center text-[12px] font-semibold">
-          82
+          —
         </div>
       </div>
     </div>
@@ -146,8 +144,8 @@ export const PreviewCompare = () => (
     </div>
     <div className="mt-4 grid grid-cols-2 gap-3">
       {[
-        { s: "A", val: "84", w: "82%", winner: true },
-        { s: "B", val: "71", w: "68%", winner: false },
+        { s: "A", val: "—", w: "82%", winner: true },
+        { s: "B", val: "—", w: "68%", winner: false },
       ].map((c) => (
         <div
           key={c.s}
