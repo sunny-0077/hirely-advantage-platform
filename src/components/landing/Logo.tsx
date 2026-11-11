@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -24,8 +24,7 @@ export const LogoMark = ({
   variant?: MarkVariant;
   className?: string;
 }) => {
-  const gid = useId().replace(/:/g, "");
-  const stroke = variant === "mono" ? "currentColor" : `url(#hg-${gid})`;
+  const stroke = variant === "mono" ? "currentColor" : "hsl(var(--primary))";
 
   return (
     <svg
@@ -36,20 +35,14 @@ export const LogoMark = ({
       viewBox="0 0 24 24"
       className={cn("shrink-0", className)}
     >
-      <defs>
-        <linearGradient id={`hg-${gid}`} x1="4" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="hsl(220 90% 60%)" />
-          <stop offset="100%" stopColor="hsl(200 100% 55%)" />
-        </linearGradient>
-      </defs>
 
       {variant === "tile" && (
-        <rect x="0" y="0" width="24" height="24" rx="6.5" fill={`url(#hg-${gid})`} />
+        <rect x="0" y="0" width="24" height="24" rx="6.5" fill="hsl(var(--primary))" />
       )}
 
       <g
         fill="none"
-        stroke={variant === "tile" ? "hsl(0 0% 100%)" : stroke}
+        stroke={variant === "tile" ? "hsl(var(--primary-foreground))" : stroke}
         strokeWidth={variant === "tile" ? 2.4 : 2.6}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -82,7 +75,7 @@ export const LogoLockup = ({ className, size = "text-xl", showMark = true }: Log
   return (
     <span
       className={cn(
-        "logo-lockup group inline-flex items-center gap-2 tracking-[-0.03em]",
+        "logo-lockup group inline-flex items-center gap-2 tracking-normal",
         scrolled && "is-scrolled",
         className
       )}
