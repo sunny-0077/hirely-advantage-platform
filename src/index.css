@@ -4,28 +4,31 @@
 
 @layer base {
  :root {
-  --background: 220.000 23.077% 97.451%;
+  --background: 0 0% 100%;
   --card: 0.000 0.000% 100.000%;
-  --foreground: 222.857 25.000% 10.980%;
-  --muted-foreground: 219.310 12.134% 46.863%;
-  --primary: 227.476 100.000% 59.608%;
-  --accent: 225.882 100.000% 96.667%;
-  --border: 220.000 21.951% 91.961%;
-  --success: 157.636 71.429% 30.196%;
+  --foreground: 0 0% 4%;
+  --muted-foreground: 220 6% 42%;
+  --primary: 158 79% 50%;
+  --accent: 156 70% 94%;
+  --border: 220 13% 91%;
+  --success: 160 65% 30%;
   --warning: 37.875 68.376% 45.882%;
   --destructive: 355.385 65.297% 57.059%;
-  --primary-foreground: 0 0% 100%;
+  --primary-foreground: 0 0% 4%;
+  --forest: 165 72% 13%;
+  --forest-foreground: 0 0% 100%;
+  --surface: 220 14% 96%;
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
-  --secondary: 220 20% 96%;
+  --secondary: 220 14% 96%;
   --secondary-foreground: var(--foreground);
-  --muted: 220 20% 96%;
-  --accent-foreground: var(--primary);
+  --muted: 220 14% 96%;
+  --accent-foreground: 165 72% 16%;
   --destructive-foreground: 0 0% 100%;
   --input: var(--border);
-  --ring: var(--primary);
-  --radius: 0.5rem;
+  --ring: 158 79% 42%;
+  --radius: 0.875rem;
   --pearl: var(--background);
   --slate-ink: var(--foreground);
   --slate-ink-soft: var(--muted-foreground);
@@ -43,7 +46,7 @@
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--primary);
+  --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
   --shadow-glass: 0 1px 3px hsl(var(--foreground) / .025);
@@ -52,13 +55,13 @@
  }
  .dark {
   --background: 225 20% 8%; --card: 225 18% 11%; --foreground: 220 20% 95%;
-  --muted-foreground: 220 12% 67%; --primary: 228 100% 68%; --primary-foreground: 225 20% 8%;
-  --border: 225 14% 22%; --secondary: 225 16% 16%; --muted: 225 16% 16%; --accent: 228 30% 18%;
+  --muted-foreground: 220 12% 67%; --primary: 158 79% 50%; --primary-foreground: 0 0% 4%;
+  --border: 225 14% 22%; --secondary: 225 16% 16%; --muted: 225 16% 16%; --accent: 165 40% 16%;
  }
  * { @apply border-border; }
  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
  body { @apply bg-background text-foreground antialiased; font-family: 'Manrope',system-ui,sans-serif; line-height: 1.6; letter-spacing: 0; }
- h1,h2,h3,h4 { line-height: 1.25; }
+ h1,h2,h3,h4 { line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; }
  input,textarea,select { font: inherit; }
  ::selection { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 }
@@ -78,7 +81,7 @@
  .logo-lockup__mark { transition: transform 180ms ease; }
  .logo-lockup:hover .logo-lockup__mark { transform: translateY(-1px); }
  .landing-container { @apply mx-auto max-w-6xl px-6 lg:px-8; }
- .workspace-shell [class*="rounded-2xl"], .workspace-shell [class*="rounded-3xl"], .workspace-shell [class*="rounded-[2"] { border-radius: 8px; }
+ .workspace-shell [class*="rounded-2xl"], .workspace-shell [class*="rounded-3xl"], .workspace-shell [class*="rounded-[2"] { border-radius: 16px; }
  .workspace-shell [class*="backdrop-blur"] { backdrop-filter: none; }
  .workspace-shell [class*="tracking-"] { letter-spacing: 0; }
  .workspace-shell .glass,.workspace-shell .glass-strong,.workspace-shell .glass-subtle { background: hsl(var(--card)); }
@@ -86,6 +89,9 @@
  .workspace-shell h2 { font-size: 18px; }
  .workspace-shell h3 { font-size: 15px; }
  .workspace-shell input:not([type=checkbox]):not([type=radio]),.workspace-shell textarea { background: hsl(var(--card)); }
+ .panel-forest { background: hsl(var(--forest)); color: hsl(var(--forest-foreground)); border-radius: 16px; }
+ .surface-grey { background: hsl(var(--surface)); border-radius: 20px; }
+ .workspace-shell main > * { max-width: 1440px; margin-inline: auto; }
  .resume-section { padding: 28px 0; border-bottom: 1px solid hsl(var(--border)); }
  .resume-section > div[class*="border border-border"] { border-width: 0; border-left-width: 2px; border-radius: 0; padding-left: 20px; }
  .auth-page input { border-radius: 6px; background: hsl(var(--card)); border-color: hsl(var(--input)); font-size: 16px; }
@@ -99,4 +105,14 @@
  html { scroll-behavior:auto; }
  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
  .reveal { opacity:1; transform:none; }
+}
+@layer utilities {
+ /* Mint is an action fill; mint text on white lacks contrast, so text uses forest green. */
+ .text-primary { color: hsl(var(--forest)); }
+ .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary)); }
+}
+@layer utilities {
+ /* Reference identity: bold black headings everywhere. */
+ #root :is(h1,h2,h3) { font-weight: 800; color: hsl(var(--foreground)); }
+ #root :is(.panel-forest,.bg-forest) :is(h1,h2,h3) { color: hsl(var(--forest-foreground)); }
 }

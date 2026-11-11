@@ -19,7 +19,7 @@ export function TemplatePicker({
             className={
               "text-left rounded-2xl border p-4 transition-all " +
               (active
-                ? "border-violet-500/50 bg-violet-500/10 ring-1 ring-inset ring-violet-500/30"
+                ? "border-primary/50 bg-primary/10 ring-1 ring-inset ring-primary/30"
                 : "border-border/60 bg-card/60 hover:border-foreground/20")
             }
           >

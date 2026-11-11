@@ -240,8 +240,8 @@ export default function GapInsights({ markdown }: { markdown: string }) {
         {radarData.length >= 3 && (
           <SectionCard className="lg:col-span-3 p-6 sm:p-7">
             <div className="flex items-start gap-3 mb-4">
-              <div className="shrink-0 w-9 h-9 rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20 flex items-center justify-center">
-                <Target className="w-[16px] h-[16px] text-violet-600" />
+              <div className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center">
+                <Target className="w-[16px] h-[16px] text-forest" />
               </div>
               <div>
                 <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">

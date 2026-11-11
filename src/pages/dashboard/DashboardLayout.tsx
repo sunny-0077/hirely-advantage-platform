@@ -35,7 +35,7 @@ const DashboardLayout = () => {
 
         <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-        <main className="flex-1 min-w-0 px-5 md:px-8 lg:px-10 py-5 md:py-6">
+        <main className="flex-1 min-w-0 px-4 md:px-6 lg:px-8 py-5 md:py-7 bg-background">
           {/* Mobile top bar with hamburger */}
           <div className="md:hidden flex items-center gap-3 mb-5">
             <Button variant="outline" size="icon"
