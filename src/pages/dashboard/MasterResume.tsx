@@ -51,7 +51,7 @@ function Tags({ label, items, onChange }: { label: string; items: string[]; onCh
 }
 
 function Section({ title, missing, action, children }: { title: string; missing?: boolean; action?: React.ReactNode; children: React.ReactNode }) {
-  return <section className={card} aria-label={title}>
+  return <section id={`resume-section-${["Personal information", "Professional summary", "Work experience", "Education", "Skills", "Projects", "Certifications", "Additional information"].indexOf(title)}`} className={card} aria-label={title}>
     <div className="flex items-center justify-between gap-3 flex-wrap"><h2 className="font-semibold text-lg flex items-center gap-2">{title}{missing && <Badge variant="outline" className="text-warning border-warning/30">Missing</Badge>}</h2>{action}</div>
     {children}
   </section>;

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import { ResumeSourceSelect } from "@/components/dashboard/ResumeSourceSelect";
@@ -269,7 +270,7 @@ const InterviewPrep = () => {
   };
 
   return (
-    <div className="w-full max-w-[1760px] mx-auto xl:-ml-4 2xl:-ml-8">
+    <div className="w-full">
       <PageHeader
         eyebrow="Interview Prep"
         title="Practice under pressure. Walk in fluent."
@@ -324,7 +325,7 @@ const InterviewPrep = () => {
 
       {tab === "practice" && resumeReady && !practiceStarted && (
         <div className="mt-5 grid grid-cols-1 xl:grid-cols-12 gap-4">
-          <SectionCard className="xl:col-span-10 xl:col-start-2 p-0 overflow-visible">
+          <SectionCard className="xl:col-span-12 p-0 overflow-visible">
             <div className="px-6 sm:px-8 pt-6 pb-5">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
                 Ready when you are
@@ -350,19 +351,19 @@ const InterviewPrep = () => {
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {QUESTION_TYPES.map((b) => (
-                    <button
+                    <Button variant="ghost"
                       key={b.type}
                       type="button"
                       onClick={() => setQType(b.type)}
                       className={cn(
-                        "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-colors border",
+                        "px-3 py-1.5 rounded-md text-[12px] font-medium tracking-tight transition-colors border",
                         qType === b.type
                           ? "bg-foreground text-background border-foreground"
                           : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
                       )}
                     >
                       {b.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -380,11 +381,11 @@ const InterviewPrep = () => {
               </div>
 
               <div className="mt-6 flex items-center justify-end">
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={startPractice}
                   disabled={generatingQ}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium tracking-tight bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-md text-[13px] font-medium tracking-tight bg-primary text-primary-foreground hover:bg-primary/85 disabled:opacity-50 transition-opacity"
                 >
                   {generatingQ ? (
                     <>
@@ -397,12 +398,12 @@ const InterviewPrep = () => {
                       Start practice
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </SectionCard>
 
-          <div className="xl:col-span-10 xl:col-start-2">
+          <div className="xl:col-span-12">
             <QuestionBank currentType={qType} onPick={(t) => setQType(t)} />
           </div>
         </div>
@@ -426,26 +427,26 @@ const InterviewPrep = () => {
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {QUESTION_TYPES.map((b) => (
-                  <button
+                  <Button variant="ghost"
                     key={b.type}
                     type="button"
                     onClick={() => switchType(b.type)}
                     disabled={analyzing || generatingQ}
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[11.5px] font-medium tracking-tight transition-colors border",
+                      "px-2.5 py-1 rounded-md text-[11.5px] font-medium tracking-tight transition-colors border",
                       qType === b.type
                         ? "bg-foreground text-background border-foreground"
                         : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
                     )}
                   >
                     {b.label}
-                  </button>
+                  </Button>
                 ))}
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={shuffleQuestion}
                   disabled={analyzing || generatingQ}
-                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors disabled:opacity-50"
+                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors disabled:opacity-50"
                 >
                   {generatingQ ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -456,7 +457,7 @@ const InterviewPrep = () => {
                   {shuffleCount > 0 && (
                     <span className="text-foreground/45 tabular-nums">· {shuffleCount}</span>
                   )}
-                </button>
+                </Button>
               </div>
 
               <textarea
@@ -484,12 +485,12 @@ const InterviewPrep = () => {
               {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {questionMeta.focus_area && (
-                    <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight">
+                    <span className="px-2 py-0.5 rounded-md bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight">
                       {questionMeta.focus_area}
                     </span>
                   )}
                   {questionMeta.difficulty && (
-                    <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight capitalize">
+                    <span className="px-2 py-0.5 rounded-md bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight capitalize">
                       {questionMeta.difficulty}
                     </span>
                   )}
@@ -529,8 +530,8 @@ const InterviewPrep = () => {
                         <span
                           className={cn(
                             wordCount >= 150 && wordCount <= 300
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-amber-600 dark:text-amber-400",
+                              ? "text-success"
+                              : "text-warning",
                           )}
                         >
                           {wordCount < 150
@@ -559,13 +560,13 @@ const InterviewPrep = () => {
                 <Mic className="w-3 h-3" />
                 Voice mode coming soon
               </p>
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={analyze}
                 disabled={analyzing}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-medium tracking-tight transition-opacity",
-                  "bg-foreground text-background hover:opacity-90 disabled:opacity-50",
+                  "inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12.5px] font-medium tracking-tight transition-opacity",
+                  "bg-primary text-primary-foreground hover:bg-primary/85 disabled:opacity-50",
                 )}
               >
                 {analyzing ? (
@@ -579,7 +580,7 @@ const InterviewPrep = () => {
                     Analyze answer
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </SectionCard>
 
@@ -603,7 +604,7 @@ const InterviewPrep = () => {
               />
             ) : (
               <SectionCard className="flex items-center gap-3">
-                <span className="w-9 h-9 rounded-full bg-foreground/[0.05] grid place-items-center shrink-0">
+                <span className="w-9 h-9 rounded-md bg-foreground/[0.05] grid place-items-center shrink-0">
                   <Wand2 className="w-4 h-4 text-foreground/55" />
                 </span>
                 <div className="min-w-0">
@@ -640,24 +641,24 @@ const InterviewPrep = () => {
                     {new Date(h.created_at).toLocaleString()}
                   </p>
                 </div>
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     setActiveId(h.id);
                     setTab("practice");
                   }}
-                  className="text-[12px] px-3 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 tracking-tight transition-colors"
+                  className="text-[12px] px-3 py-1.5 rounded-md bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 tracking-tight transition-colors"
                 >
                   Open
-                </button>
-                <button
+                </Button>
+                <Button variant="ghost"
                   type="button"
                   onClick={() => remove(h.id)}
                   className="text-foreground/40 hover:text-foreground/80 transition-colors"
                   aria-label="Delete"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               </li>
             ))}
             {!history.length && (
@@ -686,10 +687,10 @@ const AnalysisView = ({
   const score = analysis.overall_score ?? 0;
   const scoreColor =
     score >= 80
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-success"
       : score >= 60
-        ? "text-amber-600 dark:text-amber-400"
-        : "text-rose-600 dark:text-rose-400";
+        ? "text-warning"
+        : "text-destructive";
 
   const star = analysis.star_breakdown ?? {};
   const starParts: { key: keyof typeof star; label: string }[] = [
@@ -777,7 +778,7 @@ const AnalysisView = ({
           </p>
           <a
             href="/app/upgrade"
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3.5 py-1.5 text-[12px] font-medium tracking-tight hover:opacity-90"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-foreground text-background px-3.5 py-1.5 text-[12px] font-medium tracking-tight hover:opacity-90"
           >
             <Sparkles className="w-3 h-3" /> Unlock improved answers
           </a>
@@ -788,7 +789,7 @@ const AnalysisView = ({
         <SectionCard className="p-0 overflow-hidden ring-1 ring-primary/15 shadow-[0_24px_60px_-30px_hsl(var(--primary)/0.35)]">
           {/* Premium gradient header */}
           <div
-            className="px-5 sm:px-6 py-4 bg-accent text-foreground border-b border-border"
+            className="px-5 sm:px-6 py-4 highlight-panel border-b border-highlight"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -800,7 +801,7 @@ const AnalysisView = ({
                   Same story — sharper structure, stronger impact, STAR-aligned.
                 </p>
               </div>
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => onCopy(improved, "Improved answer copied")}
                 className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-card hover:bg-muted text-foreground text-[11px] font-medium transition-colors"
@@ -808,7 +809,7 @@ const AnalysisView = ({
               >
                 <Copy className="w-3 h-3" />
                 Copy
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -824,63 +825,63 @@ const AnalysisView = ({
 
           {/* Action row — primary CTA on left, restyle chips middle, practice-again on right */}
           <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex flex-wrap items-center gap-2">
-            <button
+            <Button variant="ghost"
               type="button"
               onClick={() => onUseImproved(improved)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-[12px] font-semibold tracking-tight hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-foreground text-background text-[12px] font-semibold tracking-tight hover:opacity-90 transition-opacity"
             >
               <Wand2 className="w-3 h-3" />
               Use improved
-            </button>
+            </Button>
 
             <span className="text-[10.5px] tracking-[0.16em] uppercase text-foreground/35 font-medium ml-1 hidden sm:inline">
               Tweak
             </span>
 
-            <button
+            <Button variant="ghost"
               type="button"
               onClick={() => restyle("shorter")}
               disabled={!!styleLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
             >
               {styleLoading === "shorter" ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : null}
               Shorter
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               onClick={() => restyle("confident")}
               disabled={!!styleLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
             >
               {styleLoading === "confident" ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : null}
               More confident
-            </button>
+            </Button>
 
-            <button
+            <Button variant="ghost"
               type="button"
               onClick={onPracticeAgain}
-              className="ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
+              className="ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
             >
               <Shuffle className="w-3 h-3" />
               Practice again
-            </button>
+            </Button>
           </div>
         </SectionCard>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <SectionCard className="p-4 sm:p-5">
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-emerald-700 dark:text-emerald-400 font-medium">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-success font-medium">
             What you did well
           </p>
           <ul className="mt-3 space-y-2">
             {(analysis.strengths ?? []).map((s, i) => (
               <li key={i} className="flex gap-2 text-[13px] text-foreground/80 tracking-tight leading-snug">
-                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-success shrink-0" />
                 <span>{s}</span>
               </li>
             ))}
@@ -891,13 +892,13 @@ const AnalysisView = ({
         </SectionCard>
 
         <SectionCard className="p-4 sm:p-5">
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-amber-700 dark:text-amber-400 font-medium">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-warning font-medium">
             What you missed
           </p>
           <ul className="mt-3 space-y-2">
             {(analysis.gaps ?? []).map((g, i) => (
               <li key={i} className="flex gap-2 text-[13px] text-foreground/80 tracking-tight leading-snug">
-                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 text-warning shrink-0" />
                 <span>{g}</span>
               </li>
             ))}
@@ -924,10 +925,10 @@ const AnalysisView = ({
               <li key={p.key as string} className="px-5 sm:px-6 py-3 flex items-start gap-3">
                 <span
                   className={cn(
-                    "mt-0.5 w-5 h-5 rounded-full grid place-items-center shrink-0 text-[10px] font-semibold",
+                    "mt-0.5 w-5 h-5 rounded-md grid place-items-center shrink-0 text-[10px] font-semibold",
                     part?.present
-                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                      : "bg-rose-500/15 text-rose-700 dark:text-rose-400",
+                      ? "bg-success/15 text-success"
+                      : "bg-destructive/15 text-destructive",
                   )}
                 >
                   {part?.present ? "✓" : "—"}
@@ -956,7 +957,7 @@ const AnalysisView = ({
                 {analysis.matched_keywords.map((k) => (
                   <span
                     key={k}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11.5px] tracking-tight"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-[11.5px] tracking-tight"
                   >
                     <Check className="w-2.5 h-2.5" />
                     {k}
@@ -972,7 +973,7 @@ const AnalysisView = ({
                 {analysis.missing_keywords.map((k) => (
                   <span
                     key={k}
-                    className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[11.5px] tracking-tight"
+                    className="px-2 py-0.5 rounded-md bg-foreground/[0.05] text-foreground/65 text-[11.5px] tracking-tight"
                   >
                     {k}
                   </span>
@@ -990,10 +991,10 @@ const ScoreBar = ({ label, value }: { label: string; value: number | null }) => 
   const v = value ?? 0;
   const color =
     v >= 80
-      ? "bg-emerald-500"
+      ? "bg-success"
       : v >= 60
-        ? "bg-amber-500"
-        : "bg-rose-500";
+        ? "bg-warning"
+        : "bg-destructive";
   return (
     <div className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2">
       <div className="flex items-baseline justify-between">
@@ -1002,8 +1003,8 @@ const ScoreBar = ({ label, value }: { label: string; value: number | null }) => 
           {value ?? "—"}
         </p>
       </div>
-      <div className="mt-1.5 h-1 rounded-full bg-foreground/[0.06] overflow-hidden">
-        <div className={cn("h-full rounded-full", color)} style={{ width: `${v}%` }} />
+      <div className="mt-1.5 h-1 rounded-md bg-foreground/[0.06] overflow-hidden">
+        <div className={cn("h-full rounded-md", color)} style={{ width: `${v}%` }} />
       </div>
     </div>
   );

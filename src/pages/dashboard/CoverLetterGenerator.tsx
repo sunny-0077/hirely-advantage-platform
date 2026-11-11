@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import {
   Sparkles,
@@ -234,7 +235,7 @@ const CoverLetterGenerator = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="w-full">
       <PageHeader
         eyebrow="Cover Letter Generator"
         title="One letter, perfectly tuned."
@@ -300,13 +301,13 @@ const CoverLetterGenerator = () => {
               </label>
               <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                 {TONES.map((t) => (
-                  <button
+                  <Button variant="ghost"
                     key={t.value}
                     type="button"
                     disabled={generating}
                     onClick={() => setTone(t.value)}
                     className={cn(
-                      "rounded-full px-3 py-1.5 text-left transition-all border",
+                      "rounded-md px-3 py-1.5 text-left transition-all border",
                       tone === t.value
                         ? "bg-accent border-primary/40 ring-1 ring-primary/15 text-primary"
                         : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/75 hover:bg-foreground/[0.06] hover:border-foreground/[0.12]",
@@ -321,7 +322,7 @@ const CoverLetterGenerator = () => {
                     >
                       {t.hint}
                     </p>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -332,7 +333,7 @@ const CoverLetterGenerator = () => {
               </label>
               <div className="mt-1.5 grid grid-cols-3 gap-1.5">
                 {([1, 2, 3] as const).map((n) => (
-                  <button
+                  <Button variant="ghost"
                     key={n}
                     type="button"
                     disabled={generating}
@@ -355,7 +356,7 @@ const CoverLetterGenerator = () => {
                     >
                       {n === 1 ? "~350 words" : n === 2 ? "~700 words" : "~1050 words"}
                     </p>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -369,14 +370,14 @@ const CoverLetterGenerator = () => {
               </div>
             )}
             <div className="flex items-center gap-2 pt-1 pb-1">
-              <button
+              <Button variant="ghost"
                 onClick={generate}
                 disabled={generating || jd.trim().length < 40}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors",
                   generating || jd.trim().length < 40
                     ? "bg-foreground/10 text-foreground/40 cursor-not-allowed"
-                    : "bg-foreground text-background hover:bg-foreground/90",
+                    : "bg-primary text-primary-foreground hover:bg-primary/85",
                   generating && "shine-button",
                 )}
               >
@@ -391,15 +392,15 @@ const CoverLetterGenerator = () => {
                     Generate
                   </>
                 )}
-              </button>
+              </Button>
               {(hasLetter || jd) && !generating && (
-                <button
+                <Button variant="ghost"
                   onClick={reset}
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-medium tracking-tight text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Clear
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -419,16 +420,16 @@ const CoverLetterGenerator = () => {
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
+              <Button variant="ghost"
                 onClick={() => setFullscreen(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
                 title="Open full screen"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
                 Full screen
-              </button>
+              </Button>
               {hasLetter && (
-                <button
+                <Button variant="ghost"
                   onClick={generate}
                   disabled={generating}
                   className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors disabled:opacity-50"
@@ -436,7 +437,7 @@ const CoverLetterGenerator = () => {
                 >
                   <RefreshCw className={cn("w-3.5 h-3.5", generating && "animate-spin")} />
                   Regenerate
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -467,20 +468,20 @@ const CoverLetterGenerator = () => {
 
                 {/* Action bar */}
                 <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
-                  <button
+                  <Button variant="ghost"
                     onClick={onDownloadPdf}
                     disabled={!hasLetter}
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
                       hasLetter
-                        ? "bg-foreground text-background hover:bg-foreground/90"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/85"
                         : "bg-foreground/10 text-foreground/40 cursor-not-allowed",
                     )}
                   >
                     <Download className="w-3.5 h-3.5" />
                     PDF
-                  </button>
-                  <button
+                  </Button>
+                  <Button variant="ghost"
                     onClick={onDownloadDocx}
                     disabled={!hasLetter}
                     className={cn(
@@ -492,8 +493,8 @@ const CoverLetterGenerator = () => {
                   >
                     <Download className="w-3.5 h-3.5" />
                     DOCX
-                  </button>
-                  <button
+                  </Button>
+                  <Button variant="ghost"
                     onClick={onDownloadTxt}
                     disabled={!hasLetter}
                     className={cn(
@@ -505,9 +506,9 @@ const CoverLetterGenerator = () => {
                   >
                     <Download className="w-3.5 h-3.5" />
                     Plain text (ATS)
-                  </button>
+                  </Button>
                   <div className="ml-auto">
-                    <button
+                    <Button variant="ghost"
                       onClick={onCopy}
                       disabled={!hasLetter}
                       className={cn(
@@ -519,7 +520,7 @@ const CoverLetterGenerator = () => {
                     >
                       {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       {copied ? "Copied" : "Copy"}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </>
