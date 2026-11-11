@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import {
   Sparkles,
@@ -235,7 +234,7 @@ const CoverLetterGenerator = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="max-w-6xl mx-auto">
       <PageHeader
         eyebrow="Cover Letter Generator"
         title="One letter, perfectly tuned."
@@ -301,13 +300,13 @@ const CoverLetterGenerator = () => {
               </label>
               <div className="mt-1.5 grid grid-cols-2 gap-1.5">
                 {TONES.map((t) => (
-                  <Button variant="ghost"
+                  <button
                     key={t.value}
                     type="button"
                     disabled={generating}
                     onClick={() => setTone(t.value)}
                     className={cn(
-                      "h-auto block whitespace-normal rounded-md px-3 py-2 text-left transition-colors border",
+                      "rounded-full px-3 py-1.5 text-left transition-all border",
                       tone === t.value
                         ? "bg-accent border-primary/40 ring-1 ring-primary/15 text-primary"
                         : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/75 hover:bg-foreground/[0.06] hover:border-foreground/[0.12]",
@@ -322,7 +321,7 @@ const CoverLetterGenerator = () => {
                     >
                       {t.hint}
                     </p>
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
@@ -333,13 +332,13 @@ const CoverLetterGenerator = () => {
               </label>
               <div className="mt-1.5 grid grid-cols-3 gap-1.5">
                 {([1, 2, 3] as const).map((n) => (
-                  <Button variant="ghost"
+                  <button
                     key={n}
                     type="button"
                     disabled={generating}
                     onClick={() => setPages(n)}
                     className={cn(
-                      "h-auto block whitespace-normal rounded-lg px-2.5 py-2 text-left transition-colors border",
+                      "rounded-lg px-2.5 py-2 text-left transition-colors border",
                       pages === n
                         ? "bg-foreground text-background border-foreground"
                         : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
@@ -356,7 +355,7 @@ const CoverLetterGenerator = () => {
                     >
                       {n === 1 ? "~350 words" : n === 2 ? "~700 words" : "~1050 words"}
                     </p>
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
@@ -370,14 +369,14 @@ const CoverLetterGenerator = () => {
               </div>
             )}
             <div className="flex items-center gap-2 pt-1 pb-1">
-              <Button variant="ghost"
+              <button
                 onClick={generate}
                 disabled={generating || jd.trim().length < 40}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors",
                   generating || jd.trim().length < 40
                     ? "bg-foreground/10 text-foreground/40 cursor-not-allowed"
-                    : "bg-primary text-primary-foreground hover:bg-primary/85",
+                    : "bg-foreground text-background hover:bg-foreground/90",
                   generating && "shine-button",
                 )}
               >
@@ -392,15 +391,15 @@ const CoverLetterGenerator = () => {
                     Generate
                   </>
                 )}
-              </Button>
+              </button>
               {(hasLetter || jd) && !generating && (
-                <Button variant="ghost"
+                <button
                   onClick={reset}
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-medium tracking-tight text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Clear
-                </Button>
+                </button>
               )}
             </div>
           </div>
@@ -420,16 +419,16 @@ const CoverLetterGenerator = () => {
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <Button variant="ghost"
+              <button
                 onClick={() => setFullscreen(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
                 title="Open full screen"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
                 Full screen
-              </Button>
+              </button>
               {hasLetter && (
-                <Button variant="ghost"
+                <button
                   onClick={generate}
                   disabled={generating}
                   className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors disabled:opacity-50"
@@ -437,7 +436,7 @@ const CoverLetterGenerator = () => {
                 >
                   <RefreshCw className={cn("w-3.5 h-3.5", generating && "animate-spin")} />
                   Regenerate
-                </Button>
+                </button>
               )}
             </div>
           </div>
@@ -468,20 +467,20 @@ const CoverLetterGenerator = () => {
 
                 {/* Action bar */}
                 <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
-                  <Button variant="ghost"
+                  <button
                     onClick={onDownloadPdf}
                     disabled={!hasLetter}
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium tracking-tight transition-colors",
                       hasLetter
-                        ? "bg-primary text-primary-foreground hover:bg-primary/85"
+                        ? "bg-foreground text-background hover:bg-foreground/90"
                         : "bg-foreground/10 text-foreground/40 cursor-not-allowed",
                     )}
                   >
                     <Download className="w-3.5 h-3.5" />
                     PDF
-                  </Button>
-                  <Button variant="ghost"
+                  </button>
+                  <button
                     onClick={onDownloadDocx}
                     disabled={!hasLetter}
                     className={cn(
@@ -493,8 +492,8 @@ const CoverLetterGenerator = () => {
                   >
                     <Download className="w-3.5 h-3.5" />
                     DOCX
-                  </Button>
-                  <Button variant="ghost"
+                  </button>
+                  <button
                     onClick={onDownloadTxt}
                     disabled={!hasLetter}
                     className={cn(
@@ -506,9 +505,9 @@ const CoverLetterGenerator = () => {
                   >
                     <Download className="w-3.5 h-3.5" />
                     Plain text (ATS)
-                  </Button>
+                  </button>
                   <div className="ml-auto">
-                    <Button variant="ghost"
+                    <button
                       onClick={onCopy}
                       disabled={!hasLetter}
                       className={cn(
@@ -520,7 +519,7 @@ const CoverLetterGenerator = () => {
                     >
                       {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       {copied ? "Copied" : "Copy"}
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </>

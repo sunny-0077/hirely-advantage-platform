@@ -87,8 +87,8 @@ export const LogoLockup = ({ className, size = "text-xl", showMark = true }: Log
         className
       )}
     >
-      {showMark && <LogoMark size={30} variant="tile" className="logo-lockup__mark" />}
-      <span className={cn("logo-lockup__word font-extrabold text-foreground", size)}>hirely</span>
+      {showMark && <LogoMark size={24} className="logo-lockup__mark" />}
+      <span className={cn("logo-lockup__word font-semibold text-foreground", size)}>hirely</span>
     </span>
   );
 };

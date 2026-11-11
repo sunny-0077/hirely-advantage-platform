@@ -51,7 +51,7 @@ function Tags({ label, items, onChange }: { label: string; items: string[]; onCh
 }
 
 function Section({ title, missing, action, children }: { title: string; missing?: boolean; action?: React.ReactNode; children: React.ReactNode }) {
-  return <section id={`resume-section-${["Personal information", "Professional summary", "Work experience", "Education", "Skills", "Projects", "Certifications", "Additional information"].indexOf(title)}`} className={card} aria-label={title}>
+  return <section className={card} aria-label={title}>
     <div className="flex items-center justify-between gap-3 flex-wrap"><h2 className="font-semibold text-lg flex items-center gap-2">{title}{missing && <Badge variant="outline" className="text-warning border-warning/30">Missing</Badge>}</h2>{action}</div>
     {children}
   </section>;
@@ -130,11 +130,11 @@ export default function MasterResume() {
   const e = (k: string) => errors[k];
   const statusText = { idle: "All changes saved", dirty: "Unsaved changes", saving: "Saving…", saved: "Saved", error: "Not saved" }[status];
 
-  return <div className="master-resume-page w-full pb-6">
+  return <div className="max-w-4xl mx-auto pb-6">
     <PageHeader eyebrow="Workspace" title="Master Resume" description="Your central career profile. Tailored resumes, cover letters and interview prep are built only from what you enter here." />
     <ResumeImporter existing={r} disabled={status === "saving"} onConfirm={candidate => save(candidate, true)} />
 
-    <section className="highlight-panel p-5 mb-5 space-y-3" aria-label="Resume completion">
+    <section className={`${card} mb-5`} aria-label="Resume completion">
       <div className="flex items-center justify-between flex-wrap gap-2"><h2 className="font-semibold">Completion</h2><Badge variant={comp.label === "Core complete" ? "default" : "secondary"}>{comp.label}</Badge></div>
       <ul className="grid sm:grid-cols-2 gap-1.5 text-sm">
         {[...comp.done.map(d => [d, true] as const), ...comp.missing.map(m => [m, false] as const)].map(([n, ok]) => <li key={n} className="flex items-center gap-2">{ok ? <CheckCircle2 className="size-4 text-primary" /> : <Circle className="size-4 text-muted-foreground" />}<span className={ok ? "" : "text-muted-foreground"}>{n}</span></li>)}
@@ -149,9 +149,7 @@ export default function MasterResume() {
       <details><summary className="cursor-pointer font-medium">View pasted resume text</summary><pre className="mt-2 whitespace-pre-wrap font-sans max-h-64 overflow-auto">{existingText}</pre></details>
     </div>}
 
-    <div className="grid xl:grid-cols-[180px_minmax(0,1fr)] gap-6 items-start">
-      <nav aria-label="Resume sections" className="xl:sticky xl:top-6 flex xl:flex-col flex-wrap gap-1 bg-muted p-3">{["Personal information", "Professional summary", "Work experience", "Education", "Skills", "Projects", "Certifications", "Additional information"].map((title, i) => <Button key={title} asChild variant="ghost" size="sm" className="justify-start text-xs"><a href={`#resume-section-${i}`}>{title}</a></Button>)}</nav>
-    <div className="space-y-2 min-w-0">
+    <div className="space-y-5">
       <Section title="Personal information" missing={comp.missing.includes("Personal information")}>
         <div className="grid sm:grid-cols-2 gap-4">
           {([["fullName", "Full name", "text"], ["email", "Email", "email"], ["phone", "Phone number", "tel"], ["city", "City", "text"], ["country", "Country", "text"], ["linkedinUrl", "LinkedIn URL", "url"], ["githubUrl", "GitHub URL", "url"], ["portfolioUrl", "Portfolio URL", "url"]] as const).map(([k, l, t]) =>
@@ -263,7 +261,6 @@ export default function MasterResume() {
           </div>;
         })}
       </Section>
-    </div>
     </div>
 
     <div className="sticky bottom-0 z-30 mt-6 rounded-lg border border-border bg-card shadow-subtle">

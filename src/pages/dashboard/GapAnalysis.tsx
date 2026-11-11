@@ -133,7 +133,7 @@ export default function GapAnalysis() {
                   "shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center",
                   fileName
                     ? "bg-foreground/5"
-                    : "bg-highlight text-highlight-foreground",
+                    : "bg-gradient-to-br from-[#0E0B1F] to-[#3a2d5e] text-white",
                 )}
               >
                 {extracting ? (

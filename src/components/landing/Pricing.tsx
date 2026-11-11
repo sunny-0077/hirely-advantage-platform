@@ -43,7 +43,7 @@ export const Pricing = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
           {TIERS.map((t, idx) => (
             <Reveal key={t.id} delay={idx * 80}>
-              <div className={cn("relative h-full rounded-lg p-6 flex flex-col border border-border bg-muted", t.highlight && "highlight-panel border-highlight")}>
+              <div className={cn("relative h-full rounded-lg p-6 flex flex-col border border-border bg-card", t.highlight && "border-primary")}>
                 {t.highlight && <span className="absolute top-6 right-6 text-xs font-medium px-2 py-1 rounded bg-accent text-primary">Best value</span>}
                 <div className="flex items-center gap-2.5 mb-4">
                   

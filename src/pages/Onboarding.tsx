@@ -85,10 +85,10 @@ export default function Onboarding() {
   }
   const selector = (id: keyof typeof EMPTY, label: string, options: { value: string; label: string }[]) => <div className="space-y-2"><Label htmlFor={id}>{label}</Label><Select value={form[id]} onValueChange={value => field(id, value)}><SelectTrigger id={id}><SelectValue placeholder="Select…" /></SelectTrigger><SelectContent>{options.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>;
   const textField = (id: keyof typeof EMPTY, label: string, maxLength: number) => <div className="space-y-2"><Label htmlFor={id}>{label}</Label><Input id={id} required maxLength={maxLength} value={form[id]} onChange={event => field(id, event.target.value)} /></div>;
-  return <main className="min-h-screen bg-background px-5 py-10 md:py-14 flex justify-center items-start">
+  return <main className="min-h-screen bg-background px-6 py-16 flex justify-center items-start">
     <div className="w-full max-w-xl space-y-8">
       <LogoLockup size="text-2xl" />
-      <div><p className="text-sm text-muted-foreground">Step {step} of 3</p><h1 className="text-3xl font-extrabold mt-2">{STEPS[step - 1]}</h1></div>
+      <div><p className="text-sm text-muted-foreground">Step {step} of 3</p><h1 className="text-3xl font-semibold mt-2">{STEPS[step - 1]}</h1></div>
       <ol className="grid grid-cols-3 gap-3" aria-label="Onboarding progress">{STEPS.map((label, index) => <li key={label} className={`border-t-2 pt-3 text-xs ${index + 1 <= step ? "border-primary text-foreground" : "border-border text-muted-foreground"}`} aria-current={index + 1 === step ? "step" : undefined}>{index + 1 < step ? <Check className="size-4 mb-1" /> : null}{label}</li>)}</ol>
       {profile.error && <p role="alert" className="text-destructive">Couldn't load your account. <Button variant="link" onClick={() => profile.refetch()}>Retry</Button></p>}
       <form onSubmit={event => { event.preventDefault(); void save(true); }} className="space-y-6">

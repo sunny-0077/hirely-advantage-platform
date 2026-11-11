@@ -49,8 +49,8 @@ const META: Record<string, Meta> = {
   },
   keyword: {
     icon: KeyRound,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-violet-500/10 ring-1 ring-violet-500/20",
+    iconColor: "text-violet-600",
     label: "ATS",
   },
   strength: {
@@ -67,38 +67,38 @@ const META: Record<string, Meta> = {
   },
   action: {
     icon: ListChecks,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-600",
     label: "Do this next",
   },
   seniority: {
     icon: Layers,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
+    iconColor: "text-indigo-600",
     label: "Level fit",
   },
   evidence: {
     icon: Table2,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-teal-500/10 ring-1 ring-teal-500/20",
+    iconColor: "text-teal-600",
     label: "Evidence map",
   },
   contact: {
     icon: User,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-600",
     label: "Contact",
   },
   experience: {
     icon: Briefcase,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-violet-500/10 ring-1 ring-violet-500/20",
+    iconColor: "text-violet-600",
     label: "Experience",
   },
   education: {
     icon: GraduationCap,
-    accent: "bg-primary/10 ring-1 ring-primary/20",
-    iconColor: "text-accent-foreground",
+    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
+    iconColor: "text-indigo-600",
     label: "Education",
   },
   skills: {
@@ -207,10 +207,10 @@ function ScoreSection({ section }: { section: Section }) {
       <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
         {overall !== null && (
           <div>
-            <p className="text-[10.5px] tracking-[0.22em] uppercase text-highlight-foreground/50 font-medium">
+            <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/50 font-medium">
               Overall fit
             </p>
-            <p className="mt-1 text-[18px] leading-snug font-medium tracking-tight text-highlight-foreground max-w-md">
+            <p className="mt-1 text-[18px] leading-snug font-medium tracking-tight text-white max-w-md">
               {overall >= 75
                 ? "Strong fit. Apply with confidence."
                 : overall >= 50
@@ -219,23 +219,23 @@ function ScoreSection({ section }: { section: Section }) {
             </p>
           </div>
         )}
-        <div className="flex-1 grid sm:grid-cols-2 gap-x-6 gap-y-3 md:pl-6 md:border-l md:border-highlight-foreground/10">
+        <div className="flex-1 grid sm:grid-cols-2 gap-x-6 gap-y-3 md:pl-6 md:border-l md:border-white/10">
           {others.length > 0 ? (
             others.map((s) => (
               <div key={s.label} className="flex items-center justify-between gap-3">
-                <span className="text-[12.5px] text-highlight-foreground/75">{s.label}</span>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-highlight-foreground/10 text-highlight-foreground">
+                <span className="text-[12.5px] text-white/75">{s.label}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] px-2 py-0.5 rounded-full bg-white/10 text-white">
                   {fitLabel(s.value)}
                 </span>
               </div>
             ))
           ) : (
-            <div className="text-[13px] text-highlight-foreground/70 leading-relaxed">{stripScores(section.body)}</div>
+            <div className="text-[13px] text-white/70 leading-relaxed">{stripScores(section.body)}</div>
           )}
         </div>
       </div>
       {verdict && others.length > 0 && (
-        <p className="mt-6 pt-5 border-t border-highlight-foreground/10 text-[13.5px] text-highlight-foreground/80 leading-relaxed">
+        <p className="mt-6 pt-5 border-t border-white/10 text-[13.5px] text-white/80 leading-relaxed">
           {verdict}
         </p>
       )}

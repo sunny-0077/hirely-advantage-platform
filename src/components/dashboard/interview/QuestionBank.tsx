@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { MessageCircle, Cpu, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -65,20 +64,20 @@ export const QuestionBank = ({
           const Icon = c.icon;
           const active = currentType === mapType(c.key);
           return (
-            <Button variant="ghost"
+            <button
               key={c.key}
               type="button"
               onClick={() => onPick?.(mapType(c.key))}
               className={cn(
-                "h-auto block whitespace-normal text-left rounded-lg border p-4 transition-colors group",
-                "bg-muted",
+                "text-left rounded-2xl border p-4 transition-all group",
+                "bg-gradient-to-br from-[#FFF2F4] to-white dark:from-[#2a1a1e] dark:to-transparent",
                 active
-                  ? "border-primary shadow-subtle"
-                  : "border-foreground/[0.08] hover:border-primary/60 ",
+                  ? "border-[#E88FA0] shadow-[0_10px_30px_-18px_rgba(232,143,160,0.6)]"
+                  : "border-foreground/[0.08] hover:border-[#E88FA0]/60 hover:-translate-y-0.5",
               )}
             >
               <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl grid place-items-center bg-primary/15 text-accent-foreground">
+                <span className="w-8 h-8 rounded-xl grid place-items-center bg-[#E88FA0]/15 text-[#B25064] dark:text-[#F2A8B4]">
                   <Icon className="w-4 h-4" />
                 </span>
                 <p className="text-[13px] font-semibold tracking-tight text-foreground">
@@ -89,16 +88,16 @@ export const QuestionBank = ({
                 {c.samples.map((s, i) => (
                   <li
                     key={i}
-                    className="text-[12px] leading-snug tracking-tight text-foreground/70 border-l-2 border-primary/40 pl-2"
+                    className="text-[12px] leading-snug tracking-tight text-foreground/70 border-l-2 border-[#E88FA0]/40 pl-2"
                   >
                     "{s}"
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-[10.5px] uppercase tracking-[0.18em] text-accent-foreground font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              <p className="mt-3 text-[10.5px] uppercase tracking-[0.18em] text-[#B25064] dark:text-[#F2A8B4] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                 Use this category →
               </p>
-            </Button>
+            </button>
           );
         })}
       </div>

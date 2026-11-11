@@ -102,13 +102,13 @@ export default function WorkspaceHome() {
   const kindLabel = { tailoring: "Tailored resume", letter: "Cover letter", prep: "Interview prep" };
   const fmt = (s: string) => new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
-  return <div className="workspace-home w-full">
+  return <div className="workspace-home max-w-6xl mx-auto">
     <PageHeader eyebrow="My workspace" title={workspace.data?.full_name ? `Welcome, ${workspace.data.full_name}.` : "Your workspace."} description="Your opportunities, applications and next steps — together." />
     <GettingStarted />
 
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
 
-    <section aria-label="Overview" className="grid grid-cols-1 sm:grid-cols-3 gap-0 bg-muted mb-5">
+    <section aria-label="Overview" className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-y border-border mb-7">
       <Stat icon={Coins} label="Credits left" value={q.isPending ? "—" : String(profile?.credits_balance ?? 0)} action={q.isSuccess && (profile?.credits_balance ?? 0) <= 2 ? <Button size="sm" onClick={() => beta.open()}>Get Credits</Button> : undefined} />
       <Stat icon={CalendarClock} label={PLAN_LABEL[profile?.plan_tier ?? "scout_free"] ?? "Plan"} value={q.isPending ? "—" : profile?.pass_expires_at ? `Until ${fmt(profile.pass_expires_at)}` : "No expiry"} />
       <Stat icon={FileStack} label="Documents generated" value={q.isPending ? "—" : String(q.data?.total ?? 0)} />
@@ -119,8 +119,7 @@ export default function WorkspaceHome() {
       <Button asChild size="sm"><Link to="/app/master-resume">Add master resume<ArrowRight /></Link></Button>
     </div>}
 
-    <div className="grid xl:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] gap-6 items-start">
-    <section aria-labelledby="studio" className="bg-muted p-4 sm:p-5">
+    <section aria-labelledby="studio" className="border-t border-border pt-5 sm:p-7 mb-8 mt-4">
       <div className="flex items-center gap-2 mb-1"><Wand2 className="size-5 text-primary" /><h2 id="studio" className="text-xl font-semibold">Custom Job Studio</h2></div>
       <p className="text-sm text-muted-foreground mb-5">Found a job somewhere else? Paste it here. {resumeSource.data?.available ? `Source: ${resumeSource.data.label}.` : "We'll check your saved resume before generating."}</p>
       {resumeSource.isError && <p role="alert" className="text-sm text-destructive mb-3">Couldn't check your saved resume. Generation will check again.</p>}
@@ -130,17 +129,17 @@ export default function WorkspaceHome() {
       </div>
       <div className="space-y-1.5 mb-5">
         <div className="flex justify-between"><Label htmlFor="cjs-jd">Job description</Label><span className={`text-xs ${jd.length >= JD_MAX ? "text-destructive" : "text-muted-foreground"}`}>{jd.length.toLocaleString()} / {JD_MAX.toLocaleString()}</span></div>
-        <Textarea id="cjs-jd" rows={7} maxLength={JD_MAX} value={jd} onChange={e => setJd(e.target.value.slice(0, JD_MAX))} placeholder="Paste the full job description…" />
+        <Textarea id="cjs-jd" rows={8} maxLength={JD_MAX} value={jd} onChange={e => setJd(e.target.value.slice(0, JD_MAX))} placeholder="Paste the full job description…" />
       </div>
-      <div className="grid sm:grid-cols-3 gap-2">
-        <Button className="h-auto min-h-10 whitespace-normal px-2 text-xs" disabled={!!busy} onClick={() => run("tailor")}>{busy === "tailor" ? <Loader2 className="animate-spin" /> : <Sparkles />}Tailor Resume (1 credit)</Button>
-        <Button className="h-auto min-h-10 whitespace-normal px-2 text-xs" disabled={!!busy} variant="outline" onClick={() => run("letter")}>{busy === "letter" ? <Loader2 className="animate-spin" /> : <Mail />}Cover Letter (1 credit)</Button>
-        <Button className="h-auto min-h-10 whitespace-normal px-2 text-xs" disabled={!!busy} variant="outline" onClick={() => run("prep")}>{busy === "prep" ? <Loader2 className="animate-spin" /> : <MessagesSquare />}Interview Prep (1 credit)</Button>
+      <div className="flex flex-wrap gap-3">
+        <Button disabled={!!busy} onClick={() => run("tailor")}>{busy === "tailor" ? <Loader2 className="animate-spin" /> : <Sparkles />}Tailor Resume (1 credit)</Button>
+        <Button disabled={!!busy} variant="secondary" onClick={() => run("letter")}>{busy === "letter" ? <Loader2 className="animate-spin" /> : <Mail />}Cover Letter (1 credit)</Button>
+        <Button disabled={!!busy} variant="secondary" onClick={() => run("prep")}>{busy === "prep" ? <Loader2 className="animate-spin" /> : <MessagesSquare />}Interview Prep (1 credit)</Button>
       </div>
       <p className="text-xs text-muted-foreground mt-3">If anything fails, your credit is refunded automatically.</p>
     </section>
 
-    <div className="grid gap-5 min-w-0">
+    <div className="grid lg:grid-cols-2 gap-6">
       <section aria-labelledby="recent" className="border-t border-border pt-5">
         <div className="flex justify-between items-center mb-3"><h2 id="recent" className="text-lg font-semibold">Recent documents</h2><Button asChild variant="link" className="px-0"><Link to="/app/documents">All documents<ArrowRight /></Link></Button></div>
         {q.isPending ? <p role="status" className="py-6 text-sm">Loading…</p> : q.data?.docs.length ? <ul className="divide-y divide-border">{q.data.docs.map(d => { const I = DocIcon[d.kind]; return <li key={`${d.kind}-${d.id}`} className="flex items-center gap-3 py-3">
@@ -156,10 +155,9 @@ export default function WorkspaceHome() {
         {q.isPending ? <p role="status" className="py-6 text-sm">Loading…</p> : q.data?.jobs.length ? <ul className="divide-y divide-border">{q.data.jobs.map(j => <li key={j.id}><Link to="/app/jobs" className="flex items-center gap-3 py-3"><Briefcase className="size-4 text-muted-foreground shrink-0" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{j.title}</p><p className="text-xs text-muted-foreground">{j.company_name}</p></div>{j.work_mode && <Badge variant="secondary">{j.work_mode}</Badge>}</Link></li>)}</ul> : <p className="py-6 text-sm text-muted-foreground">No jobs in your city yet.</p>}
       </section>
     </div>
-    </div>
   </div>;
 }
 
 function Stat({ icon: I, label, value, action }: { icon: typeof Coins; label: string; value: string; action?: React.ReactNode }) {
-  return <div className="px-5 py-4 sm:border-r last:border-r-0 border-border"><div className="flex justify-between items-start mb-2"><I className="size-4 text-accent-foreground" />{action}</div><p className="text-2xl font-extrabold">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div>;
+  return <div className="px-5 py-6 sm:border-r last:border-r-0 border-border"><div className="flex justify-between items-start mb-3"><I className="size-5 text-muted-foreground" />{action}</div><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
 }

@@ -2,7 +2,8 @@ import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Shared framed tools; dark tone uses the semantic highlight surface.
+ * Glass card matching the landing palette.
+ * `tone="dark"` switches to the deep violet-ink gradient used for accent moments.
  */
 type SectionCardProps = HTMLAttributes<HTMLDivElement> & {
   tone?: "glass" | "dark" | "subtle";
@@ -14,7 +15,7 @@ export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
     const tones: Record<NonNullable<SectionCardProps["tone"]>, string> = {
       glass: "bg-card border border-border shadow-subtle",
       subtle: "bg-muted border border-border",
-      dark: "highlight-panel border border-highlight",
+      dark: "bg-foreground text-background border border-border",
     };
     return (
       <div ref={ref} className={cn(base, tones[tone], className)} {...props}>

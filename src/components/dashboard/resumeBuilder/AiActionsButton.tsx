@@ -101,7 +101,7 @@ export function AiActionsButton({
         <button
           type="button"
           className={
-            "inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-accent text-accent-foreground hover:bg-primary/15 transition-colors " +
+            "inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/15 transition-colors " +
             (size === "xs"
               ? "px-2 py-0.5 text-[10.5px]"
               : "px-2.5 py-1 text-[11.5px]")

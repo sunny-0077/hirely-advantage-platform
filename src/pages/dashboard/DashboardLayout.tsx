@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
-import { Menu, LogOut, PanelLeftClose, PanelLeftOpen, ChevronRight } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspace } from "@/hooks/useWorkspace";
@@ -15,7 +15,6 @@ import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 const DashboardLayout = () => {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const queryClient = useQueryClient();
   const { user, loading, recovering } = useAuth();
@@ -31,12 +30,12 @@ const DashboardLayout = () => {
     <div className="workspace-shell relative min-h-screen bg-background font-sans">
       <div className="relative flex min-h-screen">
         <div className="animate-sidebar-enter motion-reduce:animate-none">
-          <DashboardSidebar collapsed={collapsed} />
+          <DashboardSidebar />
         </div>
 
         <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-        <main className="flex-1 min-w-0 px-4 md:px-6 xl:px-8 py-4 md:py-5">
+        <main className="flex-1 min-w-0 px-5 md:px-8 lg:px-10 py-5 md:py-6">
           {/* Mobile top bar with hamburger */}
           <div className="md:hidden flex items-center gap-3 mb-5">
             <Button variant="outline" size="icon"
@@ -52,10 +51,7 @@ const DashboardLayout = () => {
           </div>
 
           {/* Desktop usage strip — top-right of main pane */}
-          <div className="flex flex-wrap items-center gap-3 mb-5 pb-4 border-b border-border">
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex h-8 w-8" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>{collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}</Button>
-            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase">Workspace<ChevronRight className="size-3 text-muted-foreground" /><span className="text-muted-foreground">{pathname.split("/").pop()?.replace(/-/g, " ")}</span></div>
-            <div className="flex-1" />
+          <div className="flex justify-end items-center gap-3 mb-7 pb-4 border-b border-border">
             <div className="hidden md:block"><UsageMeterStrip /></div>
             <Button variant="ghost" size="sm" disabled={signingOut} onClick={async () => {
               setSigningOut(true);
@@ -66,7 +62,7 @@ const DashboardLayout = () => {
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}
-          <div key={pathname} className="workspace-content animate-fade-in motion-reduce:animate-none">
+          <div key={pathname} className="animate-fade-in motion-reduce:animate-none">
             <Outlet />
           </div>
         </main>

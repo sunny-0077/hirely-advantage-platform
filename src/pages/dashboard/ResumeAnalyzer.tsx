@@ -261,7 +261,7 @@ const ResumeAnalyzer = () => {
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>
-          <div className="w-8 h-8 rounded-full bg-highlight flex items-center justify-center text-background text-[11px] font-semibold uppercase">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-foreground to-[#3a2d5e] flex items-center justify-center text-background text-[11px] font-semibold uppercase">
             {(user?.email?.[0] ?? "U")}
           </div>
         </div>
@@ -271,7 +271,14 @@ const ResumeAnalyzer = () => {
       <div className="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-end">
         <h1 className="text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
           From ignored to{" "}
-          <span className="text-accent-foreground">
+          <span
+            style={{
+              background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
             interviewed
           </span>
           .
@@ -535,7 +542,7 @@ const ResumeAnalyzer = () => {
                             </p>
                           </div>
                           <div>
-                            <p className="text-[10px] tracking-[0.18em] uppercase text-accent-foreground font-medium">
+                            <p className="text-[10px] tracking-[0.18em] uppercase text-[hsl(258_38%_52%)] font-medium">
                               After
                             </p>
                             <p className="mt-1.5 text-[13px] text-foreground leading-snug tracking-tight font-medium">
@@ -1063,10 +1070,10 @@ const ScoreBreakdownCard = ({
                     width: `${val}%`,
                     background:
                       val >= 80
-                        ? "hsl(var(--highlight))"
+                        ? "linear-gradient(90deg,#0E0B1F,#6D54B3)"
                         : val >= 60
-                        ? "hsl(var(--accent-foreground))"
-                        : "hsl(var(--warning))",
+                        ? "hsl(258 45% 58%)"
+                        : "hsl(35 92% 55%)",
                   }}
                 />
               </div>
@@ -1188,8 +1195,8 @@ const ScoreTrajectory = ({ analyses }: { analyses: Analysis[] }) => {
         </span>
       </div>
       <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="mt-2 w-full h-8" aria-hidden>
-        <path d={linePath} fill="none" stroke="hsl(var(--accent-foreground))" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-        <circle cx={lx} cy={ly} r="2.4" fill="hsl(var(--card))" stroke="hsl(var(--accent-foreground))" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
+        <path d={linePath} fill="none" stroke="#6D54B3" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <circle cx={lx} cy={ly} r="2.4" fill="#fff" stroke="#6D54B3" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
       </svg>
       <p className="mt-1 text-[10.5px] text-foreground/40 tracking-tight">
         Last {series.length} analyses

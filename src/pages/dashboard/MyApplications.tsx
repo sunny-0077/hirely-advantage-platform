@@ -35,14 +35,14 @@ export default function MyApplications() {
   const apps = (q.data ?? []).filter(a => filter === "all" || a.tracker_status === filter);
   const counts = Object.fromEntries(TRACKER_STATUSES.map(s => [s.value, (q.data ?? []).filter(a => a.tracker_status === s.value).length]));
 
-  return <div className="w-full">
-    <PageHeader eyebrow="Workspace" title="Applications" description="Your documents, progress and personal notes for every role." />
-    <div className="flex flex-wrap gap-2 mb-5 bg-muted p-3">
-      <Button className="rounded-full" size="sm" variant={filter === "all" ? "ink" : "secondary"} onClick={() => setFilter("all")}>All ({q.data?.length ?? 0})</Button>
-      {TRACKER_STATUSES.map(s => <Button className="rounded-full" key={s.value} size="sm" variant={filter === s.value ? "ink" : "secondary"} onClick={() => setFilter(s.value)}>{s.label} ({counts[s.value] ?? 0})</Button>)}
+  return <div className="max-w-5xl mx-auto">
+    <PageHeader eyebrow="Applications" title="Track every job you're going for." description="Jobs show up here automatically when you create a tailored resume, cover letter or interview prep." />
+    <div className="flex flex-wrap gap-2 mb-6">
+      <Button size="sm" variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>All ({q.data?.length ?? 0})</Button>
+      {TRACKER_STATUSES.map(s => <Button key={s.value} size="sm" variant={filter === s.value ? "default" : "outline"} onClick={() => setFilter(s.value)}>{s.label} ({counts[s.value] ?? 0})</Button>)}
     </div>
     {q.error && <p role="alert" className="text-destructive">Couldn't load applications. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
-    {q.isPending ? <p role="status">Loading…</p> : apps.length ? <div className="grid lg:grid-cols-2 gap-3 bg-muted p-3">{apps.map(a => <AppCard key={a.id} app={a} onChange={() => qc.invalidateQueries({ queryKey: ["my-applications"] })} />)}</div>
+    {q.isPending ? <p role="status">Loading…</p> : apps.length ? <div className="grid gap-4">{apps.map(a => <AppCard key={a.id} app={a} onChange={() => qc.invalidateQueries({ queryKey: ["my-applications"] })} />)}</div>
       : <div className="rounded-lg border border-dashed border-border p-10 text-center"><Briefcase className="size-6 mx-auto text-muted-foreground mb-3" /><p className="font-medium">No applications here yet</p><p className="text-sm text-muted-foreground mb-4">Generate a document for a job and it'll appear here.</p><Button asChild><Link to="/app/jobs">Browse jobs</Link></Button></div>}
   </div>;
 }
