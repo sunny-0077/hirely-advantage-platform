@@ -788,23 +788,22 @@ const AnalysisView = ({
         <SectionCard className="p-0 overflow-hidden ring-1 ring-primary/15 shadow-[0_24px_60px_-30px_hsl(var(--primary)/0.35)]">
           {/* Premium gradient header */}
           <div
-            className="px-5 sm:px-6 py-4 text-white"
-            style={{ background: "linear-gradient(120deg,#0E0B1F 0%,#3a2d5e 55%,#6D54B3 100%)" }}
+            className="px-5 sm:px-6 py-4 bg-accent text-foreground"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase font-semibold text-white/85">
+                <p className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase font-semibold text-primary">
                   <Sparkles className="w-3 h-3" />
                   AI Improved Answer
                 </p>
-                <p className="mt-1 text-[13px] text-white/80 tracking-tight leading-snug">
+                <p className="mt-1 text-[13px] text-muted-foreground tracking-tight leading-snug">
                   Same story — sharper structure, stronger impact, STAR-aligned.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => onCopy(improved, "Improved answer copied")}
-                className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium tracking-tight transition-colors backdrop-blur"
+                className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-card hover:bg-muted text-foreground text-[11px] font-medium tracking-tight transition-colors backdrop-blur"
                 aria-label="Copy improved answer"
               >
                 <Copy className="w-3 h-3" />

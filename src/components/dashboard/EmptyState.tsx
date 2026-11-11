@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
@@ -33,13 +34,12 @@ export const EmptyState = ({
 }: EmptyStateProps) => (
   <div
     className={cn(
-      "glass-strong rounded-[24px] p-8 sm:p-12 flex flex-col items-center text-center",
+      "py-12 px-5 sm:py-16 flex flex-col items-center text-center",
       className,
     )}
   >
     <div
-      className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_18px_40px_-18px_hsl(252_46%_8%/0.55)]"
-      style={{ background: "linear-gradient(160deg,#0E0B1F,#3a2d5e)" }}
+      className="w-12 h-12 rounded-md bg-accent flex items-center justify-center text-primary"
     >
       <Icon className="w-[22px] h-[22px]" strokeWidth={1.6} />
     </div>
@@ -55,7 +55,6 @@ export const EmptyState = ({
       <div
         aria-hidden
         className="mt-8 w-full max-w-md pointer-events-none select-none opacity-[0.35]"
-        style={{ filter: "blur(1.4px) saturate(0.85)" }}
       >
         {preview ?? (
           <img src={previewImage} alt="" className="w-full rounded-xl" />
@@ -64,13 +63,13 @@ export const EmptyState = ({
     )}
 
     {ctaLabel && onCta && (
-      <button
+      <Button
         type="button"
         onClick={onCta}
-        className="shine-button mt-8 inline-flex items-center justify-center rounded-full bg-foreground text-background px-5 py-2.5 text-[13px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+        className="mt-6"
       >
         {ctaLabel}
-      </button>
+      </Button>
     )}
   </div>
 );
@@ -91,7 +90,7 @@ export const PreviewScoreCard = () => (
         <div className="absolute inset-0 rounded-full border-[5px] border-foreground/10" />
         <div
           className="absolute inset-0 rounded-full border-[5px] border-transparent"
-          style={{ borderTopColor: "hsl(258 38% 52%)", transform: "rotate(120deg)" }}
+          style={{ borderTopColor: "hsl(var(--primary))", transform: "rotate(120deg)" }}
         />
         <div className="absolute inset-0 flex items-center justify-center text-[12px] font-semibold">
           82
