@@ -199,7 +199,7 @@ export default function Jobs() {
                 </p>
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="mt-auto grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <Button size="lg" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Tailor Resume for ${j.title}`}>
                   {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
