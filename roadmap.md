@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Redesign Jobs cards and filters with blue accents and no green; preserve existing feed and paid actions, and verify desktop/mobile where authenticated access permits.
+
 - [x] Add authenticated PDF/DOCX Master Resume extraction, deterministic mapping, editable review and explicit save without credits or automatic overwrites.
 - [x] Run importer tests: 29 Vitest and 12 Deno tests passed; deployed PDF/DOCX extraction, scanned-PDF rejection, unsigned denial, owner-only profile reads and unchanged profile/credits verified.
 - [ ] Verify importer desktop/mobile review, real confirmation/save/reload and subsequent generation through the UI; blocked by the requesting account's unfinished onboarding. No onboarding bypass or invented profile data.
