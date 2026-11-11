@@ -38,8 +38,8 @@ export const LogoMark = ({
     >
       <defs>
         <linearGradient id={`hg-${gid}`} x1="4" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="hsl(220 90% 60%)" />
-          <stop offset="100%" stopColor="hsl(200 100% 55%)" />
+          <stop offset="0%" stopColor="hsl(var(--primary))" />
+          <stop offset="100%" stopColor="hsl(var(--primary))" />
         </linearGradient>
       </defs>
 
@@ -49,7 +49,7 @@ export const LogoMark = ({
 
       <g
         fill="none"
-        stroke={variant === "tile" ? "hsl(0 0% 100%)" : stroke}
+        stroke={variant === "tile" ? "hsl(var(--primary-foreground))" : stroke}
         strokeWidth={variant === "tile" ? 2.4 : 2.6}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -82,7 +82,7 @@ export const LogoLockup = ({ className, size = "text-xl", showMark = true }: Log
   return (
     <span
       className={cn(
-        "logo-lockup group inline-flex items-center gap-2 tracking-[-0.03em]",
+        "logo-lockup group inline-flex items-center gap-2 tracking-normal",
         scrolled && "is-scrolled",
         className
       )}
