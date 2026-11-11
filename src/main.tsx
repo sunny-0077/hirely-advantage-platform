@@ -12,7 +12,7 @@ function renderStartupError(error: unknown) {
   if (!rootElement) return;
 
   rootElement.innerHTML = `
-    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:hsl(var(--background, 240 25% 98.5%));color:hsl(var(--foreground, 226 19% 13%));padding:24px;font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;">
+    <main style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:hsl(var(--background, 240 25% 98.5%));color:hsl(var(--foreground, 226 19% 13%));padding:24px;font-family:var(--font-interface, Roboto, Arial, system-ui, sans-serif);">
       <section style="width:100%;max-width:460px;border:1px solid hsl(var(--border, 226 20% 90%));background:hsl(var(--card, 0 0% 100%));border-radius:18px;padding:24px;box-shadow:0 24px 70px -28px hsl(var(--foreground, 226 19% 13%) / 0.28);">
         <p style="margin:0;color:hsl(var(--muted-foreground, 226 10% 48%));font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">App recovery</p>
         <h1 style="margin:10px 0 0;font-size:26px;line-height:1.15;font-weight:750;letter-spacing:0;">Something failed to load.</h1>
