@@ -17,10 +17,10 @@ const Upgrade = () => {
     const p = params.get("plan");
     if (p === "starter_pack" || p === "pass_90_day") { open(p as BetaPlan); setParams({}, { replace: true }); }
   }, [params, open, setParams]);
-  return <div className="max-w-4xl mx-auto pb-20">
+  return <div className="w-full pb-8">
     <PageHeader eyebrow="Upgrade" title="Get more credits." description="Payments open soon — join the waitlist and get 5 free beta credits today." />
     <div className="grid md:grid-cols-2 gap-5">
-      {BETA_PLANS.map(p => <div key={p.id} className="bg-card border border-border rounded-lg p-6 flex flex-col">
+      {BETA_PLANS.map(p => <div key={p.id} className={`border rounded-lg p-6 flex flex-col ${p.id === "pass_90_day" ? "highlight-panel border-highlight" : "bg-muted border-border"}`}>
         <h2 className="text-lg font-semibold">{p.name}</h2>
         <p className="text-3xl font-semibold my-2">{p.price}</p>
         <p className="text-sm text-muted-foreground mb-4">{p.blurb}</p>

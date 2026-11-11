@@ -73,10 +73,10 @@ export function MyDocuments() {
     if (error || !data) return toast.error("Couldn't open file");
     window.open(data.signedUrl, "_blank", "noopener");
   }
-  return <div className="max-w-5xl mx-auto">
-    <PageHeader eyebrow="Candidate portal" title="My documents" />
+  return <div className="documents-page w-full">
+    <PageHeader eyebrow="Workspace" title="My documents" description="Your uploaded resumes, tailored applications, cover letters and interview guides." />
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load documents. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
-    {q.isPending ? <p role="status">Loading documents…</p> : <div className="grid gap-8 lg:grid-cols-2">
+    {q.isPending ? <p role="status">Loading documents…</p> : <div className="grid gap-6 xl:grid-cols-2 bg-muted p-4 sm:p-5">
       <section><div className="flex items-center justify-between mb-3"><h2 className="text-lg font-semibold">Resumes</h2><Button asChild size="sm" variant="outline"><Link to="/app/resume">Upload</Link></Button></div>
         <div className="divide-y divide-border border border-border rounded-lg bg-card">{q.data?.resumes.length ? q.data.resumes.map(r => <div key={r.id} className="p-4 flex items-center gap-3"><FileText className="size-4 text-muted-foreground" /><div className="flex-1 min-w-0"><p className="break-all text-sm font-medium">{r.file_name}</p><p className="text-xs text-muted-foreground">{fmt(r.created_at)}</p></div><Button size="icon" variant="ghost" aria-label="Open resume" onClick={() => openResume(r.file_path)}><Eye /></Button><Button size="icon" variant="ghost" aria-label="Delete resume" onClick={() => del("resumes", r.id, r.file_path)}><Trash2 /></Button></div>) : <p className="p-4 text-sm text-muted-foreground">No resumes yet.</p>}</div>
       </section>
@@ -151,10 +151,10 @@ export function MyProfile() {
     toast.success("Profile updated");
     qc.invalidateQueries({ queryKey: ["my-profile"] });
   }
-  const section = "border-b border-border py-6 space-y-4";
-  return <div className="max-w-2xl mx-auto">
+  const section = "border-b border-border py-5 space-y-4";
+  return <div className="profile-page w-full">
     <PageHeader eyebrow="Candidate portal" title="My profile" description="Your skills, experience and education help Hirely tailor your resume and prep." />
-    {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="space-y-5">
+    {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="grid lg:grid-cols-2 gap-x-8 gap-y-4">
       <div className={section}>
         <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-headline">Headline</Label><Input id="pf-headline" maxLength={150} placeholder="e.g. Data Analyst with 3 years in retail analytics" value={headline} onChange={e => setHeadline(e.target.value)} /></div>
