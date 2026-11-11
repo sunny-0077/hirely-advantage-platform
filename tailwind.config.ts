@@ -28,6 +28,8 @@ export default {
           foreground: "hsl(var(--secondary-foreground))",
         },
         success: "hsl(var(--success))",
+        forest: { DEFAULT: "hsl(var(--forest))", foreground: "hsl(var(--forest-foreground))" },
+        surface: "hsl(var(--surface))",
         warning: "hsl(var(--warning))",
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

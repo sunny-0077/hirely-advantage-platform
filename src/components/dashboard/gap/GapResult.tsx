@@ -49,8 +49,8 @@ const META: Record<string, Meta> = {
   },
   keyword: {
     icon: KeyRound,
-    accent: "bg-violet-500/10 ring-1 ring-violet-500/20",
-    iconColor: "text-violet-600",
+    accent: "bg-primary/10 ring-1 ring-primary/20",
+    iconColor: "text-forest",
     label: "ATS",
   },
   strength: {
@@ -73,8 +73,8 @@ const META: Record<string, Meta> = {
   },
   seniority: {
     icon: Layers,
-    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
-    iconColor: "text-indigo-600",
+    accent: "bg-primary/10 ring-1 ring-primary/20",
+    iconColor: "text-forest",
     label: "Level fit",
   },
   evidence: {
@@ -91,14 +91,14 @@ const META: Record<string, Meta> = {
   },
   experience: {
     icon: Briefcase,
-    accent: "bg-violet-500/10 ring-1 ring-violet-500/20",
-    iconColor: "text-violet-600",
+    accent: "bg-primary/10 ring-1 ring-primary/20",
+    iconColor: "text-forest",
     label: "Experience",
   },
   education: {
     icon: GraduationCap,
-    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
-    iconColor: "text-indigo-600",
+    accent: "bg-primary/10 ring-1 ring-primary/20",
+    iconColor: "text-forest",
     label: "Education",
   },
   skills: {

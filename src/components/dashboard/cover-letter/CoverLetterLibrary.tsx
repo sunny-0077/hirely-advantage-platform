@@ -104,7 +104,7 @@ export function CoverLetterLibrary({
                 "bg-white/40 dark:bg-white/[0.04] backdrop-blur-md",
                 "border border-white/40 dark:border-white/[0.08]",
                 "shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(124,58,237,0.10)]",
-                "hover:border-violet-400/40 hover:-translate-y-0.5",
+                "hover:border-primary/40 hover:-translate-y-0.5",
               )}
             >
               <div className="flex items-start justify-between gap-2">
@@ -122,7 +122,7 @@ export function CoverLetterLibrary({
                 {snippet(r.full_letter)}
               </p>
               {r.tone && (
-                <span className="mt-3 inline-flex items-center text-[10px] font-medium tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/20">
+                <span className="mt-3 inline-flex items-center text-[10px] font-medium tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-primary/10 text-forest ring-1 ring-primary/20">
                   {r.tone}
                 </span>
               )}
