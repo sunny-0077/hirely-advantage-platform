@@ -20,11 +20,11 @@ const tracking = [
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => <p className="text-[10px] uppercase text-muted-foreground px-3 mb-2 font-semibold">{children}</p>;
-const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
+const SidebarBody = ({ onNavigate, collapsed = false }: { onNavigate?: () => void; collapsed?: boolean }) => {
  const isAdmin = useIsAdmin();
  const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
- const group=(items:typeof workspaceLinks,soon=false)=><nav className="flex flex-col gap-1 mb-6">{items.map(({to,label,icon:Icon})=><NavLink key={to} to={to} onClick={onNavigate} className={({isActive})=>cn("flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] transition-colors",isActive?"bg-accent text-primary font-semibold":"text-muted-foreground hover:text-foreground hover:bg-muted")}><Icon className="size-4 shrink-0" strokeWidth={1.8} /><span className="flex-1">{label}</span>{soon&&<span className="text-[9px] uppercase text-muted-foreground">Soon</span>}</NavLink>)}</nav>;
- return <><div className="px-3 pt-1 mb-10"><LogoLockup size="text-2xl" /></div><SectionLabel>Workspace</SectionLabel>{group(workspaceLinks)}<SectionLabel>Suite</SectionLabel>{group(suite)}<SectionLabel>Tracking</SectionLabel>{group(tracking,true)}<div className="border-t border-border pt-4 mb-6"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></>;
+ const group=(items:typeof workspaceLinks,soon=false)=><nav className="flex flex-col gap-1 mb-5">{items.map(({to,label,icon:Icon})=><NavLink key={to} to={to} title={label} aria-label={label} onClick={onNavigate} className={({isActive})=>cn("flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[12px] transition-colors",collapsed&&"justify-center px-2",isActive?"bg-accent text-foreground font-bold":"text-foreground/75 hover:text-foreground hover:bg-muted")}><Icon className={cn("size-[18px] shrink-0",collapsed&&"size-5")} strokeWidth={1.9} />{!collapsed&&<><span className="flex-1">{label}</span>{soon&&<span className="text-[9px] text-muted-foreground">Soon</span>}</>}</NavLink>)}</nav>;
+ return <><div className={cn("px-3 pt-1 mb-7",collapsed&&"px-0 [&_.logo-lockup__word]:hidden")}><LogoLockup size="text-2xl" /></div>{!collapsed&&<SectionLabel>Workspace</SectionLabel>}{group(workspaceLinks)}{!collapsed&&<SectionLabel>Suite</SectionLabel>}{group(suite)}{!collapsed&&<SectionLabel>Tracking</SectionLabel>}{group(tracking,true)}{!collapsed&&<><div className="border-t border-border pt-4 mb-5"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></>}</>;
 };
 
 const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
@@ -33,9 +33,9 @@ const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
   const workspace = useWorkspace();
   const credits = (workspace.data as { credits_balance?: number } | null | undefined)?.credits_balance;
   return (
-    <div className="mt-auto border-t border-border pt-5 px-3 text-foreground">
+    <div className="mt-auto rounded-lg bg-highlight p-3 text-highlight-foreground">
       <p className="text-sm font-semibold">{credits != null ? `${credits} credits left` : "Credits"}</p>
-      <p className="text-[11px] text-muted-foreground mt-1">Starter Pack ₹249 · 90-Day Pass ₹899</p>
+      <p className="text-[10px] text-highlight-muted mt-1">Starter Pack ₹249 · 90-Day Pass ₹899</p>
       <div className="mt-3 flex gap-2">
         <Button size="sm" onClick={() => open()} className="text-xs flex-1">Get Credits</Button>
         <Button variant="outline" size="sm" onClick={() => { onNavigate?.(); navigate("/app/upgrade"); }} className="text-xs">Plans</Button>
@@ -44,10 +44,10 @@ const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
   );
 };
 
-export const DashboardSidebar = () => {
+export const DashboardSidebar = ({ collapsed = false }: { collapsed?: boolean }) => {
   return (
-    <aside className="w-[236px] shrink-0 hidden md:flex flex-col px-4 py-6 bg-card border-r border-border sticky top-0 h-screen overflow-y-auto">
-      <SidebarBody />
+    <aside className={cn("shrink-0 hidden md:flex flex-col px-3 py-5 bg-card border-r border-border sticky top-0 h-screen overflow-y-auto",collapsed ? "w-[68px]" : "w-[212px]")}>
+      <SidebarBody collapsed={collapsed} />
     </aside>
   );
 };
