@@ -103,23 +103,23 @@ export default function WorkspaceHome() {
   const fmt = (s: string) => new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
   return <div className="max-w-6xl mx-auto">
-    <PageHeader eyebrow="My workspace" title={workspace.data?.full_name ? `Welcome, ${workspace.data.full_name}.` : "Your next opportunity starts here."} />
+    <PageHeader eyebrow="My workspace" title={workspace.data?.full_name ? `Welcome, ${workspace.data.full_name}.` : "Your workspace"} />
     <GettingStarted />
 
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
 
-    <section aria-label="Overview" className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+    <section aria-label="Overview" className="grid grid-cols-1 divide-y divide-border border-y border-border mb-8 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
       <Stat icon={Coins} label="Credits left" value={q.isPending ? "—" : String(profile?.credits_balance ?? 0)} action={q.isSuccess && (profile?.credits_balance ?? 0) <= 2 ? <Button size="sm" onClick={() => beta.open()}>Get Credits</Button> : undefined} />
       <Stat icon={CalendarClock} label={PLAN_LABEL[profile?.plan_tier ?? "scout_free"] ?? "Plan"} value={q.isPending ? "—" : profile?.pass_expires_at ? `Until ${fmt(profile.pass_expires_at)}` : "No expiry"} />
       <Stat icon={FileStack} label="Documents generated" value={q.isPending ? "—" : String(q.data?.total ?? 0)} />
     </section>
-    {resumeEmpty && <div role="alert" className="mb-8 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
-      <AlertTriangle className="size-5 text-destructive" />
+    {resumeEmpty && <div role="alert" className="mb-8 flex flex-wrap items-center gap-3 rounded-lg border border-warning/30 bg-card p-4 text-sm">
+      <AlertTriangle className="size-5 text-warning" />
       <p className="flex-1 font-medium">{resumeSource.data?.reason ?? "Add career information to your Master Resume to generate documents."}</p>
       <Button asChild size="sm"><Link to="/app/master-resume">Add master resume<ArrowRight /></Link></Button>
     </div>}
 
-    <section aria-labelledby="studio" className="bg-card border border-border rounded-lg p-6 mb-8 mt-4">
+    <section aria-labelledby="studio" className="border-t border-border py-8 mb-2 mt-4">
       <div className="flex items-center gap-2 mb-1"><Wand2 className="size-5 text-primary" /><h2 id="studio" className="text-xl font-semibold">Custom Job Studio</h2></div>
       <p className="text-sm text-muted-foreground mb-5">Found a job somewhere else? Paste it here. {resumeSource.data?.available ? `Source: ${resumeSource.data.label}.` : "We'll check your saved resume before generating."}</p>
       {resumeSource.isError && <p role="alert" className="text-sm text-destructive mb-3">Couldn't check your saved resume. Generation will check again.</p>}
@@ -139,8 +139,8 @@ export default function WorkspaceHome() {
       <p className="text-xs text-muted-foreground mt-3">If anything fails, your credit is refunded automatically.</p>
     </section>
 
-    <div className="grid lg:grid-cols-2 gap-6">
-      <section aria-labelledby="recent" className="bg-card border border-border rounded-lg p-5">
+    <div className="grid lg:grid-cols-2 gap-8 border-t border-border pt-8">
+      <section aria-labelledby="recent" className="min-w-0">
         <div className="flex justify-between items-center mb-3"><h2 id="recent" className="text-lg font-semibold">Recent documents</h2><Button asChild variant="link" className="px-0"><Link to="/app/documents">All documents<ArrowRight /></Link></Button></div>
         {q.isPending ? <p role="status" className="py-6 text-sm">Loading…</p> : q.data?.docs.length ? <ul className="divide-y divide-border">{q.data.docs.map(d => { const I = DocIcon[d.kind]; return <li key={`${d.kind}-${d.id}`} className="flex items-center gap-3 py-3">
           <I className="size-4 text-muted-foreground shrink-0" />
@@ -150,7 +150,7 @@ export default function WorkspaceHome() {
         </li>; })}</ul> : <p className="py-6 text-sm text-muted-foreground">Nothing yet — use the studio above or tap a job in the feed.</p>}
       </section>
 
-      <section aria-labelledby="jobs" className="bg-card border border-border rounded-lg p-5">
+      <section aria-labelledby="jobs" className="min-w-0">
         <div className="flex justify-between items-center mb-3"><h2 id="jobs" className="text-lg font-semibold">Fresh jobs in {profile?.city_hub ?? "Bengaluru"}</h2><Button asChild variant="link" className="px-0"><Link to="/app/jobs">Job feed<ArrowRight /></Link></Button></div>
         {q.isPending ? <p role="status" className="py-6 text-sm">Loading…</p> : q.data?.jobs.length ? <ul className="divide-y divide-border">{q.data.jobs.map(j => <li key={j.id}><Link to="/app/jobs" className="flex items-center gap-3 py-3"><Briefcase className="size-4 text-muted-foreground shrink-0" /><div className="flex-1 min-w-0"><p className="text-sm font-medium break-words">{j.title}</p><p className="text-xs text-muted-foreground">{j.company_name}</p></div>{j.work_mode && <Badge variant="secondary">{j.work_mode}</Badge>}</Link></li>)}</ul> : <p className="py-6 text-sm text-muted-foreground">No jobs in your city yet.</p>}
       </section>
@@ -159,5 +159,5 @@ export default function WorkspaceHome() {
 }
 
 function Stat({ icon: I, label, value, action }: { icon: typeof Coins; label: string; value: string; action?: React.ReactNode }) {
-  return <div className="bg-card border border-border rounded-lg p-5"><div className="flex justify-between items-start mb-3"><I className="size-5 text-muted-foreground" />{action}</div><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
+  return <div className="min-w-0"><div className="flex justify-between items-start mb-3"><I className="size-5 text-muted-foreground" />{action}</div><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
 }

@@ -13,7 +13,8 @@ export function GettingStarted() {
   const q = useQuery({
     queryKey: ["getting-started", user?.id], enabled: Boolean(user),
     queryFn: async () => {
-      const uid = user!.id;
+      if (!user) throw new Error("Please sign in.");
+      const uid = user.id;
       const { data: p } = await supabase.from("profiles").select("master_resume_text,getting_started_dismissed_at").eq("user_id", uid).maybeSingle();
       if (p?.getting_started_dismissed_at) return { dismissed: true, steps: [true, true, true] };
       const head = { count: "exact" as const, head: true };
@@ -39,18 +40,18 @@ export function GettingStarted() {
   if (!q.data || q.data.dismissed || done === 3) return null;
   const items = [
     { label: "Save your Master Resume", to: "/app/master-resume" },
-    { label: "Generate your first Tailored Resume, Cover Letter or Interview Prep guide", to: "/app/jobs" },
-    { label: "Track your job status in Applications", to: "/app/applications" },
+    { label: "Create your first application document", to: "/app/jobs" },
+    { label: "Track an application", to: "/app/applications" },
   ];
-  return <section aria-label="Getting started" className="bg-card border border-primary/30 rounded-lg p-5 mb-6">
+  return <section aria-label="Getting started" className="bg-card border border-border rounded-lg p-5 mb-6">
     <div className="flex items-start gap-3 mb-3">
-      <div className="flex-1"><h2 className="font-semibold">Getting Started (3 Steps)</h2><p className="text-sm text-muted-foreground">{done} of 3 done</p></div>
+      <div className="flex-1"><h2 className="font-semibold">Getting started</h2><p className="text-sm text-muted-foreground">{done} of 3 done</p></div>
       <Button size="sm" variant="ghost" onClick={dismiss}><X />Dismiss</Button>
     </div>
-    <Progress value={(done / 3) * 100} className="mb-4" aria-label="Getting started progress" />
-    <ol className="space-y-2">{items.map((it, i) => { const ok = q.data!.steps[i]; return <li key={it.to} className="flex items-center gap-3 text-sm">
-      {ok ? <CheckCircle2 className="size-5 text-success shrink-0" /> : <Circle className="size-5 text-muted-foreground shrink-0" />}
-      <span className={ok ? "line-through text-muted-foreground flex-1" : "flex-1"}>Step {i + 1}: {it.label}</span>
+    <Progress value={(done / 3) * 100} className="mb-5 h-1" aria-label="Getting started progress" />
+    <ol className="grid gap-4 lg:grid-cols-3">{items.map((it, i) => { const ok = q.data?.steps[i]; return <li key={it.to} className="flex items-start gap-2 text-xs leading-6">
+      {ok ? <CheckCircle2 className="size-4 mt-1 text-primary shrink-0" /> : <Circle className="size-4 mt-1 text-muted-foreground shrink-0" />}
+      <span className={ok ? "line-through text-muted-foreground flex-1" : "flex-1"}>{it.label}</span>
       {!ok && <Button asChild size="sm" variant="outline"><Link to={it.to}>Go</Link></Button>}
     </li>; })}</ol>
   </section>;
