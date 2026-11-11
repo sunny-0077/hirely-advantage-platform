@@ -46,6 +46,17 @@
     --verification-success: 145 66% 29%;
     --verification-success-foreground: 0 0% 100%;
 
+    /* Jobs: blue actions and a contrasting neutral truth panel. */
+    --jobs-accent: 217 91% 51%;
+    --jobs-accent-foreground: 0 0% 100%;
+    --jobs-accent-soft: 216 100% 96%;
+    --jobs-panel: 225 14% 15%;
+    --jobs-panel-foreground: 220 20% 97%;
+    --jobs-panel-muted: 220 14% 73%;
+    --jobs-panel-border: 225 12% 29%;
+    --jobs-panel-accent: 213 100% 74%;
+    --shadow-job: 0 3px 14px -6px hsl(var(--foreground) / 0.12);
+
     --border: 226 20% 90%;
     --input: 226 20% 90%;
     --ring: 226 19% 13%;
