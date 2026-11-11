@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Apply the November 11 screenshot identity across public and workspace pages: white, black, mint and forest green; denser layouts with existing controls intact.
-- [ ] Verify the new public design and available authenticated pages on desktop/mobile, and run relevant regressions without changing user data or bypassing onboarding.
+- [x] Apply the November 11 screenshot identity across public and workspace pages: white, black, mint and forest green; denser layouts with existing controls intact.
+- [x] Verify public sections and pricing-to-signup navigation at desktop/tablet/mobile sizes; 44 regressions passed and build OK. Real signed-in account remains on Personal information, Step 1 of 3; no data changes or onboarding bypass.
+- [ ] Visually verify the redesigned authenticated workspace pages and sidebar controls on desktop/mobile; blocked by the requesting account's unfinished onboarding.
 
 - [x] Redesign public pages, shared controls and authenticated workspace with the new restrained visual identity; backend, auth, payment and credit handlers unchanged.
 - [x] Inspect all public sections at desktop/tablet/mobile sizes, verify illustrative tabs and mobile navigation, inspect sign-in/signup/onboarding, and run 54 existing regression tests. No paid generation or profile saves performed.

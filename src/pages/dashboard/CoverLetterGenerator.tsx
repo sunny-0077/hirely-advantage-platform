@@ -307,7 +307,7 @@ const CoverLetterGenerator = () => {
                     disabled={generating}
                     onClick={() => setTone(t.value)}
                     className={cn(
-                      "rounded-md px-3 py-1.5 text-left transition-all border",
+                      "h-auto block whitespace-normal rounded-md px-3 py-2 text-left transition-colors border",
                       tone === t.value
                         ? "bg-accent border-primary/40 ring-1 ring-primary/15 text-primary"
                         : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/75 hover:bg-foreground/[0.06] hover:border-foreground/[0.12]",
@@ -339,7 +339,7 @@ const CoverLetterGenerator = () => {
                     disabled={generating}
                     onClick={() => setPages(n)}
                     className={cn(
-                      "rounded-lg px-2.5 py-2 text-left transition-colors border",
+                      "h-auto block whitespace-normal rounded-lg px-2.5 py-2 text-left transition-colors border",
                       pages === n
                         ? "bg-foreground text-background border-foreground"
                         : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
