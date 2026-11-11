@@ -17,9 +17,9 @@ type Turn = {
  * derived sub-scores: clarity, structure, relevance.
  */
 const hueFor = (score: number) => {
-  if (score >= 80) return "#22C55E"; // emerald
-  if (score >= 60) return "#F59E0B"; // amber
-  return "#F43F5E"; // rose
+  if (score >= 80) return "hsl(var(--success))"; // emerald
+  if (score >= 60) return "hsl(var(--warning))"; // amber
+  return "hsl(var(--destructive))"; // rose
 };
 
 const derive = (turn: Turn, avg: number) => {
@@ -60,7 +60,7 @@ export const MockScorecard = ({
   const color = hueFor(overall);
 
   return (
-    <SectionCard className="p-0 overflow-hidden ring-1 ring-[#E88FA0]/20">
+    <SectionCard className="p-0 overflow-hidden ring-1 ring-primary/20">
       <div className="px-5 sm:px-6 pt-5 pb-4 border-b border-foreground/[0.06] flex items-center gap-5">
         <div
           className="relative w-[104px] h-[104px] rounded-full shrink-0 grid place-items-center"
@@ -83,7 +83,7 @@ export const MockScorecard = ({
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10.5px] tracking-[0.22em] uppercase text-[#B25064] dark:text-[#F2A8B4] font-medium">
+          <p className="text-[10.5px] tracking-[0.22em] uppercase text-accent-foreground font-medium">
             Session scorecard
           </p>
           <p className="mt-1 text-[15.5px] font-semibold tracking-tight text-foreground">

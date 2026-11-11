@@ -170,8 +170,8 @@ const TAG_META: Record<Step["tag"], { label: string; className: string; dot: str
   },
   LOW: {
     label: "Minor",
-    className: "text-sky-600 bg-sky-500/10 ring-1 ring-sky-500/25",
-    dot: "bg-sky-500",
+    className: "text-accent-foreground bg-primary/10 ring-1 ring-primary/25",
+    dot: "bg-primary",
   },
 };
 
@@ -209,7 +209,7 @@ function parseSkillGaps(md: string): SkillGap[] {
 const SEV_META: Record<SkillGap["severity"], string> = {
   critical: "text-rose-600 bg-rose-500/10 ring-1 ring-rose-500/25",
   moderate: "text-amber-600 bg-amber-500/10 ring-1 ring-amber-500/25",
-  minor: "text-sky-600 bg-sky-500/10 ring-1 ring-sky-500/25",
+  minor: "text-accent-foreground bg-primary/10 ring-1 ring-primary/25",
 };
 
 // ---------- Component ----------
@@ -240,8 +240,8 @@ export default function GapInsights({ markdown }: { markdown: string }) {
         {radarData.length >= 3 && (
           <SectionCard className="lg:col-span-3 p-6 sm:p-7">
             <div className="flex items-start gap-3 mb-4">
-              <div className="shrink-0 w-9 h-9 rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20 flex items-center justify-center">
-                <Target className="w-[16px] h-[16px] text-violet-600" />
+              <div className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center">
+                <Target className="w-[16px] h-[16px] text-accent-foreground" />
               </div>
               <div>
                 <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
@@ -277,8 +277,8 @@ export default function GapInsights({ markdown }: { markdown: string }) {
                   <Radar
                     name="You"
                     dataKey="You"
-                    stroke="#7c3aed"
-                    fill="#7c3aed"
+                    stroke="hsl(var(--accent-foreground))"
+                    fill="hsl(var(--accent-foreground))"
                     fillOpacity={0.28}
                   />
                   <Legend
@@ -337,8 +337,8 @@ export default function GapInsights({ markdown }: { markdown: string }) {
       {steps.length > 0 && (
         <SectionCard className="p-6 sm:p-8">
           <div className="flex items-start gap-3 mb-6">
-            <div className="shrink-0 w-9 h-9 rounded-xl bg-sky-500/10 ring-1 ring-sky-500/20 flex items-center justify-center">
-              <Route className="w-[16px] h-[16px] text-sky-600" />
+            <div className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center">
+              <Route className="w-[16px] h-[16px] text-accent-foreground" />
             </div>
             <div>
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
@@ -377,7 +377,7 @@ export default function GapInsights({ markdown }: { markdown: string }) {
                 <li key={i} className="relative pl-12 pb-5 last:pb-0">
                   <span
                     className={cn(
-                      "absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold text-white ring-4 ring-background",
+                      "absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-semibold text-highlight-foreground ring-4 ring-background",
                       meta.dot,
                     )}
                   >

@@ -44,15 +44,15 @@ export const StarChecklistOverlay = ({ answer }: { answer: string }) => {
   const covered = Object.values(state).filter(Boolean).length;
 
   return (
-    <div className="fixed bottom-4 right-4 z-30 w-[260px] pointer-events-auto">
-      <div className="rounded-2xl border border-[#E88FA0]/25 bg-white/85 dark:bg-black/60 backdrop-blur-xl shadow-[0_20px_50px_-25px_rgba(232,143,160,0.55)] overflow-hidden">
+    <div className="mt-4 w-full max-w-md">
+      <div className="rounded-2xl border border-primary/25 bg-card shadow-subtle overflow-hidden">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           className="w-full flex items-center justify-between px-3.5 py-2.5 border-b border-foreground/[0.06]"
         >
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-6 h-6 rounded-lg grid place-items-center bg-[#E88FA0]/15 text-[#B25064] dark:text-[#F2A8B4] text-[10px] font-bold">
+            <span className="w-6 h-6 rounded-lg grid place-items-center bg-primary/15 text-accent-foreground text-[10px] font-bold">
               {covered}/4
             </span>
             <p className="text-[11.5px] font-semibold tracking-tight text-foreground truncate">
@@ -75,7 +75,7 @@ export const StarChecklistOverlay = ({ answer }: { answer: string }) => {
                     className={cn(
                       "mt-0.5 w-4 h-4 rounded-full grid place-items-center shrink-0 transition-colors",
                       on
-                        ? "bg-[#E88FA0] text-white"
+                        ? "bg-primary text-primary-foreground"
                         : "bg-foreground/[0.06] text-foreground/40",
                     )}
                   >

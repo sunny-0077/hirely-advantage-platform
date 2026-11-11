@@ -54,7 +54,7 @@ const DashboardLayout = () => {
           {/* Desktop usage strip — top-right of main pane */}
           <div className="flex flex-wrap items-center gap-3 mb-5 pb-4 border-b border-border">
             <Button variant="ghost" size="icon" className="hidden md:inline-flex h-8 w-8" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>{collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}</Button>
-            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase">Workspace<ChevronRight className="size-3 text-muted-foreground" /><span className="text-muted-foreground">{pathname.split("/").pop()?.replaceAll("-", " ")}</span></div>
+            <div className="hidden md:flex items-center gap-2 text-xs font-bold uppercase">Workspace<ChevronRight className="size-3 text-muted-foreground" /><span className="text-muted-foreground">{pathname.split("/").pop()?.replace(/-/g, " ")}</span></div>
             <div className="flex-1" />
             <div className="hidden md:block"><UsageMeterStrip /></div>
             <Button variant="ghost" size="sm" disabled={signingOut} onClick={async () => {
