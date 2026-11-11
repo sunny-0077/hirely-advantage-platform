@@ -6,7 +6,6 @@
 
 @layer base {
   :root {
-    --font-interface: 'Roboto', Arial, system-ui, sans-serif;
     /* Brand canvas */
     --pearl: 210 25% 98.5%;
     --ethereal-blue: 213 100% 92%;
@@ -94,23 +93,39 @@
   html { scroll-behavior: smooth; }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-interface);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    letter-spacing: 0;
+    letter-spacing: -0.011em;
     line-height: 1.55;
   }
   .font-display {
-    font-family: var(--font-interface);
-    letter-spacing: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.022em;
+    font-feature-settings: 'ss01', 'cv11';
   }
-  .body-lead { line-height: 1.55; letter-spacing: 0; }
+  /* iOS-style optical sizing — larger display copy gets tighter tracking */
+  .font-display.text-3xl,
+  .font-display.text-4xl { letter-spacing: -0.028em; }
+  .font-display.text-5xl { letter-spacing: -0.034em; }
+  .font-display.text-6xl { letter-spacing: -0.04em; }
+  .font-display.text-7xl,
+  .font-display.text-8xl { letter-spacing: -0.045em; }
+  @media (min-width: 768px) {
+    .font-display.md\:text-4xl,
+    .font-display.md\:text-5xl { letter-spacing: -0.034em; }
+    .font-display.md\:text-6xl { letter-spacing: -0.04em; }
+  }
+  @media (min-width: 1024px) {
+    .font-display.lg\:text-5xl { letter-spacing: -0.034em; }
+    .font-display.lg\:text-6xl { letter-spacing: -0.04em; }
+    .font-display.lg\:text-7xl { letter-spacing: -0.045em; }
+  }
+  /* iOS-tuned body rhythm helper */
+  .body-lead { line-height: 1.55; letter-spacing: -0.011em; }
 }
-
-/* Keep interface text natural, including older tracking utility classes. */
-#root { letter-spacing: 0; }
-#root :is([class*="tracking-"], .font-display) { letter-spacing: 0; }
 
 @layer components {
   .verification-success {
@@ -452,8 +467,10 @@ html.is-leaving body > #root > main {
 
 .logo-lockup__word {
   position: relative;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
+  transition: letter-spacing 550ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.logo-lockup:hover .logo-lockup__word { letter-spacing: -0.012em; }
 
 .logo-lockup__word::after {
   content: "";
