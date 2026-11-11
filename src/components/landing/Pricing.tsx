@@ -1,6 +1,6 @@
 import { Check, Compass, Rocket, CalendarRange } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Reveal } from "./Reveal";
+import { Button } from "@/components/ui/button";
 import { SectionHeader } from "./SectionHeader";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,36 +35,14 @@ export const Pricing = () => {
     else navigate(`/auth?mode=signup&next=${encodeURIComponent(target)}`);
   };
 
-  return (
-    <section id="pricing" className="px-4 py-28 md:py-32">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeader eyebrow="Pricing" title="Simple credits. No subscriptions." description="Every tailored resume, cover letter or interview prep guide costs 1 credit." />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
-          {TIERS.map((t, idx) => (
-            <Reveal key={t.id} delay={idx * 80}>
-              <div className={cn("relative h-full rounded-[26px] p-7 flex flex-col glass-strong transition-transform duration-500 hover:-translate-y-1", t.highlight && "ring-2 ring-primary")}>
-                {t.highlight && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10.5px] tracking-[0.18em] uppercase font-semibold px-3 py-1 rounded-full bg-foreground text-background">Best value</span>}
-                <div className="flex items-center gap-2.5 mb-4">
-                  <span className="w-9 h-9 rounded-xl flex items-center justify-center bg-foreground/5"><t.icon className="w-4 h-4 text-foreground/75" /></span>
-                  <h3 className="font-display text-[19px] font-semibold tracking-tight">{t.name}</h3>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="font-display text-4xl md:text-[42px] font-semibold tracking-tight">{t.price}</span>
-                  <span className="text-sm text-foreground/55">{t.note}</span>
-                </div>
-                <ul className="mt-6 space-y-3 flex-1">
-                  {t.features.map(f => <li key={f} className="flex gap-2.5 text-[14px] text-foreground/75"><Check className="w-4 h-4 mt-0.5 text-success shrink-0" />{f}</li>)}
-                </ul>
-                <button type="button" onClick={() => choose(t.id)}
-                  className={cn("mt-8 w-full rounded-full py-3 text-[14px] font-medium transition-opacity hover:opacity-90", t.id === "scout_free" ? "border border-foreground/15 text-foreground" : "bg-foreground text-background")}>
-                  {t.cta}
-                </button>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <p className="text-center text-[13px] text-foreground/55 mt-8">Private beta: paid plans open soon — join the waitlist and get 5 free bonus credits.</p>
-      </div>
-    </section>
-  );
+  return <section id="pricing" className="landing-container py-16 md:py-24">
+    <SectionHeader eyebrow="FLEXIBLE BY DESIGN" title="Your pace. Your plan." description="One credit for a tailored resume, cover letter or interview prep guide. Choose what you need, when you need it." />
+    <div className="grid gap-4 md:grid-cols-3">{TIERS.map(t => <div key={t.id} className={cn("relative flex flex-col rounded-lg border bg-card p-6 md:p-8", t.highlight ? "border-primary" : "border-border")}>
+      <div className="flex items-center justify-between gap-2"><h3 className="text-lg font-semibold">{t.name}</h3>{t.highlight && <span className="rounded bg-accent px-2 py-1 text-[11px] font-medium text-primary">Best value</span>}</div>
+      <p className="mt-6 text-4xl font-semibold">{t.price}</p><p className="mt-2 text-xs text-muted-foreground">{t.note}</p>
+      <Button onClick={() => choose(t.id)} variant={t.highlight ? "default" : "outline"} className="mt-7 w-full">{t.cta}</Button>
+      <ul className="mt-7 flex-1 space-y-4 border-t border-border pt-6">{t.features.map(f => <li key={f} className="flex gap-2.5 text-sm leading-6 text-muted-foreground"><Check className="mt-1 size-4 shrink-0 text-primary" />{f}</li>)}</ul>
+    </div>)}</div>
+    <p className="mt-6 text-sm text-muted-foreground">Private beta · Paid plans open soon. Join the waitlist for a one-time 5-credit bonus.</p>
+  </section>;
 };
