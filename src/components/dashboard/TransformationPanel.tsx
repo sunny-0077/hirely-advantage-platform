@@ -438,10 +438,10 @@ const CompareBar = ({
           style={{
             width: `${a}%`,
             background: up
-              ? "linear-gradient(90deg,hsl(150 55% 40%),hsl(140 60% 55%))"
+              ? "hsl(var(--success))"
               : down
-              ? "linear-gradient(90deg,hsl(0 60% 50%),hsl(15 70% 60%))"
-              : "linear-gradient(90deg,#0E0B1F,#6D54B3)",
+              ? "hsl(var(--destructive))"
+              : "hsl(var(--accent-foreground))",
           }}
         />
       </div>
