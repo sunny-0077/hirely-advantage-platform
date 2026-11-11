@@ -200,22 +200,22 @@ export default function Jobs() {
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
               <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button size="lg" className="flex-1 font-semibold" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="lg" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Tailor Resume for ${j.title}`}>
                   {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-                  {busyJobId === j.id ? "Tailoring…" : "Tailor Resume · 1 credit"}
+                  {busyJobId === j.id ? "Tailoring…" : <span className="truncate">Tailor Resume<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="lg" variant="secondary" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Generate Cover Letter for ${j.title}`}>
                   {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-                  {letterJobId === j.id ? "Writing…" : "Cover Letter · 1 credit"}
+                  {letterJobId === j.id ? "Writing…" : <span className="truncate">Cover Letter<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="lg" variant="secondary" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Interview Prep for ${j.title}`}>
                   {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4" />}
-                  {prepJobId === j.id ? "Preparing…" : "Interview Prep · 1 credit"}
+                  {prepJobId === j.id ? "Preparing…" : <span className="truncate">Interview Prep<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button asChild size="lg" variant="outline" className="flex-1" disabled={!j.apply_url}>
+                <Button asChild size="lg" variant="outline" className="flex-1 text-sm px-3 min-w-0" disabled={!j.apply_url}>
                   <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>
                 </Button>
               </div>
