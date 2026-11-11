@@ -14,16 +14,6 @@ export default {
     },
     extend: {
       colors: {
-        jobs: {
-          accent: "hsl(var(--jobs-accent))",
-          "accent-foreground": "hsl(var(--jobs-accent-foreground))",
-          soft: "hsl(var(--jobs-accent-soft))",
-          panel: "hsl(var(--jobs-panel))",
-          "panel-foreground": "hsl(var(--jobs-panel-foreground))",
-          "panel-muted": "hsl(var(--jobs-panel-muted))",
-          "panel-border": "hsl(var(--jobs-panel-border))",
-          "panel-accent": "hsl(var(--jobs-panel-accent))",
-        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
