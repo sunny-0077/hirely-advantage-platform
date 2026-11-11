@@ -111,3 +111,8 @@
  .text-primary { color: hsl(var(--forest)); }
  .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary)); }
 }
+@layer utilities {
+ /* Reference identity: bold black headings everywhere. */
+ #root :is(h1,h2,h3) { font-weight: 800; color: hsl(var(--foreground)); }
+ #root :is(.panel-forest,.bg-forest) :is(h1,h2,h3) { color: hsl(var(--forest-foreground)); }
+}
