@@ -19,7 +19,7 @@ import {
 } from "@/lib/masterResume";
 
 type Status = "idle" | "dirty" | "saving" | "saved" | "error";
-const card = "border-t border-border py-7 space-y-5";
+const card = "bg-card border border-border rounded-xl p-5 sm:p-6 space-y-4";
 
 function Field({ label, id, error, children }: { label: string; id: string; error?: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label htmlFor={id}>{label}</Label>{children}{error && <p className="text-xs text-destructive">{error}</p>}</div>;
@@ -46,13 +46,13 @@ function Tags({ label, items, onChange }: { label: string; items: string[]; onCh
   return <div className="space-y-2">
     <Label>{label}</Label>
     <div className="flex gap-2"><Input aria-label={`Add ${label}`} placeholder="Type and press Enter (comma-separated)" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); add(); } }} /><Button type="button" variant="outline" onClick={add}>Add</Button></div>
-    <div className="flex flex-wrap gap-2">{items.length === 0 ? <p className="text-xs text-muted-foreground">None added.</p> : items.map(s => <span key={s} className="inline-flex items-center gap-1 rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm">{s}<Button type="button" variant="ghost" size="icon" className="size-5" aria-label={`Remove ${s}`} onClick={() => onChange(items.filter(x => x !== s))}><X className="size-3" /></Button></span>)}</div>
+    <div className="flex flex-wrap gap-2">{items.length === 0 ? <p className="text-xs text-muted-foreground">None added.</p> : items.map(s => <span key={s} className="inline-flex items-center gap-1 rounded-full bg-secondary text-secondary-foreground px-3 py-1 text-sm">{s}<button type="button" aria-label={`Remove ${s}`} onClick={() => onChange(items.filter(x => x !== s))}><X className="size-3" /></button></span>)}</div>
   </div>;
 }
 
 function Section({ title, missing, action, children }: { title: string; missing?: boolean; action?: React.ReactNode; children: React.ReactNode }) {
   return <section className={card} aria-label={title}>
-    <div className="flex items-center justify-between gap-3 flex-wrap"><h2 className="font-semibold text-lg flex items-center gap-2">{title}{missing && <Badge variant="outline" className="text-warning border-warning/30">Missing</Badge>}</h2>{action}</div>
+    <div className="flex items-center justify-between gap-3 flex-wrap"><h2 className="font-semibold text-lg flex items-center gap-2">{title}{missing && <Badge variant="outline" className="text-amber-700 border-amber-300">Missing</Badge>}</h2>{action}</div>
     {children}
   </section>;
 }
@@ -144,12 +144,12 @@ export default function MasterResume() {
 
     {!hasContent(r) && <div className={`${card} mb-5 text-center`}><FileText className="size-8 mx-auto text-muted-foreground" /><h2 className="font-semibold">Your Master Resume is empty</h2><p className="text-sm text-muted-foreground">Start with your personal information below. Nothing is filled in for you.</p></div>}
     {seeded && <p className="mb-5 rounded-lg border border-border bg-secondary/50 p-3 text-sm">We filled in details you already gave during onboarding or in My profile. Review them, then save. Nothing is stored until you press Save.</p>}
-    {existingText && !replaceText && <div className="mb-5 rounded-lg border border-warning/30 bg-card p-4 text-sm space-y-2 text-foreground">
+    {existingText && !replaceText && <div className="mb-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm space-y-2 text-amber-900">
       <p className="flex gap-2"><AlertTriangle className="size-4 shrink-0 mt-0.5" />Your pasted resume text stays unchanged. Generators prefer usable saved Master Resume facts; pasted text is a separate fallback only when saved structured career information is unavailable.</p>
       <details><summary className="cursor-pointer font-medium">View pasted resume text</summary><pre className="mt-2 whitespace-pre-wrap font-sans max-h-64 overflow-auto">{existingText}</pre></details>
     </div>}
 
-    <div className="space-y-0">
+    <div className="space-y-5">
       <Section title="Personal information" missing={comp.missing.includes("Personal information")}>
         <div className="grid sm:grid-cols-2 gap-4">
           {([["fullName", "Full name", "text"], ["email", "Email", "email"], ["phone", "Phone number", "tel"], ["city", "City", "text"], ["country", "Country", "text"], ["linkedinUrl", "LinkedIn URL", "url"], ["githubUrl", "GitHub URL", "url"], ["portfolioUrl", "Portfolio URL", "url"]] as const).map(([k, l, t]) =>
@@ -169,7 +169,7 @@ export default function MasterResume() {
         {r.experience.length === 0 && <p className="text-sm text-muted-foreground">No work experience added yet.</p>}
         {r.experience.map((x, i) => {
           const set = (fn: (y: typeof x) => void) => edit(d => fn(d.experience[i]));
-          return <div key={x.id} className="border-l-2 border-border pl-4 sm:pl-6 py-3 space-y-4">
+          return <div key={x.id} className="border border-border rounded-lg p-4 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <Field id={`e-t-${x.id}`} label="Job title"><Input id={`e-t-${x.id}`} maxLength={120} value={x.title} onChange={ev => set(y => { y.title = ev.target.value; })} /></Field>
               <Field id={`e-c-${x.id}`} label="Company"><Input id={`e-c-${x.id}`} maxLength={120} value={x.company} onChange={ev => set(y => { y.company = ev.target.value; })} /></Field>
@@ -190,7 +190,7 @@ export default function MasterResume() {
         {r.education.length === 0 && <p className="text-sm text-muted-foreground">No education added yet.</p>}
         {r.education.map((x, i) => {
           const set = (fn: (y: typeof x) => void) => edit(d => fn(d.education[i]));
-          return <div key={x.id} className="border-l-2 border-border pl-4 sm:pl-6 py-3 space-y-4">
+          return <div key={x.id} className="border border-border rounded-lg p-4 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <Field id={`d-d-${x.id}`} label="Degree"><Input id={`d-d-${x.id}`} maxLength={120} value={x.degree} onChange={ev => set(y => { y.degree = ev.target.value; })} /></Field>
               <Field id={`d-i-${x.id}`} label="Institution"><Input id={`d-i-${x.id}`} maxLength={160} value={x.institution} onChange={ev => set(y => { y.institution = ev.target.value; })} /></Field>
@@ -215,7 +215,7 @@ export default function MasterResume() {
         {r.projects.length === 0 && <p className="text-sm text-muted-foreground">Optional. No projects added.</p>}
         {r.projects.map((x, i) => {
           const set = (fn: (y: typeof x) => void) => edit(d => fn(d.projects[i]));
-          return <div key={x.id} className="border-l-2 border-border pl-4 sm:pl-6 py-3 space-y-4">
+          return <div key={x.id} className="border border-border rounded-lg p-4 space-y-4">
             <Field id={`pr-n-${x.id}`} label="Project name"><Input id={`pr-n-${x.id}`} maxLength={120} value={x.name} onChange={ev => set(y => { y.name = ev.target.value; })} /></Field>
             <Field id={`pr-d-${x.id}`} label="Description"><Textarea id={`pr-d-${x.id}`} rows={3} maxLength={1500} value={x.description} onChange={ev => set(y => { y.description = ev.target.value; })} /></Field>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -234,7 +234,7 @@ export default function MasterResume() {
         {r.certifications.length === 0 && <p className="text-sm text-muted-foreground">Optional. No certifications added.</p>}
         {r.certifications.map((x, i) => {
           const set = (fn: (y: typeof x) => void) => edit(d => fn(d.certifications[i]));
-          return <div key={x.id} className="border-l-2 border-border pl-4 sm:pl-6 py-3 space-y-4">
+          return <div key={x.id} className="border border-border rounded-lg p-4 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <Field id={`c-n-${x.id}`} label="Certification name"><Input id={`c-n-${x.id}`} maxLength={160} value={x.name} onChange={ev => set(y => { y.name = ev.target.value; })} /></Field>
               <Field id={`c-o-${x.id}`} label="Issuing organization"><Input id={`c-o-${x.id}`} maxLength={160} value={x.issuer} onChange={ev => set(y => { y.issuer = ev.target.value; })} /></Field>
@@ -263,10 +263,10 @@ export default function MasterResume() {
       </Section>
     </div>
 
-    <div className="sticky bottom-0 z-30 mt-6 rounded-lg border border-border bg-card">
+    <div className="sticky bottom-0 z-30 mt-6 rounded-xl border border-border bg-background/95 backdrop-blur shadow-lg">
       <div className="px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
         <div className="flex flex-col gap-1">
-          <p role="status" aria-live="polite" className={`text-sm font-medium ${status === "error" ? "text-destructive" : status === "dirty" ? "text-warning" : "text-muted-foreground"}`}>{statusText}</p>
+          <p role="status" aria-live="polite" className={`text-sm font-medium ${status === "error" ? "text-destructive" : status === "dirty" ? "text-amber-700" : "text-muted-foreground"}`}>{statusText}</p>
           {existingText && <label className="flex items-center gap-2 text-xs text-muted-foreground"><Switch checked={replaceText} onCheckedChange={setReplaceText} aria-label="Replace pasted resume text" />Also replace the legacy pasted text on save</label>}
         </div>
         <Button type="button" onClick={() => void save()} disabled={status === "saving"}>{status === "saving" ? <><Loader2 className="size-4 animate-spin" />Saving…</> : "Save Master Resume"}</Button>

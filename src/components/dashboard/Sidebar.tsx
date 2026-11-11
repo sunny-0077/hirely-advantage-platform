@@ -7,7 +7,6 @@ import { PlatformFeedbackButton } from "@/components/feedback/PlatformFeedbackBu
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useBetaOffer } from "@/components/billing/BetaOffer";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { Button } from "@/components/ui/button";
 
 const suite = [
   { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
@@ -20,7 +19,7 @@ const tracking = [
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-[10px] uppercase text-muted-foreground px-3 mb-3 font-semibold">
+  <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/55 px-2 mb-1.5 font-semibold">
     {children}
 
   </p>
@@ -31,13 +30,13 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
   const workspaceLinks = [{ to: "/app/home", label: "My workspace", icon: LayoutDashboard }, { to: "/app/master-resume", label: "Master Resume", icon: FileUser }, { to: "/app/jobs", label: "Jobs", icon: Briefcase }, { to: "/app/documents", label: "My documents", icon: FolderOpen }, { to: "/app/applications", label: "Applications", icon: ClipboardList }, { to: "/app/profile", label: "My profile", icon: UserRound }];
   return (
   <>
-    <div className="flex items-center mb-9 px-3">
+    <div className="flex items-center mb-9 px-2">
       <LogoLockup size="text-xl font-sans" />
     </div>
 
     <SectionLabel>Workspace</SectionLabel>
     <nav className="flex flex-col gap-1 mb-5">
-      {workspaceLinks.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} onClick={onNavigate} className={({ isActive }) => cn("flex gap-3 items-center rounded-md px-3 py-2.5 text-[13px] transition-colors", isActive ? "bg-accent text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted")}><Icon className="size-4" />{label}</NavLink>)}
+      {workspaceLinks.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} onClick={onNavigate} className={({ isActive }) => cn("flex gap-3 items-center rounded-lg px-3 py-3 text-sm", isActive ? "bg-card text-foreground font-semibold border border-border" : "text-muted-foreground hover:text-foreground")}><Icon className="size-4" />{label}</NavLink>)}
     </nav>
     <><SectionLabel>Suite</SectionLabel>
     <nav className="flex flex-col gap-0.5 mb-5">
@@ -48,16 +47,22 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "group flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] transition-colors",
+              "group flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
-                ? "bg-accent text-primary font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                ? "bg-card/90 text-foreground font-semibold shadow-[0_1px_0_hsl(0_0%_100%/0.8)_inset,0_2px_6px_hsl(var(--slate-ink)/0.12)] border border-foreground/[0.08]"
+                : "text-foreground/80 hover:text-foreground hover:bg-card/60",
             )
           }
         >
           {({ isActive }) => (
             <>
-              <Icon className="w-4 h-4 shrink-0" />
+              <span
+                className={cn(
+                  "w-1.5 h-1.5 rounded-full transition-colors",
+                  isActive ? "bg-[hsl(200_100%_45%)]" : "bg-transparent",
+                )}
+              />
+              <Icon className="w-4 h-4 opacity-90 transition-transform duration-200 group-hover:-rotate-12" />
               {label}
             </>
           )}
@@ -75,18 +80,18 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "group flex items-center justify-between px-3 py-2 rounded-md text-[13px] transition-colors",
+              "group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
-                ? "text-primary font-semibold bg-accent"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                ? "text-foreground font-semibold bg-card/80 border border-foreground/[0.08]"
+                : "text-foreground/75 hover:text-foreground hover:bg-card/60",
             )
           }
         >
           <span className="flex items-center gap-2.5">
-            <Icon className="w-4 h-4 shrink-0" />
+            <Icon className="w-4 h-4 opacity-90 transition-transform duration-200 group-hover:-rotate-12" />
             {label}
           </span>
-          <span className="text-[9px] uppercase text-muted-foreground px-1.5 py-0.5 rounded border border-border">
+          <span className="text-[10px] tracking-[0.14em] uppercase text-foreground/55 px-1.5 py-0.5 rounded-full bg-foreground/[0.06] border border-foreground/[0.1]">
             Soon
           </span>
 
@@ -101,14 +106,14 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
         onClick={onNavigate}
         className={({ isActive }) =>
           cn(
-            "group flex items-center gap-2.5 px-3 py-2 mt-2 rounded-md text-[13px] transition-colors",
+            "group flex items-center gap-2.5 px-3 py-2 mt-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
             isActive
-              ? "text-primary font-semibold bg-accent"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted",
+              ? "text-foreground font-semibold bg-card/80 border border-foreground/[0.08]"
+              : "text-foreground/75 hover:text-foreground hover:bg-card/60",
           )
         }
       >
-        <ShieldCheck className="w-4 h-4 shrink-0" />
+        <ShieldCheck className="w-4 h-4 opacity-90 transition-transform duration-200 group-hover:-rotate-12" />
         Admin Feedback
       </NavLink>
     )}
@@ -123,12 +128,12 @@ const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
   const workspace = useWorkspace();
   const credits = (workspace.data as { credits_balance?: number } | null | undefined)?.credits_balance;
   return (
-    <div className="mt-8 border-t border-border pt-5 px-3">
-      <p className="text-sm font-semibold">{credits != null ? `${credits} credits left` : "Credits"}</p>
-      <p className="text-[10px] text-muted-foreground mt-1">Starter Pack ₹249 · 90-Day Pass ₹899</p>
+    <div className="mt-auto rounded-2xl p-4 bg-primary text-primary-foreground">
+      <p className="text-[11px] font-medium tracking-tight">{credits != null ? `${credits} credits left` : "Credits"}</p>
+      <p className="text-[10.5px] opacity-75 mt-0.5">Starter Pack ₹249 · 90-Day Pass ₹899</p>
       <div className="mt-3 flex gap-2">
-        <Button size="sm" onClick={() => open()} className="flex-1 text-xs">Get Credits</Button>
-        <Button size="sm" variant="outline" onClick={() => { onNavigate?.(); navigate("/app/upgrade"); }} className="text-xs">Plans</Button>
+        <button type="button" onClick={() => open()} className="text-[11px] bg-background text-foreground font-medium px-3 py-1.5 rounded-full flex-1 hover:opacity-90">Get Credits</button>
+        <button type="button" onClick={() => { onNavigate?.(); navigate("/app/upgrade"); }} className="text-[11px] border border-primary-foreground/40 font-medium px-3 py-1.5 rounded-full hover:opacity-90">Plans</button>
       </div>
     </div>
   );
@@ -136,7 +141,7 @@ const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
 
 export const DashboardSidebar = () => {
   return (
-    <aside className="sticky top-0 h-screen w-[244px] shrink-0 hidden md:flex flex-col overflow-y-auto border-r border-border bg-card px-4 py-7">
+    <aside className="w-[280px] shrink-0 hidden md:flex flex-col px-6 py-8">
       <SidebarBody />
     </aside>
   );
@@ -170,13 +175,12 @@ export const MobileSidebar = ({
       aria-hidden={!open}
     >
       {/* Backdrop */}
-      <Button
-        variant="ghost"
+      <button
         type="button"
         aria-label="Close sidebar"
         onClick={onClose}
         className={cn(
-          "absolute inset-0 h-full w-full rounded-none bg-foreground/30 hover:bg-foreground/30 transition-opacity duration-200",
+          "absolute inset-0 bg-foreground/30 backdrop-blur-sm transition-opacity duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]",
           open ? "opacity-100" : "opacity-0",
         )}
       />
@@ -186,23 +190,21 @@ export const MobileSidebar = ({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "absolute left-0 top-0 h-full w-[260px] bg-card",
-          "border-r border-border",
+          "absolute left-0 top-0 h-full w-[260px] bg-background/95 backdrop-blur-xl",
+          "border-r border-border/60 shadow-2xl",
           "flex flex-col px-5 py-7",
-          "transition-transform duration-200 overflow-y-auto",
+          "transition-transform duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] will-change-transform",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
           type="button"
           onClick={onClose}
           aria-label="Close menu"
           className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-foreground/60 hover:text-foreground hover:bg-card/60 transition-colors"
         >
           <X className="w-4 h-4" />
-        </Button>
+        </button>
         <SidebarBody onNavigate={onClose} />
       </div>
     </div>

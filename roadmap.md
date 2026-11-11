@@ -1,9 +1,5 @@
 # Roadmap
 
-- [x] Elevate public pages and workspace with shared Manrope/neutral/blue identity; no backend, payment or account-data changes. 20 focused regression tests passed.
-- [x] Verify public desktop/mobile layouts, navigation, interactive product preview and sign-in presentation; no overflow or runtime errors observed.
-- [ ] Verify signed-in workspace visual layouts; the authorized requesting account settles on unfinished onboarding after validation. No bypass or account switching performed.
-
 - [x] Redesign Jobs cards and filters with blue accents and no green; preserve existing feed and paid actions. Three interaction tests passed and preview build is clean.
 - [ ] Verify redesigned Jobs desktop/mobile against real listings; blocked because the requesting account redirects to unfinished onboarding. No account switching, bypass or paid generation performed.
 

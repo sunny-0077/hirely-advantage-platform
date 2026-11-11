@@ -7,7 +7,7 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { LogoLockup } from "@/components/landing/Logo";
+import { MeshGradient } from "@/components/landing/MeshGradient";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
 import { BetaOfferProvider } from "@/components/billing/BetaOffer";
 import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
@@ -27,7 +27,8 @@ const DashboardLayout = () => {
 
   return (
     <BetaOfferProvider>
-    <div className="workspace-shell relative min-h-screen bg-background font-sans">
+    <div className="relative min-h-screen overflow-x-hidden font-display">
+      <MeshGradient />
       <div className="relative flex min-h-screen">
         <div className="animate-sidebar-enter motion-reduce:animate-none">
           <DashboardSidebar />
@@ -35,21 +36,41 @@ const DashboardLayout = () => {
 
         <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-        <main className="min-w-0 flex-1">
-          <header className="flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card px-5 md:px-9">
-            <div className="flex min-w-0 items-center gap-3"><Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)} aria-label="Open menu" className="md:hidden"><Menu /></Button><div className="md:hidden"><LogoLockup size="text-lg" /></div><span className="hidden text-xs text-muted-foreground md:block">Your career workspace</span></div>
-            <div className="flex items-center gap-2"><UsageMeterStrip />
+        <main className="flex-1 px-5 md:px-9 py-7 overflow-hidden">
+          {/* Mobile top bar with hamburger */}
+          <div className="md:hidden flex items-center gap-3 mb-5">
+            <Button variant="outline" size="icon"
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
+              className="w-9 h-9 rounded-xl bg-card/70 backdrop-blur border border-border/60 flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-card transition-colors shadow-sm"
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-md bg-foreground flex items-center justify-center text-background text-[10px] font-semibold">
+                H
+              </div>
+              <span className="font-semibold tracking-[-0.02em] text-foreground text-[13.5px]">
+                Hirely
+              </span>
+            </div>
+            <UsageMeterStrip className="ml-auto" />
+          </div>
+
+          {/* Desktop usage strip — top-right of main pane */}
+          <div className="flex justify-end items-center gap-3 mb-3">
+            <div className="hidden md:block"><UsageMeterStrip /></div>
             <Button variant="ghost" size="sm" disabled={signingOut} onClick={async () => {
               setSigningOut(true);
               try { const { error } = await supabase.auth.signOut(); if (error) toast.error("Couldn't sign out. Please try again."); else queryClient.clear(); }
               catch { toast.error("Couldn't sign out. Please try again."); }
               finally { setSigningOut(false); }
             }}><LogOut />{signingOut ? "Signing out…" : "Sign out"}</Button>
-            </div>
-          </header>
+          </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}
-          <div key={pathname} className="px-5 py-8 md:px-9 md:py-10 animate-dashboard-enter motion-reduce:animate-none">
+          <div key={pathname} className="animate-dashboard-enter motion-reduce:animate-none">
             <Outlet />
           </div>
         </main>
