@@ -42,13 +42,13 @@ export function GettingStarted() {
     { label: "Generate your first Tailored Resume, Cover Letter or Interview Prep guide", to: "/app/jobs" },
     { label: "Track your job status in Applications", to: "/app/applications" },
   ];
-  return <section aria-label="Getting started" className="bg-card border border-primary/30 rounded-lg p-5 mb-6">
+  return <section aria-label="Getting started" className="bg-card border border-border rounded-lg p-5 mb-7">
     <div className="flex items-start gap-3 mb-3">
-      <div className="flex-1"><h2 className="font-semibold">Getting Started (3 Steps)</h2><p className="text-sm text-muted-foreground">{done} of 3 done</p></div>
+      <div className="flex-1"><h2 className="font-semibold">Getting started</h2><p className="text-sm text-muted-foreground">{done} of 3 done</p></div>
       <Button size="sm" variant="ghost" onClick={dismiss}><X />Dismiss</Button>
     </div>
-    <Progress value={(done / 3) * 100} className="mb-4" aria-label="Getting started progress" />
-    <ol className="space-y-2">{items.map((it, i) => { const ok = q.data!.steps[i]; return <li key={it.to} className="flex items-center gap-3 text-sm">
+    <Progress value={(done / 3) * 100} className="mb-5 h-1" aria-label="Getting started progress" />
+    <ol className="space-y-3">{items.map((it, i) => { const ok = q.data!.steps[i]; return <li key={it.to} className="flex items-center gap-3 text-sm">
       {ok ? <CheckCircle2 className="size-5 text-success shrink-0" /> : <Circle className="size-5 text-muted-foreground shrink-0" />}
       <span className={ok ? "line-through text-muted-foreground flex-1" : "flex-1"}>Step {i + 1}: {it.label}</span>
       {!ok && <Button asChild size="sm" variant="outline"><Link to={it.to}>Go</Link></Button>}

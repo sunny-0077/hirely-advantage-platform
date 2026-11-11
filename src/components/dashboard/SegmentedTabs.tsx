@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export type SegmentedTab = {
   value: string;
@@ -20,7 +21,7 @@ interface SegmentedTabsProps {
 export const SegmentedTabs = ({ tabs, value, onChange, className }: SegmentedTabsProps) => (
   <div
     className={cn(
-      "inline-flex p-[3px] rounded-xl bg-foreground/[0.05] border border-foreground/[0.04]",
+      "flex w-fit max-w-full overflow-x-auto gap-1 p-1 rounded-md bg-muted border border-border",
       className,
     )}
     role="tablist"
@@ -28,17 +29,17 @@ export const SegmentedTabs = ({ tabs, value, onChange, className }: SegmentedTab
     {tabs.map((tab) => {
       const active = tab.value === value;
       return (
-        <button
+        <Button variant="ghost" size="sm"
           key={tab.value}
           type="button"
           role="tab"
           aria-selected={active}
           onClick={() => onChange(tab.value)}
           className={cn(
-            "px-4 py-1.5 rounded-[9px] text-[12.5px] tracking-tight transition-colors",
+            "px-3 rounded-md text-xs transition-colors shrink-0",
             active
-              ? "bg-card text-foreground font-medium shadow-[0_1px_2px_hsl(var(--slate-ink)/0.08)]"
-              : "text-foreground/55 hover:text-foreground/80",
+              ? "bg-card text-primary font-semibold shadow-subtle"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           {tab.label}
@@ -52,7 +53,7 @@ export const SegmentedTabs = ({ tabs, value, onChange, className }: SegmentedTab
               {tab.count}
             </span>
           )}
-        </button>
+        </Button>
       );
     })}
   </div>

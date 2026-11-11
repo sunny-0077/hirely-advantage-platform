@@ -60,14 +60,15 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      boxShadow: { product: "var(--shadow-product)", subtle: "var(--shadow-glass)" },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'system-ui', 'sans-serif'],
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'system-ui', 'sans-serif'],
+        display: ['Manrope', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'system-ui', 'sans-serif'],
+        sans: ['Manrope', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       keyframes: {
@@ -86,7 +87,7 @@ export default {
           "50%": { transform: "translateY(-10px)" },
         },
         "dashboard-enter": {
-          "0%": { opacity: "0", transform: "translateY(12px) scale(0.985)", filter: "blur(6px)" },
+          "0%": { opacity: "0", transform: "translateY(4px)", filter: "none" },
           "100%": { opacity: "1", transform: "translateY(0) scale(1)", filter: "blur(0)" },
         },
         "sidebar-enter": {
@@ -104,7 +105,7 @@ export default {
        "orb-2": "orb-2 52s ease-in-out infinite",
        "orb-3": "orb-3 60s ease-in-out infinite",
        "orb-4": "orb-4 70s ease-in-out infinite",
-       "dashboard-enter": "dashboard-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
+       "dashboard-enter": "dashboard-enter 0.2s ease-out both",
        "sidebar-enter": "sidebar-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },

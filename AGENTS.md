@@ -1,5 +1,7 @@
 # Project implementation rules
 
+- Public and authenticated interfaces share semantic CSS tokens and shared control variants; compatibility surface classes remain available without decorative effects so existing tools retain behavior.
+
 - Require a validated signed-in user and completed profile onboarding for dashboard routes, because personal workspaces must not render for signed-out visitors.
 - Reuse `profiles` for onboarding and expose `user_profiles` only as a security-invoker identity view; use server-created identities and explicit onboarding completion, because duplicate stores and name-only gates lose reliable progress.
 - Accept password updates only on the public recovery route with a validated recovery session; auth state results are generation-guarded, because stale checks must not restore a signed-out workspace.

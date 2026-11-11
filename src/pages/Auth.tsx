@@ -223,15 +223,11 @@ const Auth = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-6 py-12"
-      style={{
-        background:
-          "radial-gradient(1100px 520px at 50% -12%, hsl(258 55% 87%), transparent 70%), linear-gradient(180deg, hsl(250 24% 94%), hsl(250 18% 90%))",
-      }}
+      className="auth-page min-h-screen bg-background flex items-center justify-center px-5 py-24"
     >
       <Link
         to="/"
-        className="group fixed top-6 left-6 z-20 inline-flex items-center gap-3 pl-1.5 pr-5 py-1.5 rounded-full bg-[hsl(0_0%_100%/0.72)] backdrop-blur-xl border border-[hsl(0_0%_100%/0.9)] shadow-[0_12px_30px_-12px_hsl(252_46%_8%/0.28)] hover:shadow-[0_18px_40px_-14px_hsl(252_46%_8%/0.35)] hover:bg-[hsl(0_0%_100%/0.92)] transition-all duration-300"
+        className="group absolute top-6 left-6 z-20 inline-flex items-center gap-3 text-muted-foreground hover:text-foreground"
       >
         <span className="grid place-items-center w-9 h-9 rounded-full bg-foreground text-background transition-transform duration-300 group-hover:-translate-x-0.5">
           <ArrowLeft className="w-[17px] h-[17px] transition-transform duration-300 group-hover:-translate-x-0.5" />
@@ -244,7 +240,7 @@ const Auth = () => {
         </span>
       </Link>
 
-      <div className="w-full max-w-[520px]">
+      <div className="w-full max-w-[460px]">
 
         <div className="text-center mb-9">
           <p
@@ -255,13 +251,13 @@ const Auth = () => {
           </p>
           <h1
             key={`h-${mode}`}
-            className="mt-2.5 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] animate-fade-in"
+            className="mt-2.5 text-[30px] leading-[1.25] font-semibold tracking-[-0.035em] animate-fade-in"
           >
             {forgot ? "Forgot your password?" : mode === "signin" ? "Sign in to continue." : "Create your account."}
           </h1>
         </div>
 
-        <div className="rounded-[28px] bg-[hsl(0_0%_100%)] border border-[hsl(250_16%_86%)] shadow-[0_50px_90px_-30px_hsl(252_46%_8%/0.35),0_4px_14px_-4px_hsl(252_46%_8%/0.14)] p-8 sm:p-10">
+        <div className="rounded-lg bg-card border border-border shadow-subtle p-6 sm:p-8">
           <div
             className="overflow-hidden motion-safe:transition-[height] motion-safe:duration-[420ms] motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)]"
             style={cardHeight ? { height: cardHeight } : undefined}
@@ -278,11 +274,12 @@ const Auth = () => {
           >
             <div className="overflow-hidden min-h-0">
               <Button
+                variant="outline"
                 type="button"
                 onClick={() => handleSocial("google")}
                 disabled={loading || mode !== "signin"}
                 tabIndex={mode === "signin" ? 0 : -1}
-                className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 rounded-full border border-[hsl(250_14%_80%)] text-[15.5px] font-semibold hover:bg-[hsl(250_20%_96%)] transition-colors disabled:opacity-50"
+                className="w-full h-11 gap-2.5"
               >
                 <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -297,9 +294,9 @@ const Auth = () => {
               </Button>
 
               <div className="my-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-[hsl(250_14%_84%)]" />
+                <div className="h-px flex-1 bg-border" />
                 <span className="text-[11px] tracking-[0.18em] uppercase text-foreground/50 font-medium">or</span>
-                <div className="h-px flex-1 bg-[hsl(250_14%_84%)]" />
+                <div className="h-px flex-1 bg-border" />
               </div>
             </div>
           </div>
@@ -350,7 +347,7 @@ const Auth = () => {
                   onChange={(e) => setName(e.target.value)}
                   maxLength={100}
                   tabIndex={mode === "signup" ? 0 : -1}
-                  className="w-full px-4 py-4 mb-3.5 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+                  className="w-full px-4 py-4 mb-3.5 rounded-md bg-card border border-input text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
                 />
               </div>
             </div>
@@ -364,7 +361,7 @@ const Auth = () => {
               onChange={(e) => setEmail(e.target.value)}
               maxLength={255}
               required
-              className="w-full px-4 py-4 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+              className="w-full px-4 py-4 rounded-md bg-card border border-input text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             />
             <div className="relative">
               <input
@@ -376,7 +373,7 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 maxLength={72}
                 required
-                className="w-full px-4 py-4 pr-14 rounded-2xl bg-[hsl(250_25%_97.5%)] border border-[hsl(250_14%_80%)] text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-4 focus:ring-foreground/10 focus:border-foreground/40 transition-colors"
+                className="w-full px-4 py-4 pr-14 rounded-md bg-card border border-input text-[15.5px] placeholder:text-foreground/55 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               />
               <Button variant="ghost" size="icon"
                 type="button"
@@ -393,7 +390,7 @@ const Auth = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-full bg-foreground text-background text-[15px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {loading ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
             </Button>
