@@ -8,7 +8,9 @@ export type SectionType =
   | "projects"
   | "education"
   | "certifications"
-  | "achievements";
+  | "achievements"
+  | "publications"
+  | "additional";
 
 export type Section = {
   id: string;
@@ -62,6 +64,8 @@ export type CertificationItem = {
   name: string;
   issuer: string;
   date: string;
+  expiry?: string;
+  url?: string;
 };
 
 export type ResumeContent = {
@@ -73,6 +77,8 @@ export type ResumeContent = {
   education: EducationItem[];
   certifications: CertificationItem[];
   achievements: string[];
+  publications?: { id: string; title: string; details: string }[];
+  additional?: { id: string; kind: string; title: string; details: string }[];
 };
 
 export type ResumeSettings = {
@@ -88,6 +94,8 @@ export type ResumeDocument = {
   sections: Section[];
   content: ResumeContent;
   settings: ResumeSettings;
+  presentation?: { headerAlign: "left" | "center"; headingRule: boolean };
+  sourceSnapshot?: unknown;
 };
 
 export type AtsTemplateMeta = {
@@ -111,6 +119,8 @@ export const APPROVED_SECTION_NAMES: Record<SectionType, string[]> = {
   education: ["Education", "Academic Background", "Education & Training"],
   certifications: ["Certifications", "Licenses & Certifications", "Credentials"],
   achievements: ["Achievements", "Awards", "Honors & Awards", "Recognition"],
+  publications: ["Publications", "Research Publications"],
+  additional: ["Additional Information", "Languages & Volunteering"],
 };
 
 export const DEFAULT_SECTION_NAME: Record<SectionType, string> = {
@@ -121,4 +131,6 @@ export const DEFAULT_SECTION_NAME: Record<SectionType, string> = {
   education: "Education",
   certifications: "Certifications",
   achievements: "Achievements",
+  publications: "Publications",
+  additional: "Additional Information",
 };
