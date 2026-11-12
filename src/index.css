@@ -8,15 +8,15 @@
   --card: 0.000 0.000% 100.000%;
   --foreground: 0 0% 4%;
   --muted-foreground: 220 6% 42%;
-  --primary: 158 83% 26%;
-  --primary-bright: 152 62% 55%;
-  --accent: 150 35% 93%;
+  --primary: 201 94% 32%;
+  --primary-bright: 198 93% 60%;
+  --accent: 204 94% 94%;
   --border: 220 13% 91%;
-  --success: 158 80% 27%;
+  --success: 201 94% 32%;
   --warning: 37.875 68.376% 45.882%;
   --destructive: 355.385 65.297% 57.059%;
   --primary-foreground: 0 0% 100%;
-  --forest: 159 74% 9%;
+  --forest: 201 80% 10%;
   --forest-foreground: 0 0% 100%;
   --surface: 220 14% 96%;
   --card-foreground: var(--foreground);
@@ -25,10 +25,10 @@
   --secondary: 220 14% 96%;
   --secondary-foreground: var(--foreground);
   --muted: 220 14% 96%;
-  --accent-foreground: 159 60% 16%;
+  --accent-foreground: 201 60% 16%;
   --destructive-foreground: 0 0% 100%;
   --input: var(--border);
-  --ring: 158 83% 30%;
+  --ring: 201 94% 38%;
   --radius: 0.875rem;
   --pearl: var(--background);
   --slate-ink: var(--foreground);
@@ -56,9 +56,9 @@
  }
  .dark {
   --background: 225 20% 8%; --card: 225 18% 11%; --foreground: 220 20% 95%;
-  --muted-foreground: 220 12% 67%; --primary: 152 62% 45%; --primary-foreground: 0 0% 4%;
-  --primary-bright: 152 62% 62%;
-  --border: 225 14% 22%; --secondary: 225 16% 16%; --muted: 225 16% 16%; --accent: 158 45% 18%;
+  --muted-foreground: 220 12% 67%; --primary: 198 93% 55%; --primary-foreground: 0 0% 4%;
+  --primary-bright: 198 93% 70%;
+  --border: 225 14% 22%; --secondary: 225 16% 16%; --muted: 225 16% 16%; --accent: 201 45% 18%;
  }
  * { @apply border-border; }
  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
@@ -109,7 +109,7 @@
  .reveal { opacity:1; transform:none; }
 }
 @layer utilities {
-  /* Emerald is dark enough to read as text on white; on the dark panel it needs the bright tint. */
+  /* Sky blue is dark enough to read as text on white; on the dark panel it needs the bright tint. */
  .text-primary { color: hsl(var(--primary)); }
  .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary-bright)); }
 }
