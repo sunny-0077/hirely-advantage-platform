@@ -1,4 +1,4 @@
-import { FileText, Linkedin, Mail, Mic, Sparkles, TrendingUp } from "lucide-react";
+import { Mic, Sparkles, TrendingUp } from "lucide-react";
 
 export const VisualATS = () => (
   <div className="glass-strong rounded-3xl p-6 relative">
@@ -49,46 +49,6 @@ export const VisualATS = () => (
             +{k}
           </span>
         ))}
-      </div>
-    </div>
-  </div>
-);
-
-export const VisualOutreach = () => (
-  <div className="relative h-[440px]">
-    <div className="absolute top-0 left-0 right-8 glass-strong rounded-2xl p-5 rotate-[-3deg]">
-      <div className="flex items-center gap-2 mb-3">
-        <FileText className="w-4 h-4 text-foreground/60" />
-        <span className="text-xs font-medium text-foreground/70">Cover Letter</span>
-      </div>
-      <div className="space-y-1.5">
-        <div className="h-2 bg-foreground/10 rounded-full w-full" />
-        <div className="h-2 bg-foreground/10 rounded-full w-[85%]" />
-        <div className="h-2 bg-foreground/10 rounded-full w-[92%]" />
-        <div className="h-2 bg-foreground/10 rounded-full w-[70%]" />
-      </div>
-    </div>
-
-    <div className="absolute top-32 left-8 right-0 glass-strong rounded-2xl p-5 rotate-[2deg]">
-      <div className="flex items-center gap-2 mb-3">
-        <Linkedin className="w-4 h-4 text-foreground/60" />
-        <span className="text-xs font-medium text-foreground/70">LinkedIn DM · 50 words</span>
-      </div>
-      <p className="text-sm text-foreground leading-relaxed">
-        "Hi Sarah — saw you led the Series B at Linear. I shipped the same kind of zero-to-one
-        billing primitives at Stripe. Open to a 15-min chat next week?"
-      </p>
-    </div>
-
-    <div className="absolute bottom-0 left-0 right-8 glass-strong rounded-2xl p-5 rotate-[-1deg]">
-      <div className="flex items-center gap-2 mb-3">
-        <Mail className="w-4 h-4 text-foreground/60" />
-        <span className="text-xs font-medium text-foreground/70">Follow-Up · Day 5</span>
-      </div>
-      <div className="space-y-1.5">
-        <div className="h-2 bg-foreground/10 rounded-full w-[95%]" />
-        <div className="h-2 bg-foreground/10 rounded-full w-[78%]" />
-        <div className="h-2 bg-foreground/10 rounded-full w-[88%]" />
       </div>
     </div>
   </div>

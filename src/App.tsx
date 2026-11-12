@@ -24,14 +24,8 @@ import ResumeBuilder from "./pages/dashboard/ResumeBuilder.tsx";
 import GapAnalysis from "./pages/dashboard/GapAnalysis.tsx";
 import AtsParseSim from "./pages/dashboard/AtsParseSim.tsx";
 import Jobs from "./pages/dashboard/Jobs.tsx";
-import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
-import { Send, Bookmark } from "lucide-react";
-import {
-  PreviewOutreach,
-  PreviewSaved,
-} from "@/components/dashboard/EmptyState";
 
 const queryClient = new QueryClient();
 
@@ -66,30 +60,6 @@ const App = () => (
             <Route path="ats-parse-sim" element={<AtsParseSim />} />
             <Route path="applications" element={<MyApplications />} />
             <Route path="admin/feedback" element={<AdminFeedback />} />
-            <Route
-              path="outreach"
-              element={
-                <PlaceholderPage
-                  icon={Send}
-                  eyebrow="Outreach"
-                  title="Cold DMs that warm up fast."
-                  description="LinkedIn pings, recruiter follow-ups, and warm intros — all drafted, sent, and tracked from here."
-                  preview={<PreviewOutreach />}
-                />
-              }
-            />
-            <Route
-              path="saved"
-              element={
-                <PlaceholderPage
-                  icon={Bookmark}
-                  eyebrow="Saved roles"
-                  title="The shortlist."
-                  description="Roles you starred and want to come back to. We'll prep tailored materials when you're ready."
-                  preview={<PreviewSaved />}
-                />
-              }
-            />
             <Route path="upgrade" element={<Upgrade />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
