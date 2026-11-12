@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Listener FIRST so OAuth/session callbacks cannot race the initial read.
     const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
       if (!active) return;
-      ++generation;
+      const eventGeneration = ++generation;
       if (event === "PASSWORD_RECOVERY") setRecovering(true);
       if (!sess) {
         setSession(null); setUser(null); setLoading(false); setRecovering(false);
