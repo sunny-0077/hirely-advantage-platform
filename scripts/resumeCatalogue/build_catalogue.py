@@ -52,5 +52,6 @@ for title,aliases in {'Software Engineer':['SWE','Software Developer'],'Human Re
  tid=seen.get(title.lower())
  if tid:
   for alias in aliases:data['resume_title_aliases'].append({'title_id':tid,'alias':alias,'normalized_alias':alias.lower()})
+data['resume_title_aliases']=list({(a['title_id'],a['normalized_alias']):a for a in data['resume_title_aliases']}.values())
 out.write_text(json.dumps(data,separators=(',',':')))
 print({k:len(v) for k,v in data.items()})

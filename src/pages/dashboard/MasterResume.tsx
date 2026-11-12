@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Circle, Loader2, Plus, Trash2, X, FileText, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -132,6 +133,7 @@ export default function MasterResume() {
 
   return <div className="w-full min-w-0 pb-6">
     <PageHeader eyebrow="Workspace" title="Master Resume" description="Your central career profile. Tailored resumes, cover letters and interview prep are built only from what you enter here." />
+    <div className="mb-5"><Button asChild variant="outline"><Link to="/app/resume-builder"><FileText className="size-4"/>Resume Templates</Link></Button></div>
     <ResumeImporter existing={r} disabled={status === "saving"} onConfirm={candidate => save(candidate, true)} />
 
     <section className={`${card} mb-5`} aria-label="Resume completion">
