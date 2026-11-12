@@ -23,7 +23,9 @@ export function establishCallbackSession(): Promise<void> {
       } else throw new Error("Incomplete sign-in link");
     } finally {
       for (const key of ["access_token", "refresh_token", "provider_token", "provider_refresh_token", "expires_in", "expires_at", "token_type", "code"]) {query.delete(key);fragment.delete(key);}
-      window.history.replaceState(null, "", window.location.pathname + (query.size ? `?${query}` : "") + (fragment.size ? `#${fragment}` : ""));
+      const search = query.toString();
+      const hash = fragment.toString();
+      window.history.replaceState(null, "", window.location.pathname + (search ? `?${search}` : "") + (hash ? `#${hash}` : ""));
     }
   })();
   return pending;
