@@ -151,11 +151,11 @@ export function MyProfile() {
     toast.success("Profile updated");
     qc.invalidateQueries({ queryKey: ["my-profile"] });
   }
-  const section = "border-b border-border py-6 space-y-4";
-  return <div className="max-w-2xl mx-auto">
+  const section = "border-b border-border py-5 space-y-4";
+  return <div className="w-full min-w-0">
     <PageHeader eyebrow="Candidate portal" title="My profile" description="Your skills, experience and education help Hirely tailor your resume and prep." />
     {q.isPending ? <p role="status">Loading profile…</p> : <form onSubmit={save} className="space-y-5">
-      <div className={section}>
+      <div className="border-b border-border py-5 grid gap-4 sm:grid-cols-2">
         <div className="space-y-2"><Label htmlFor="pf-name">Full name</Label><Input id="pf-name" required maxLength={100} value={name} onChange={e => setName(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-headline">Headline</Label><Input id="pf-headline" maxLength={150} placeholder="e.g. Data Analyst with 3 years in retail analytics" value={headline} onChange={e => setHeadline(e.target.value)} /></div>
         <div className="space-y-2"><Label htmlFor="pf-email">Email</Label><Input id="pf-email" value={user?.email ?? ""} disabled /></div>

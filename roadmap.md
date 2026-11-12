@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Reduce unused margins across workspace screens and public sections; widen existing content and tighten form spacing without changing data or functionality. Public desktop/mobile checks and 14 regression tests passed; real workspace visual checks remain blocked by unfinished onboarding.
+
 - [x] Redesign public pages, shared controls and authenticated workspace with the new restrained visual identity; backend, auth, payment and credit handlers unchanged.
 - [x] Inspect all public sections at desktop/tablet/mobile sizes, verify illustrative tabs and mobile navigation, inspect sign-in/signup/onboarding, and run 54 existing regression tests. No paid generation or profile saves performed.
 - [x] Replace the bright mint accent site-wide with deep emerald (#0B7A52 actions, #E8F4EE tints, #06281C panels); verified in-browser on public pages, sign-in and eight workspace pages at desktop plus phone, no old mint remains, build OK.
