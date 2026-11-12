@@ -25,7 +25,7 @@ const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?:
  const [hovered, setHovered] = useState<string | null>(null);
  const reducedMotion = useReducedMotion();
  const transition = reducedMotion ? { duration: 0 } : { type: "spring" as const, stiffness: 350, damping: 30 };
- const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},...suite];
+ const workspaceLinks = [{to:"/app/home",label:"Dashboard",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},...suite];
  const careerLinks = [{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
  const group = (items: typeof workspaceLinks) => <nav className="flex flex-col gap-[2.1px] mb-[12.6px]" onMouseLeave={() => setHovered(null)}>{items.map(({ to, label, icon: Icon }) =>
    <Tooltip key={to}><TooltipTrigger asChild><NavLink to={to} aria-label={label} onClick={onNavigate} onMouseEnter={() => setHovered(to)} onFocus={() => setHovered(to)} onBlur={() => setHovered(null)} className="relative flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors overflow-hidden text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-semibold">

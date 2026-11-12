@@ -17,7 +17,7 @@ export function CareerPreview() {
     <div className="grid md:grid-cols-[180px_1fr]">
       <aside className="hidden md:block border-r border-border bg-background/60 p-4">
         <p className="mb-3 px-2 text-[10px] font-semibold uppercase text-muted-foreground">Workspace</p>
-        {[[LayoutDashboard, "My workspace"], [FileText, "Master Resume"], [Briefcase, "Jobs"], [FolderOpen, "My documents"], [ListChecks, "Applications"]].map(([Icon, label]) => {
+        {[[LayoutDashboard, "Dashboard"], [FileText, "Master Resume"], [Briefcase, "Jobs"], [FolderOpen, "My documents"], [ListChecks, "Applications"]].map(([Icon, label]) => {
           const I = Icon as typeof FileText;
           return <div key={String(label)} className={cn("flex items-center gap-2.5 rounded-md px-2 py-2.5 text-xs", label === "My documents" ? "bg-accent text-primary font-semibold" : "text-muted-foreground")}><I className="size-3.5" />{String(label)}</div>;
         })}
