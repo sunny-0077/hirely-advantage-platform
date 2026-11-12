@@ -112,7 +112,7 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
       case "experience":
         for (const it of sec.items) {
           children.push(para(`${it.role}${it.company ? ", " + it.company : ""}`, { bold: true }));
-          const meta = [it.location, dateRange(it.start, it.end)].filter(Boolean).join("  |  ");
+          const meta = [it.location, dateRange(it.start, it.end),it.employmentType].filter(Boolean).join("  |  ");
           if (meta) children.push(para(meta, { color: "555555", size: sizeHalfPt - 2 }));
           for (const b of it.bullets.filter(Boolean)) children.push(bullet(b));
         }

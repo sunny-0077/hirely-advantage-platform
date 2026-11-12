@@ -1,5 +1,6 @@
 import type { ResumeDocument } from "@/lib/resumeBuilder/types";
 import { buildRenderModel, dateRange } from "@/lib/resumeBuilder/render";
+import { documentFonts, documentFontFamily } from "@/lib/resumeBuilder/fonts";
 
 /**
  * Live preview of an ATS-safe resume.
@@ -8,14 +9,7 @@ import { buildRenderModel, dateRange } from "@/lib/resumeBuilder/render";
  */
 export function ResumePreview({ doc }: { doc: ResumeDocument }) {
   const { settings } = doc;
-  const fontFamily =
-    settings.fontFamily === "Inter"
-      ? "Inter, system-ui, sans-serif"
-      : settings.fontFamily === "Arial"
-        ? "Arial, Helvetica, sans-serif"
-        : settings.fontFamily === "Georgia"
-          ? "Georgia, serif"
-          : "'Times New Roman', Times, serif";
+  const fontFamily = documentFontFamily(settings.fontFamily);
 
   const lineHeight =
     settings.spacing === "compact" ? 1.28 : settings.spacing === "relaxed" ? 1.55 : 1.4;
@@ -37,6 +31,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
         lineHeight,
       }}
     >
+      <style>{`@font-face{font-family:'Hirely Document Sans';src:url('${documentFonts.sans.url}')}@font-face{font-family:'Hirely Document Sans';font-weight:700;src:url('${documentFonts.sansBold.url}')}@font-face{font-family:'Hirely Document Serif';src:url('${documentFonts.serif.url}')}@font-face{font-family:'Hirely Document Serif';font-weight:700;src:url('${documentFonts.serifBold.url}')}`}</style>
       {/* Header */}
       <div style={{textAlign: doc.presentation?.headerAlign ?? "left"}}>
       {p.name ? (
@@ -101,7 +96,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
                 </div>
                 {(it.location || it.start || it.end) && (
                   <div style={{ color: "#555", fontSize: `${settings.fontSize - 1}pt` }}>
-                    {[it.location, dateRange(it.start, it.end)].filter(Boolean).join("  |  ")}
+                    {[it.location, dateRange(it.start, it.end),it.employmentType].filter(Boolean).join("  |  ")}
                   </div>
                 )}
                 {it.bullets.filter(Boolean).length > 0 && (

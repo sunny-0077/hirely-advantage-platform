@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import type { ResumeDocument } from "./types";
 import { buildRenderModel, dateRange } from "./render";
+import { documentFonts, fontBase64 } from "./fonts";
 
 const FONT_MAP: Record<string, string> = {
   Inter: "helvetica",
@@ -9,9 +10,13 @@ const FONT_MAP: Record<string, string> = {
   Georgia: "times",
 };
 
-export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
+export async function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
   const pdf = new jsPDF({ unit: "pt", format: "letter" });
-  const font = FONT_MAP[doc.settings.fontFamily] ?? "helvetica";
+  const serif=doc.settings.fontFamily==="Times"||doc.settings.fontFamily==="Georgia";
+  const [regular,bold]=await Promise.all([fontBase64(serif?documentFonts.serif.url:documentFonts.sans.url),fontBase64(serif?documentFonts.serifBold.url:documentFonts.sansBold.url)]);
+  pdf.addFileToVFS("HirelyRegular.ttf",regular);pdf.addFont("HirelyRegular.ttf","HirelyDocument","normal");
+  pdf.addFileToVFS("HirelyBold.ttf",bold);pdf.addFont("HirelyBold.ttf","HirelyDocument","bold");
+  const font = "HirelyDocument";
   const baseSize = doc.settings.fontSize;
   const lineGap =
     doc.settings.spacing === "compact" ? 1.18 : doc.settings.spacing === "relaxed" ? 1.5 : 1.32;
@@ -128,7 +133,7 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
       case "experience":
         for (const it of sec.items) {
           text(`${it.role}${it.company ? ", " + it.company : ""}`, { bold: true });
-          const meta = [it.location, dateRange(it.start, it.end)].filter(Boolean).join("  |  ");
+          const meta = [it.location, dateRange(it.start, it.end),it.employmentType].filter(Boolean).join("  |  ");
           if (meta) text(meta, { size: baseSize - 1, color: [80, 80, 80] });
           for (const b of it.bullets.filter(Boolean)) bullet(b);
           y += 4;

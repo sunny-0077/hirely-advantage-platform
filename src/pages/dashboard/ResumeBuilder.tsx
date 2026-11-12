@@ -152,7 +152,7 @@ const ResumeBuilder = () => {
     if (!requireExportAccess()) return;
     setExporting("pdf");
     try {
-      exportPdf(doc, fileBase(doc) + ".pdf");
+      await exportPdf(doc, fileBase(doc) + ".pdf");
       toast.success("PDF downloaded.");
     } catch (e) {
       console.error(e);

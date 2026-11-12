@@ -39,6 +39,7 @@ export type ExperienceItem = {
   start: string;
   end: string;
   bullets: string[];
+  employmentType?: string;
 };
 
 export type ProjectItem = {
