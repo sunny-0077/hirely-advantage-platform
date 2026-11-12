@@ -614,8 +614,8 @@ function AchievementsFields({
 
 function ExtraFields({doc,update,type}:{doc:ResumeDocument;update:(p:Partial<ResumeDocument["content"]>)=>void;type:"publications"|"additional"}) {
   const items=doc.content[type]??[];
-  const set=(next:typeof items)=>update({[type]:next});
-  return <div className="space-y-3">{items.map((it,i)=><div key={it.id} className="space-y-2"><Input aria-label={`${type} title`} value={it.title} placeholder="Title" onChange={e=>set(items.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/><Textarea aria-label={`${type} details`} value={it.details} placeholder="Details" rows={3} onChange={e=>set(items.map((x,j)=>j===i?{...x,details:e.target.value}:x))}/><Button size="sm" variant="ghost" onClick={()=>set(items.filter((_,j)=>j!==i))}><Trash2 className="size-4"/>Remove</Button></div>)}<Button variant="outline" size="sm" onClick={()=>set([...items,{id:newId(),title:"",details:"",kind:"other"}])}><Plus className="size-4"/>Add entry</Button></div>;
+  const set=(next:typeof items)=>type==="additional"?update({additional:next.map(x=>({...x,kind:"kind" in x?String(x.kind):"other"}))}):update({publications:next});
+  return <div className="space-y-3">{items.map((it,i)=><div key={it.id} className="space-y-2"><Input aria-label={`${type} title`} value={it.title} placeholder="Title" onChange={e=>set(items.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/><Textarea aria-label={`${type} details`} value={it.details} placeholder="Details" rows={3} onChange={e=>set(items.map((x,j)=>j===i?{...x,details:e.target.value}:x))}/><Button size="sm" variant="ghost" onClick={()=>set(items.filter((_,j)=>j!==i))}><Trash2 className="size-4"/>Remove</Button></div>)}<Button variant="outline" size="sm" onClick={()=>set([...items,{id:newId(),title:"",details:""}])}><Plus className="size-4"/>Add entry</Button></div>;
 }
 
 function BulletList({

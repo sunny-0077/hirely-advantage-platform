@@ -46,7 +46,7 @@ export function mapMasterResume(raw: unknown): ResumeDocument {
     certifications: master.certifications.map(c => ({id:c.id,name:c.name,issuer:c.issuer,date:c.issueDate,expiry:c.expiryDate,url:c.credentialUrl})),
     achievements: [],
     publications: master.additional.filter(a=>a.kind==="publication").map(a=>({id:a.id,title:a.title,details:a.details})),
-    additional: master.additional.filter(a=>a.kind!=="publication").map(a=>({...a})),
+    additional: master.additional.filter(a=>a.kind!=="publication").map(a=>({id:a.id??newId(),kind:a.kind??"other",title:a.title??"",details:a.details??""})),
   };
   for (const type of ["publications","additional"] as const) doc.sections.push({id:newId(),type,name:DEFAULT_SECTION_NAME[type],enabled:true});
   return doc;
