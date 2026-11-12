@@ -51,4 +51,31 @@ describe("validated authentication state", () => {
     await act(async () => { listener("SIGNED_OUT", null); resolveUser({ data: { user: { id: "user-a" } }, error: null }); });
     expect(screen.getByText("signed out")).toBeInTheDocument();
   });
+  it("keeps a Google sign-in when the phone returns and storage briefly reads empty", async () => {
+    let listener: (event: string, session: unknown) => void = () => {};
+    mocks.getSession.mockResolvedValue({ data: { session: null } });
+    mocks.getUser.mockResolvedValue({ data: { user: { id: "user-a" } }, error: null });
+    mocks.onAuthStateChange.mockImplementation(callback => { listener = callback; return { data: { subscription: { unsubscribe: vi.fn() } } }; });
+    render(<AuthProvider><Probe /></AuthProvider>);
+    await screen.findByText("signed out");
+    await act(async () => {
+      listener("SIGNED_IN", { access_token: "token-a", user: { id: "user-a" } });
+      window.dispatchEvent(new Event("focus"));
+      await new Promise(resolve => setTimeout(resolve, 20));
+    });
+    expect(screen.getByText("private workspace")).toBeInTheDocument();
+    expect(mocks.getUser).toHaveBeenCalledWith("token-a");
+  });
+  it("does not sign out on a temporary network failure", async () => {
+    let listener: (event: string, session: unknown) => void = () => {};
+    mocks.getSession.mockResolvedValue({ data: { session: { access_token: "token-a", user: { id: "user-a" } } } });
+    mocks.getUser.mockResolvedValueOnce({ data: { user: { id: "user-a" } }, error: null });
+    mocks.onAuthStateChange.mockImplementation(callback => { listener = callback; return { data: { subscription: { unsubscribe: vi.fn() } } }; });
+    render(<AuthProvider><Probe /></AuthProvider>);
+    await screen.findByText("private workspace");
+    mocks.getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 0, message: "Failed to fetch" } });
+    await act(async () => { window.dispatchEvent(new Event("focus")); await new Promise(resolve => setTimeout(resolve, 20)); });
+    expect(screen.getByText("private workspace")).toBeInTheDocument();
+    void listener;
+  });
 });
