@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Inspect existing resume editor, Master Resume storage, exports and occupational data sources; propose the scalable Resume Template Library structure before implementation.
+- [ ] Build the approved occupational catalogue, role/level template browser, Master Resume mapping, editing and saved versions; awaiting approval of the library plan.
+- [ ] Validate approved library search, content preservation, private version saving and PDF exports on desktop/mobile; awaiting library implementation and a usable signed-in account.
+
 - [x] Balance workspace sizing without shrinking body text: compact shared cards and overview tiles, place the home studio beside documents/jobs, retain full-width pages and modest side gutters.
 
 - [x] Reduce unused margins across workspace screens and public sections; widen existing content and tighten form spacing without changing data or functionality. Public desktop/mobile checks and 14 regression tests passed; real workspace visual checks remain blocked by unfinished onboarding.
