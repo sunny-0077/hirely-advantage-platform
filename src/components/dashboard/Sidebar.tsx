@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Mic, Briefcase, Send, Bookmark, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut } from "lucide-react";
+import { Mail, Mic, Briefcase, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,17 +17,12 @@ const suite = [
   { to: "/app/interview-prep", label: "Interview Prep", icon: Mic },
 ];
 
-const tracking = [
-  { to: "/app/outreach", label: "Outreach", icon: Send },
-  { to: "/app/saved", label: "Saved", icon: Bookmark },
-];
-
 const SectionLabel = ({ children }: { children: React.ReactNode }) => <p className="text-[10px] uppercase text-muted-foreground px-3 mb-[4.2px] font-semibold">{children}</p>;
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
  const isAdmin = useIsAdmin();
  const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
- const group=(items:typeof workspaceLinks,soon=false)=><nav className="flex flex-col gap-[2.1px] mb-[12.6px]">{items.map(({to,label,icon:Icon})=><NavLink key={to} to={to} onClick={onNavigate} className={({isActive})=>cn("flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors",isActive?"bg-accent text-primary font-semibold":"text-muted-foreground hover:text-foreground hover:bg-muted")}><Icon className="size-4 shrink-0" strokeWidth={1.8} /><span className="flex-1">{label}</span>{soon&&<span className="text-[9px] uppercase text-muted-foreground">Soon</span>}</NavLink>)}</nav>;
- return <><div className="px-3 pt-1 mb-[21px]"><LogoLockup size="text-2xl" /></div><SectionLabel>Workspace</SectionLabel>{group(workspaceLinks)}<SectionLabel>Suite</SectionLabel>{group(suite)}<SectionLabel>Tracking</SectionLabel>{group(tracking,true)}<div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /><SidebarSignOut /></>;
+ const group=(items:typeof workspaceLinks)=><nav className="flex flex-col gap-[2.1px] mb-[12.6px]">{items.map(({to,label,icon:Icon})=><NavLink key={to} to={to} onClick={onNavigate} className={({isActive})=>cn("flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors",isActive?"bg-accent text-primary font-semibold":"text-muted-foreground hover:text-foreground hover:bg-muted")}><Icon className="size-4 shrink-0" strokeWidth={1.8} /><span className="flex-1">{label}</span></NavLink>)}</nav>;
+ return <><div className="px-3 pt-1 mb-[21px]"><LogoLockup size="text-2xl" /></div><SectionLabel>Workspace</SectionLabel>{group(workspaceLinks)}<SectionLabel>Suite</SectionLabel>{group(suite)}<div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /><SidebarSignOut /></>;
 };
 
 const SidebarSignOut = () => {

@@ -40,7 +40,6 @@ export const ProductShowcase = () => {
                 <div className="text-[10px] uppercase tracking-wider text-foreground/40 font-medium px-2 mb-1">Workspace</div>
                 {[
                   { l: "Resume", active: true },
-                  { l: "Outreach", active: false },
                   { l: "Voice Coach", active: false },
                   { l: "Roadmap", active: false },
                 ].map((i) => (
