@@ -38,6 +38,8 @@ def add_title(title,code,rank=None):
  if normalized in seen:return seen[normalized]
  if code not in lookup:return None
  oid,industry,category=lookup[code];tid=hashlib.sha256(normalized.encode()).hexdigest()[:24];seen[normalized]=tid
+ if re.search('machine learning|artificial intelligence|\\bai engineer\\b',str(title),re.I):
+  industry=slug(industries[2]);category=industry+'-'+slug(category_names[2][0])
  data['resume_job_titles'].append({'id':tid,'occupation_id':oid,'title':str(title).strip(),'normalized_title':normalized,'industry_id':industry,'category_id':category,'popular_rank':rank});return tid
 for _,o in occs.iterrows():add_title(o['Title'],o['O*NET-SOC Code'])
 examples={'Senior HR Manager':'11-3121.00','HR Executive':'13-1071.00','Talent Acquisition Specialist':'13-1071.00','Senior Recruiter':'13-1071.00','Data Analyst':'15-2051.00','Senior Data Scientist':'15-2051.00','Machine Learning Engineer':'15-2051.00','Software Engineer':'15-1252.00','Principal Software Engineer':'15-1252.00','IT Administrator':'15-1244.00','Cybersecurity Analyst':'15-1212.00','Financial Analyst':'13-2051.00','Chartered Accountant':'13-2011.00','Risk Advisory Consultant':'13-1111.00','Business Analyst':'13-1111.00','Senior Management Consultant':'13-1111.00','Digital Content Lead':'27-3043.00','SEO Specialist':'13-1161.00','Customer Insights Manager':'11-2021.00','Senior Account Executive':'41-3091.00','Director of Sales':'11-2022.00','Customer Support Team Lead':'43-1011.00','Store Manager':'41-1011.00','Product Line Manager':'11-2021.00','Operations Director':'11-1021.00'}
@@ -53,5 +55,10 @@ for title,aliases in {'Software Engineer':['SWE','Software Developer'],'Human Re
  if tid:
   for alias in aliases:data['resume_title_aliases'].append({'title_id':tid,'alias':alias,'normalized_alias':alias.lower()})
 data['resume_title_aliases']=list({(a['title_id'],a['normalized_alias']):a for a in data['resume_title_aliases']}.values())
+# Every industry and category is expandable; choose the more specific existing category when its name matches a title.
+for t in data['resume_job_titles']:
+ industry=next((i for i,v in enumerate(industries) if slug(v)==t['industry_id']),34)
+ secondary=category_names[industry][1]
+ if any(word.lower() in t['title'].lower() for word in secondary.split() if len(word)>3):t['category_id']=t['industry_id']+'-'+slug(secondary)
 out.write_text(json.dumps(data,separators=(',',':')))
 print({k:len(v) for k,v in data.items()})
