@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
-import { Menu, LogOut } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { LogoLockup } from "@/components/landing/Logo";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
 import { BetaOfferProvider } from "@/components/billing/BetaOffer";
@@ -15,8 +12,6 @@ import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 const DashboardLayout = () => {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-  const queryClient = useQueryClient();
   const { user, loading, recovering } = useAuth();
   const workspace = useWorkspace();
   if (loading || (user && workspace.isPending)) return <main className="min-h-screen bg-background flex items-center justify-center" role="status">Loading workspace…</main>;
@@ -48,17 +43,6 @@ const DashboardLayout = () => {
             </Button>
             <LogoLockup size="text-lg" />
             <UsageMeterStrip className="ml-auto" />
-          </div>
-
-          {/* Desktop usage strip — top-right of main pane */}
-          <div className="flex justify-end items-center gap-3 mb-5 pb-3 border-b border-border">
-            <div className="hidden md:block"><UsageMeterStrip /></div>
-            <Button variant="ghost" size="sm" disabled={signingOut} onClick={async () => {
-              setSigningOut(true);
-              try { const { error } = await supabase.auth.signOut(); if (error) toast.error("Couldn't sign out. Please try again."); else queryClient.clear(); }
-              catch { toast.error("Couldn't sign out. Please try again."); }
-              finally { setSigningOut(false); }
-            }}><LogOut />{signingOut ? "Signing out…" : "Sign out"}</Button>
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}
