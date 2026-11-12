@@ -122,7 +122,7 @@ export function CoverLetterLibrary({
                 {snippet(r.full_letter)}
               </p>
               {r.tone && (
-                <span className="mt-3 inline-flex items-center text-[10px] font-medium tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-primary/10 text-forest ring-1 ring-primary/20">
+                <span className="mt-3 inline-flex items-center text-[10px] font-medium tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-primary/10 text-primary ring-1 ring-primary/20">
                   {r.tone}
                 </span>
               )}

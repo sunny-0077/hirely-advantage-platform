@@ -35,7 +35,7 @@ export function LetterStats({ text }: { text: string }) {
       tone = "text-emerald-600 bg-emerald-500/10 ring-1 ring-emerald-500/25";
     } else if (flesch >= 55) {
       label = "Standard";
-      tone = "text-forest bg-primary/10 ring-1 ring-primary/25";
+      tone = "text-primary bg-primary/10 ring-1 ring-primary/25";
     } else if (flesch >= 40) {
       label = "Fairly hard";
       tone = "text-amber-700 bg-amber-500/10 ring-1 ring-amber-500/25";
