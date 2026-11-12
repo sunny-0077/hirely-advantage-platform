@@ -5,6 +5,7 @@ import { isVerifiedSignup, safeReturnPath } from "@/lib/authNavigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight } from "lucide-react";
+import { establishCallbackSession } from "@/lib/oauthCallback";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -19,6 +20,12 @@ export default function AuthCallback() {
       const hash = new URLSearchParams(window.location.hash.slice(1));
       const failure = params.get("error_description") ?? hash.get("error_description");
       if (failure) { toast.error("This sign-in link is invalid or expired. Please request a new one."); navigate("/auth", { replace: true }); return; }
+      try {
+        await establishCallbackSession();
+      } catch {
+        if (active) { toast.error("Google sign-in could not finish. Please try again."); navigate("/auth", { replace: true }); }
+        return;
+      }
       for (let attempt = 0; attempt < 40 && active; attempt++) {
         const { data, error } = await supabase.auth.getUser();
         if (data.user && !error && active) {

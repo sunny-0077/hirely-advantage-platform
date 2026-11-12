@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Fix fresh Google callback session establishment before dashboard validation; test query/fragment returns without preloading browser storage.
+
 - [x] Repair mobile email autofill/sign-in validation and queued session races; verified real mobile dashboard entry, sidebar navigation, callback session routing and invalid-login feedback. Full external Google/inbox-link round trips remain unverified without completing those external interactions.
 
 - [x] Inspect existing resume editor, Master Resume storage, exports and occupational data sources; propose the scalable Resume Template Library structure before implementation.
