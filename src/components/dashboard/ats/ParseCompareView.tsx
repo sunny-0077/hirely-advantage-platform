@@ -17,8 +17,8 @@ function extractScore(md: string): Compat {
 
 const TIER_STYLES: Record<Compat["tier"], { pill: string; ring: string; label: string }> = {
   Good: {
-    pill: "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/25",
-    ring: "text-emerald-500",
+    pill: "bg-sky-500/10 text-sky-700 ring-1 ring-sky-500/25",
+    ring: "text-sky-500",
     label: "Parses cleanly on most ATS engines.",
   },
   Fair: {
@@ -166,7 +166,7 @@ export default function ParseCompareView({
           )}
           {warnings.length === 0 && (
             <div className="px-5 pt-4">
-              <span className="inline-flex items-center gap-1 text-[10.5px] font-medium tracking-[0.06em] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/25">
+              <span className="inline-flex items-center gap-1 text-[10.5px] font-medium tracking-[0.06em] px-2 py-1 rounded-full bg-sky-500/10 text-sky-700 ring-1 ring-sky-500/25">
                 <CheckCircle2 className="w-3 h-3" />
                 No structural warnings detected
               </span>

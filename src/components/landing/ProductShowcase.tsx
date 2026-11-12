@@ -63,7 +63,7 @@ export const ProductShowcase = () => {
                     <h3 className="font-display text-xl font-semibold mt-0.5">Senior PM @ Stripe</h3>
                   </div>
                   <div className="glass rounded-full px-3 py-1 text-[11px] text-foreground/70 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
                     Live scan
                   </div>
                 </div>
@@ -85,7 +85,7 @@ export const ProductShowcase = () => {
                     <p className="text-sm font-medium text-foreground">Market Readiness Score</p>
                     <p className="text-xs text-foreground/55 mt-0.5">+52 pts since v1 · top 6% of applicants</p>
                   </div>
-                  <TrendingUp className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <TrendingUp className="w-4 h-4 text-sky-700 shrink-0" />
                 </div>
 
                 {/* Rewrite card */}

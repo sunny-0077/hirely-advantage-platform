@@ -73,7 +73,7 @@ export const DraftingOverlay = ({ active }: { active: boolean }) => {
               >
                 <span className="w-4 h-4 inline-flex items-center justify-center">
                   {done ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <Check className="w-3.5 h-3.5 text-sky-700" />
                   ) : active ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (

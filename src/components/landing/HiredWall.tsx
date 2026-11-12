@@ -90,7 +90,7 @@ export const HiredWall = () => {
                 </p>
 
                 <div className="mt-6 pt-5 border-t border-foreground/10 flex items-center gap-1.5 text-xs text-foreground/60">
-                  <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <BadgeCheck className="w-3.5 h-3.5 text-sky-700" />
                   Verified outcome
                 </div>
               </div>

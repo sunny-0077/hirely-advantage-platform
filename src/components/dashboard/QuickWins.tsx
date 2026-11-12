@@ -117,7 +117,7 @@ export const QuickWins = ({ wins = DEFAULT_WINS, className, ...props }: QuickWin
                 className={cn(
                   "shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-all",
                   isApplied
-                    ? "bg-[hsl(150_55%_45%/0.12)] text-[hsl(150_45%_28%)] hover:bg-[hsl(150_55%_45%/0.18)]"
+                    ? "bg-[hsl(199_89%_48%/0.12)] text-[hsl(201_94%_32%)] hover:bg-[hsl(199_89%_48%/0.18)]"
                     : "bg-foreground text-background hover:opacity-90",
                 )}
               >

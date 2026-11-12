@@ -33,7 +33,7 @@ type Props = {
 };
 
 const CONFIDENCE_TONE: Record<"high" | "medium" | "low", string> = {
-  high: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
+  high: "bg-[hsl(199_89%_48%/0.10)] text-[hsl(201_94%_32%)]",
   medium: "bg-[hsl(258_45%_58%/0.10)] text-[hsl(258_38%_42%)]",
   low: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
 };

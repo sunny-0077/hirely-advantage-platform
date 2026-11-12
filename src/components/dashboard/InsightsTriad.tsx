@@ -16,8 +16,8 @@ export type InsightsColumn = Column;
 
 const TONE: Record<Tone, { dot: string; chip: string; label: string }> = {
   green: {
-    dot: "bg-[hsl(150_55%_45%)] shadow-[0_0_0_3px_hsl(150_55%_45%/0.16)]",
-    chip: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
+    dot: "bg-[hsl(199_89%_48%)] shadow-[0_0_0_3px_hsl(199_89%_48%/0.16)]",
+    chip: "bg-[hsl(199_89%_48%/0.10)] text-[hsl(201_94%_32%)]",
     label: "Strengths",
   },
   amber: {

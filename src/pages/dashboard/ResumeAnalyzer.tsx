@@ -477,7 +477,7 @@ const ResumeAnalyzer = () => {
                     {latest.strengths.map((s, i) => (
                       <li
                         key={i}
-                        className="rounded-xl bg-[hsl(150_55%_45%/0.06)] border border-[hsl(150_55%_45%/0.14)] p-3.5"
+                        className="rounded-xl bg-[hsl(199_89%_48%/0.06)] border border-[hsl(199_89%_48%/0.14)] p-3.5"
                       >
                         <p className="text-[13px] font-medium tracking-tight text-foreground">
                           {s.title}
@@ -604,7 +604,7 @@ const ResumeAnalyzer = () => {
           <UpgradeLock
             className="mt-5"
             title="Compare versions side by side"
-            description="See every score axis, skill, and issue that moved between resume versions, with improvements highlighted in green. Available on Pro."
+            description="See every score axis, skill, and issue that moved between resume versions, with improvements highlighted in blue. Available on Pro."
           />
         ) : analyses.length < 2 ? (
           <SectionCard className="mt-5">
@@ -613,7 +613,7 @@ const ResumeAnalyzer = () => {
             </p>
             <p className="mt-2 text-[14px] text-foreground/70 tracking-tight leading-snug max-w-xl">
               Re-upload an improved resume to unlock the side-by-side comparison — we'll show
-              every score axis, skill, and issue that moved, with improvements highlighted in green.
+              every score axis, skill, and issue that moved, with improvements highlighted in blue.
             </p>
           </SectionCard>
         ) : (
@@ -901,7 +901,7 @@ const MiniStat = ({
 
 // ----- DeepDiveItem: collapsible accordion row used inside the "Deep dive" card -----
 const DEEP_DIVE_TONE: Record<"green" | "amber" | "violet", string> = {
-  green: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
+  green: "bg-[hsl(199_89%_48%/0.10)] text-[hsl(201_94%_32%)]",
   amber: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
   violet: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
 };
@@ -954,7 +954,7 @@ const DeepDiveItem = ({
 const toneClass: Record<"amber" | "violet" | "green", string> = {
   amber: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
   violet: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
-  green: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
+  green: "bg-[hsl(199_89%_48%/0.10)] text-[hsl(201_94%_32%)]",
 };
 
 const IssueList = ({
@@ -1187,7 +1187,7 @@ const ScoreTrajectory = ({ analyses }: { analyses: Analysis[] }) => {
         <span
           className={cn(
             "text-[11px] font-medium tabular-nums",
-            delta >= 0 ? "text-[hsl(150_45%_32%)]" : "text-[hsl(0_60%_45%)]",
+            delta >= 0 ? "text-[hsl(201_94%_32%)]" : "text-[hsl(0_60%_45%)]",
           )}
         >
           {delta >= 0 ? "+" : ""}

@@ -8,13 +8,13 @@ export function AtsScorePanel({ doc }: { doc: ResumeDocument }) {
     score.total >= 85 ? "emerald" : score.total >= 70 ? "amber" : "rose";
   const toneRing =
     tone === "emerald"
-      ? "ring-emerald-500/30 from-emerald-500/15"
+      ? "ring-sky-500/30 from-sky-500/15"
       : tone === "amber"
         ? "ring-amber-500/30 from-amber-500/15"
         : "ring-rose-500/30 from-rose-500/15";
   const toneText =
     tone === "emerald"
-      ? "text-emerald-300"
+      ? "text-sky-300"
       : tone === "amber"
         ? "text-amber-300"
         : "text-rose-300";
@@ -52,7 +52,7 @@ export function AtsScorePanel({ doc }: { doc: ResumeDocument }) {
               <div
                 className={
                   tone === "emerald"
-                    ? "h-full bg-emerald-400/70"
+                    ? "h-full bg-sky-400/70"
                     : tone === "amber"
                       ? "h-full bg-amber-400/70"
                       : "h-full bg-rose-400/70"

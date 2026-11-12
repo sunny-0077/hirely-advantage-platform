@@ -73,10 +73,10 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 const CATEGORY_TONE: Record<string, string> = {
   summary: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
-  metrics_added: "bg-[hsl(150_55%_45%/0.12)] text-[hsl(150_45%_28%)]",
+  metrics_added: "bg-[hsl(199_89%_48%/0.12)] text-[hsl(201_94%_32%)]",
   verbs_strengthened: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
   keyword_injection: "bg-[hsl(35_92%_55%/0.14)] text-[hsl(28_70%_38%)]",
-  section_added: "bg-[hsl(150_55%_45%/0.12)] text-[hsl(150_45%_28%)]",
+  section_added: "bg-[hsl(199_89%_48%/0.12)] text-[hsl(201_94%_32%)]",
   ats_fix: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
   formatting: "bg-foreground/[0.06] text-foreground/70",
   grammar: "bg-foreground/[0.06] text-foreground/70",
@@ -604,7 +604,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 // AI-added claims verification
 // =====================================================
 const CONFIDENCE_TONE: Record<string, string> = {
-  high: "bg-[hsl(150_55%_45%/0.12)] text-[hsl(150_45%_28%)]",
+  high: "bg-[hsl(199_89%_48%/0.12)] text-[hsl(201_94%_32%)]",
   medium: "bg-[hsl(35_92%_55%/0.14)] text-[hsl(28_70%_38%)]",
   low: "bg-[hsl(0_75%_55%/0.12)] text-[hsl(0_60%_42%)]",
 };
@@ -705,7 +705,7 @@ const ClaimsVerification = ({ enhancement }: { enhancement: Enhancement }) => {
               className={cn(
                 "px-5 sm:px-6 py-4 transition-colors",
                 isRemoved && "opacity-50",
-                c.status === "confirmed" && "bg-[hsl(150_55%_45%/0.04)]",
+                c.status === "confirmed" && "bg-[hsl(199_89%_48%/0.04)]",
                 c.status === "edited" && "bg-[hsl(258_45%_58%/0.04)]",
               )}
             >
@@ -769,7 +769,7 @@ const ClaimsVerification = ({ enhancement }: { enhancement: Enhancement }) => {
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-60",
                         c.status === "confirmed"
-                          ? "bg-[hsl(150_55%_45%/0.18)] text-[hsl(150_45%_24%)]"
+                          ? "bg-[hsl(199_89%_48%/0.18)] text-[hsl(201_94%_26%)]"
                           : "border border-foreground/15 bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]",
                       )}
                     >
