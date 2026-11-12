@@ -37,8 +37,8 @@ export const Pricing = () => {
   };
 
   return (
-    <section id="pricing" className="border-y border-border bg-card py-16 md:py-24 px-6">
-      <div className="mx-auto max-w-6xl">
+    <section id="pricing" className="border-y border-border bg-card py-12 md:py-16">
+      <div className="landing-container">
         <SectionHeader eyebrow="Pricing" title="Simple credits. No subscriptions." description="Every tailored resume, cover letter or interview prep guide costs 1 credit." />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 items-stretch">
           {TIERS.map((t, idx) => (

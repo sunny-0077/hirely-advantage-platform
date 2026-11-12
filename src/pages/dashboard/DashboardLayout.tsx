@@ -29,13 +29,13 @@ const DashboardLayout = () => {
     <BetaOfferProvider>
     <div className="workspace-shell relative min-h-screen bg-background font-sans">
       <div className="relative flex min-h-screen">
-        <div className="animate-sidebar-enter motion-reduce:animate-none">
+        <div className="hidden md:block shrink-0 animate-sidebar-enter motion-reduce:animate-none">
           <DashboardSidebar />
         </div>
 
         <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-        <main className="flex-1 min-w-0 px-4 md:px-6 lg:px-8 py-5 md:py-7 bg-background">
+        <main className="flex-1 min-w-0 px-4 md:px-5 lg:px-6 py-4 md:py-5 bg-background">
           {/* Mobile top bar with hamburger */}
           <div className="md:hidden flex items-center gap-3 mb-5">
             <Button variant="outline" size="icon"
@@ -51,7 +51,7 @@ const DashboardLayout = () => {
           </div>
 
           {/* Desktop usage strip — top-right of main pane */}
-          <div className="flex justify-end items-center gap-3 mb-7 pb-4 border-b border-border">
+          <div className="flex justify-end items-center gap-3 mb-5 pb-3 border-b border-border">
             <div className="hidden md:block"><UsageMeterStrip /></div>
             <Button variant="ghost" size="sm" disabled={signingOut} onClick={async () => {
               setSigningOut(true);
@@ -62,7 +62,7 @@ const DashboardLayout = () => {
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}
-          <div key={pathname} className="animate-fade-in motion-reduce:animate-none">
+          <div key={pathname} className="workspace-page animate-fade-in motion-reduce:animate-none">
             <Outlet />
           </div>
         </main>

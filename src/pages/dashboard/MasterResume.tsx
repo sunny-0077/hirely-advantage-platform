@@ -19,7 +19,7 @@ import {
 } from "@/lib/masterResume";
 
 type Status = "idle" | "dirty" | "saving" | "saved" | "error";
-const card = "resume-section space-y-5";
+const card = "resume-section space-y-4";
 
 function Field({ label, id, error, children }: { label: string; id: string; error?: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label htmlFor={id}>{label}</Label>{children}{error && <p className="text-xs text-destructive">{error}</p>}</div>;
@@ -130,13 +130,13 @@ export default function MasterResume() {
   const e = (k: string) => errors[k];
   const statusText = { idle: "All changes saved", dirty: "Unsaved changes", saving: "Saving…", saved: "Saved", error: "Not saved" }[status];
 
-  return <div className="max-w-4xl mx-auto pb-6">
+  return <div className="w-full min-w-0 pb-6">
     <PageHeader eyebrow="Workspace" title="Master Resume" description="Your central career profile. Tailored resumes, cover letters and interview prep are built only from what you enter here." />
     <ResumeImporter existing={r} disabled={status === "saving"} onConfirm={candidate => save(candidate, true)} />
 
     <section className={`${card} mb-5`} aria-label="Resume completion">
       <div className="flex items-center justify-between flex-wrap gap-2"><h2 className="font-semibold">Completion</h2><Badge variant={comp.label === "Core complete" ? "default" : "secondary"}>{comp.label}</Badge></div>
-      <ul className="grid sm:grid-cols-2 gap-1.5 text-sm">
+      <ul className="grid sm:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-2 text-sm">
         {[...comp.done.map(d => [d, true] as const), ...comp.missing.map(m => [m, false] as const)].map(([n, ok]) => <li key={n} className="flex items-center gap-2">{ok ? <CheckCircle2 className="size-4 text-primary" /> : <Circle className="size-4 text-muted-foreground" />}<span className={ok ? "" : "text-muted-foreground"}>{n}</span></li>)}
       </ul>
       {comp.missing.length > 0 && <p className="text-sm text-muted-foreground">Next: add your <strong className="text-foreground">{comp.missing[0].toLowerCase()}</strong>. Projects, certifications and extras are optional. You can save at any time.</p>}
@@ -149,9 +149,9 @@ export default function MasterResume() {
       <details><summary className="cursor-pointer font-medium">View pasted resume text</summary><pre className="mt-2 whitespace-pre-wrap font-sans max-h-64 overflow-auto">{existingText}</pre></details>
     </div>}
 
-    <div className="space-y-5">
+    <div className="space-y-2">
       <Section title="Personal information" missing={comp.missing.includes("Personal information")}>
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {([["fullName", "Full name", "text"], ["email", "Email", "email"], ["phone", "Phone number", "tel"], ["city", "City", "text"], ["country", "Country", "text"], ["linkedinUrl", "LinkedIn URL", "url"], ["githubUrl", "GitHub URL", "url"], ["portfolioUrl", "Portfolio URL", "url"]] as const).map(([k, l, t]) =>
             <Field key={k} id={`p-${k}`} label={l} error={e(`personal.${k}`)}><Input id={`p-${k}`} type={t} maxLength={k.endsWith("Url") ? 300 : 200} placeholder={k.endsWith("Url") ? "https://" : undefined} value={r.personal[k]} onChange={ev => edit(d => { d.personal[k] = ev.target.value; })} /></Field>)}
         </div>

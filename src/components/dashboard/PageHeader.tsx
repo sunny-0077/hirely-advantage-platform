@@ -32,7 +32,7 @@ export function PageHeader({
     <div
       ref={ref}
       className={cn(
-        "reveal mb-7 flex items-start justify-between gap-4",
+        "reveal mb-5 flex flex-wrap items-start justify-between gap-4",
         mounted && "in-view",
         className,
       )}
