@@ -7,6 +7,21 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: { auth: mocks } }))
 function Probe() { const auth = useAuth(); return <div>{auth.loading ? "checking" : auth.user ? "private workspace" : "signed out"}</div>; }
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 describe("validated authentication state", () => {
+  it("discards queued sign-in validation after a later logout", async () => {
+    let listener: (event: string, session: unknown) => void = () => {};
+    mocks.getSession.mockResolvedValue({ data: { session: null } });
+    mocks.onAuthStateChange.mockImplementation(callback => { listener = callback;return {data:{subscription:{unsubscribe:vi.fn()}}}; });
+    render(<AuthProvider><Probe /></AuthProvider>);
+    await screen.findByText("signed out");
+    const reads = mocks.getSession.mock.calls.length;
+    await act(async () => {
+      listener("SIGNED_IN", {user:{id:"user-a"}});
+      listener("SIGNED_OUT", null);
+      await new Promise(resolve => setTimeout(resolve, 20));
+    });
+    expect(mocks.getSession.mock.calls.length).toBe(reads);
+    expect(screen.getByText("signed out")).toBeInTheDocument();
+  });
   it("does not render private content while server validation is pending", async () => {
     let resolveUser: (value: unknown) => void = () => {};
     mocks.getSession.mockResolvedValue({ data: { session: { user: { id: "user-a" } } } });

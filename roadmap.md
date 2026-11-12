@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Repair mobile email autofill/sign-in validation and queued session races; verified real mobile dashboard entry, sidebar navigation, callback session routing and invalid-login feedback. Full external Google/inbox-link round trips remain unverified without completing those external interactions.
+
 - [x] Inspect existing resume editor, Master Resume storage, exports and occupational data sources; propose the scalable Resume Template Library structure before implementation.
 - [x] Build the occupational catalogue, role/level template browser, Master Resume mapping, editing and saved versions: 45,808 titles, 35 industries, 26 career levels and three reusable designs with seven professional blueprints.
 - [x] Validate catalogue coverage, search, synonyms, pagination, private version CRUD/revisions and Unicode multi-page PDF/DOCX exports; 34 regression tests passed and temporary test versions removed.

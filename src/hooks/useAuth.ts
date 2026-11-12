@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Listener FIRST so OAuth/session callbacks cannot race the initial read.
     const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
       if (!active) return;
-      ++generation;
+      const eventGeneration = ++generation;
       if (event === "PASSWORD_RECOVERY") setRecovering(true);
       if (!sess) {
         setSession(null); setUser(null); setLoading(false); setRecovering(false);
@@ -50,7 +50,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Never expose an event's unvalidated user to private routes.
       setLoading(true);
       window.setTimeout(() => {
-        if (active) void syncSession();
+        // A queued sign-in check must not supersede a later logout.
+        if (active && sess && eventGeneration === generation) void syncSession();
       }, 0);
     });
 

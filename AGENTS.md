@@ -11,6 +11,7 @@
 - Require a validated signed-in user and completed profile onboarding for dashboard routes, because personal workspaces must not render for signed-out visitors.
 - Reuse `profiles` for onboarding and expose `user_profiles` only as a security-invoker identity view; use server-created identities and explicit onboarding completion, because duplicate stores and name-only gates lose reliable progress.
 - Accept password updates only on the public recovery route with a validated recovery session; auth state results are generation-guarded, because stale checks must not restore a signed-out workspace.
+- Email sign-in reads submitted form controls and applies signup strength rules only during signup, because mobile autofill may not update React state and existing passwords must remain usable.
 - Route signup confirmation to the public Hirely callback and show Verified only after getUser validates email_confirmed_at; keep pending signup credentials in tab memory only to resume the original tab after verification on another origin.
 - Run every paid AI action through supabase/functions/_shared/credits.ts runPaidAction, because it enforces the 24h AI spend switch, deducts credits server-side, logs cost, and refunds on failure.
 - Plan tier, pass expiry and credit balance are writable only by server functions, because users must not grant themselves credits.
