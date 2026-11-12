@@ -3,6 +3,7 @@
 - Public and authenticated interfaces share semantic CSS tokens and shared control variants; compatibility surface classes remain available without decorative effects so existing tools retain behavior.
 - Workspace page roots use the shared full-width layout with responsive gutters; constrain only inner reading and document surfaces, because page-level width caps leave large unused margins.
 - Workspace home uses an adaptive studio/activity split and compact shared card spacing without reducing body text, because dense layouts should use available width without stretching every tool across it.
+- Sidebar motion uses Motion with reduced-motion support and existing semantic colours; collapsed navigation retains named icon links, because animation must preserve accessibility and routing.
 
 - Require a validated signed-in user and completed profile onboarding for dashboard routes, because personal workspaces must not render for signed-out visitors.
 - Reuse `profiles` for onboarding and expose `user_profiles` only as a security-invoker identity view; use server-created identities and explicit onboarding completion, because duplicate stores and name-only gates lose reliable progress.

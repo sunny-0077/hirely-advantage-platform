@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Mic, Briefcase, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut } from "lucide-react";
+import { Mail, Mic, Briefcase, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -18,17 +20,33 @@ const suite = [
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => <p className="text-[10px] uppercase text-muted-foreground px-3 mb-[4.2px] font-semibold">{children}</p>;
-const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
+const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?: () => void; collapsed?: boolean; onToggle?: () => void }) => {
  const isAdmin = useIsAdmin();
+ const [hovered, setHovered] = useState<string | null>(null);
+ const reducedMotion = useReducedMotion();
+ const transition = reducedMotion ? { duration: 0 } : { type: "spring" as const, stiffness: 350, damping: 30 };
  const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
- const group=(items:typeof workspaceLinks)=><nav className="flex flex-col gap-[2.1px] mb-[12.6px]">{items.map(({to,label,icon:Icon})=><NavLink key={to} to={to} onClick={onNavigate} className={({isActive})=>cn("flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors",isActive?"bg-accent text-primary font-semibold":"text-muted-foreground hover:text-foreground hover:bg-muted")}><Icon className="size-4 shrink-0" strokeWidth={1.8} /><span className="flex-1">{label}</span></NavLink>)}</nav>;
- return <><div className="px-3 pt-1 mb-[21px]"><LogoLockup size="text-2xl" /></div><SectionLabel>Workspace</SectionLabel>{group(workspaceLinks)}<SectionLabel>Suite</SectionLabel>{group(suite)}<div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /><SidebarSignOut /></>;
+ const group = (items: typeof workspaceLinks) => <nav className="flex flex-col gap-[2.1px] mb-[12.6px]" onMouseLeave={() => setHovered(null)}>{items.map(({ to, label, icon: Icon }) =>
+   <Tooltip key={to}><TooltipTrigger asChild><NavLink to={to} aria-label={label} onClick={onNavigate} onMouseEnter={() => setHovered(to)} onFocus={() => setHovered(to)} onBlur={() => setHovered(null)} className="relative flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors overflow-hidden text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-semibold">
+     {({ isActive }) => <>
+       {isActive && <motion.span layoutId="sidebar-selected" transition={transition} className="pointer-events-none absolute inset-0 rounded-md bg-accent" />}
+       <AnimatePresence>{hovered === to && !isActive && <motion.span layoutId="sidebar-hover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transition} className="pointer-events-none absolute inset-0 rounded-md bg-muted" />}</AnimatePresence>
+       <Icon className="relative z-10 size-4 shrink-0" strokeWidth={1.8} />
+       <AnimatePresence initial={false}>{!collapsed && <motion.span key="label" initial={{ opacity: 0, filter: reducedMotion ? "none" : "blur(4px)" }} animate={{ opacity: 1, filter: "blur(0px)" }} exit={{ opacity: 0, filter: reducedMotion ? "none" : "blur(4px)" }} transition={{ duration: reducedMotion ? 0 : 0.2 }} className="relative z-10 flex-1 whitespace-nowrap">{label}</motion.span>}</AnimatePresence>
+     </>}
+   </NavLink></TooltipTrigger>{collapsed && <TooltipContent side="right">{label}</TooltipContent>}</Tooltip>
+ )}</nav>;
+ return <LayoutGroup><div className="flex items-center justify-between pt-1 mb-[21px] min-h-8">
+   {!collapsed && <div className="px-3"><LogoLockup size="text-2xl" /></div>}
+   {onToggle && <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onToggle} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} className="size-8 shrink-0 text-muted-foreground">{collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}</Button></TooltipTrigger><TooltipContent side="right">{collapsed ? "Expand sidebar" : "Collapse sidebar"}</TooltipContent></Tooltip>}
+ </div>{!collapsed && <SectionLabel>Workspace</SectionLabel>}{group(workspaceLinks)}{!collapsed && <SectionLabel>Suite</SectionLabel>}{group(suite)}
+ <AnimatePresence initial={false}>{!collapsed && <motion.div key="details" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.15 }} className="min-w-[204px]"><div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></motion.div>}</AnimatePresence><SidebarSignOut collapsed={collapsed} /></LayoutGroup>;
 };
 
-const SidebarSignOut = () => {
+const SidebarSignOut = ({ collapsed = false }: { collapsed?: boolean }) => {
   const [busy, setBusy] = useState(false);
   const queryClient = useQueryClient();
-  return <Button variant="ghost" size="sm" className="mt-[12.6px] justify-start gap-2.5 px-3 text-[13px] text-muted-foreground" disabled={busy} onClick={async () => {
+  return <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="sm" aria-label="Sign out" className="mt-[12.6px] justify-start gap-2.5 px-3 text-[13px] text-muted-foreground" disabled={busy} onClick={async () => {
     setBusy(true);
     try {
       const { error } = await supabase.auth.signOut();
@@ -36,7 +54,7 @@ const SidebarSignOut = () => {
       else queryClient.clear();
     } catch { toast.error("Couldn't sign out. Please try again."); }
     finally { setBusy(false); }
-  }}><LogOut className="size-4" />{busy ? "Signing out…" : "Sign out"}</Button>;
+  }}><LogOut className="size-4 shrink-0" />{!collapsed && (busy ? "Signing out…" : "Sign out")}</Button></TooltipTrigger>{collapsed && <TooltipContent side="right">Sign out</TooltipContent>}</Tooltip>;
 };
 
 const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
@@ -57,10 +75,12 @@ const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
 };
 
 export const DashboardSidebar = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const reducedMotion = useReducedMotion();
   return (
-    <aside className="w-[236px] shrink-0 hidden md:flex flex-col px-4 py-4 bg-card border-r border-border sticky top-0 h-screen overflow-y-auto">
-      <SidebarBody />
-    </aside>
+    <motion.aside initial={false} animate={{ width: collapsed ? 72 : 236 }} transition={reducedMotion ? { duration: 0 } : { type: "spring", bounce: 0.15, duration: 0.65 }} className="shrink-0 hidden md:flex flex-col px-4 py-4 bg-card border-r border-border sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
+      <SidebarBody collapsed={collapsed} onToggle={() => setCollapsed(value => !value)} />
+    </motion.aside>
   );
 };
 
@@ -71,6 +91,7 @@ export const MobileSidebar = ({
   open: boolean;
   onClose: () => void;
 }) => {
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -103,15 +124,17 @@ export const MobileSidebar = ({
       />
 
       {/* Drawer */}
-      <div
+      <motion.div
         role="dialog"
         aria-modal="true"
+        aria-label="Workspace menu"
+        initial={false}
+        animate={{ x: open ? 0 : "-100%" }}
+        transition={reducedMotion ? { duration: 0 } : { type: "spring", bounce: 0.15, duration: 0.65 }}
         className={cn(
           "absolute left-0 top-0 h-full w-[260px] bg-card",
           "border-r border-border shadow-product",
           "flex flex-col px-4 py-4 overflow-y-auto",
-          "transition-transform duration-200 will-change-transform",
-          open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <Button variant="ghost" size="icon"
@@ -123,7 +146,7 @@ export const MobileSidebar = ({
           <X className="w-4 h-4" />
         </Button>
         <SidebarBody onNavigate={onClose} />
-      </div>
+      </motion.div>
     </div>
   );
 };
