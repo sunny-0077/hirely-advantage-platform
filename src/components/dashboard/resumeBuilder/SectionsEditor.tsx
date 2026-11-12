@@ -9,6 +9,7 @@ import {
 import { newId } from "@/lib/resumeBuilder/templates";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { AiActionsButton } from "./AiActionsButton";
 import {
   Select,
@@ -63,7 +64,7 @@ export function SectionsEditor({ doc, setDoc, role }: Props) {
   };
 
   const missingTypes = (
-    ["summary", "skills", "experience", "projects", "education", "certifications", "achievements"] as SectionType[]
+    ["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional"] as SectionType[]
   ).filter((t) => !doc.sections.some((s) => s.type === t));
 
   return (
@@ -131,8 +132,8 @@ function SectionCard({
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur p-3.5">
-      <div className="flex items-center gap-2">
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-wrap items-center gap-2">
         <GripVertical className="w-3.5 h-3.5 text-foreground/30" />
         <Select value={section.name} onValueChange={onRename}>
           <SelectTrigger className="h-8 w-auto min-w-[200px] text-[12.5px] font-medium bg-transparent border-foreground/[0.1]">
@@ -187,6 +188,7 @@ function SectionCard({
           )}
           {section.type === "education" && <EducationFields doc={doc} update={updateContent} />}
           {section.type === "certifications" && <CertFields doc={doc} update={updateContent} />}
+          {(section.type === "publications" || section.type === "additional") && <ExtraFields doc={doc} update={updateContent} type={section.type} />}
           {section.type === "achievements" && (
             <AchievementsFields doc={doc} update={updateContent} role={role} />
           )}
@@ -555,7 +557,7 @@ function CertFields({
   return (
     <div className="space-y-2">
       {items.map((it, idx) => (
-        <div key={it.id} className="grid grid-cols-[1fr_1fr_120px_28px] gap-2">
+        <div key={it.id} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Input
             placeholder="Certification name"
             value={it.name}
@@ -571,6 +573,8 @@ function CertFields({
             value={it.date}
             onChange={(e) => set(items.map((x, i) => (i === idx ? { ...x, date: e.target.value } : x)))}
           />
+          <Input aria-label="Certification expiry" placeholder="Expiry (optional)" value={it.expiry ?? ""} onChange={e=>set(items.map((x,i)=>i===idx?{...x,expiry:e.target.value}:x))} />
+          <Input aria-label="Credential link" placeholder="Credential link (optional)" value={it.url ?? ""} onChange={e=>set(items.map((x,i)=>i===idx?{...x,url:e.target.value}:x))} />
           <button
             onClick={() => set(items.filter((_, i) => i !== idx))}
             className="text-foreground/50 hover:text-rose-400 flex items-center justify-center"
@@ -606,6 +610,12 @@ function AchievementsFields({
       placeholder="Awards, honors, public recognition…"
     />
   );
+}
+
+function ExtraFields({doc,update,type}:{doc:ResumeDocument;update:(p:Partial<ResumeDocument["content"]>)=>void;type:"publications"|"additional"}) {
+  const items=doc.content[type]??[];
+  const set=(next:typeof items)=>update({[type]:next});
+  return <div className="space-y-3">{items.map((it,i)=><div key={it.id} className="space-y-2"><Input aria-label={`${type} title`} value={it.title} placeholder="Title" onChange={e=>set(items.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/><Textarea aria-label={`${type} details`} value={it.details} placeholder="Details" rows={3} onChange={e=>set(items.map((x,j)=>j===i?{...x,details:e.target.value}:x))}/><Button size="sm" variant="ghost" onClick={()=>set(items.filter((_,j)=>j!==i))}><Trash2 className="size-4"/>Remove</Button></div>)}<Button variant="outline" size="sm" onClick={()=>set([...items,{id:newId(),title:"",details:"",kind:"other"}])}><Plus className="size-4"/>Add entry</Button></div>;
 }
 
 function BulletList({

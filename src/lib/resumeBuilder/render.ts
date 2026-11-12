@@ -14,7 +14,8 @@ export type RenderedSection =
   | { type: "projects"; name: string; items: ProjectItem[] }
   | { type: "education"; name: string; items: EducationItem[] }
   | { type: "certifications"; name: string; items: CertificationItem[] }
-  | { type: "achievements"; name: string; items: string[] };
+  | { type: "achievements"; name: string; items: string[] }
+  | { type: "publications" | "additional"; name: string; items: { id: string; title: string; details: string }[] };
 
 /** Returns the resume as an ordered list of populated, enabled sections. */
 export function buildRenderModel(doc: ResumeDocument): RenderedSection[] {
@@ -51,6 +52,11 @@ function renderSection(s: Section, doc: ResumeDocument): RenderedSection | null 
     case "achievements": {
       const items = c.achievements.filter((a) => a.trim());
       return items.length ? { type: "achievements", name: s.name, items } : null;
+    }
+    case "publications":
+    case "additional": {
+      const items = (c[s.type] ?? []).filter(a => a.title || a.details);
+      return items.length ? {type:s.type,name:s.name,items} : null;
     }
   }
 }

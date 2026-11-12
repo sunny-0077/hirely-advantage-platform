@@ -27,7 +27,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
 
   return (
     <div
-      className="resume-preview bg-white text-[#141414] shadow-[0_8px_32px_-12px_rgba(0,0,0,0.18)] mx-auto"
+      className="resume-preview bg-background text-foreground shadow-subtle mx-auto break-words"
       style={{
         width: "8.5in",
         minHeight: "11in",
@@ -38,6 +38,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
       }}
     >
       {/* Header */}
+      <div style={{textAlign: doc.presentation?.headerAlign ?? "left"}}>
       {p.name ? (
         <div style={{ color: accent, fontWeight: 700, fontSize: `${settings.fontSize + 8}pt` }}>
           {p.name}
@@ -56,6 +57,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
         </div>
       )}
 
+      </div>
       <div style={{ height: sectionGap }} />
 
       {buildRenderModel(doc).map((sec, idx) => (
@@ -65,9 +67,9 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
               color: accent,
               fontWeight: 700,
               fontSize: `${settings.fontSize + 1}pt`,
-              letterSpacing: "0.06em",
+              letterSpacing: "0",
               textTransform: "uppercase",
-              borderBottom: `1px solid ${accent}`,
+              borderBottom: doc.presentation?.headingRule === false ? "none" : `1px solid ${accent}`,
               paddingBottom: 2,
               marginBottom: 6,
             }}
@@ -153,7 +155,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
                 {(it.issuer || it.date) && (
                   <span>
                     {"  —  "}
-                    {[it.issuer, it.date].filter(Boolean).join(" · ")}
+                    {[it.issuer, it.date, it.expiry ? `Expires ${it.expiry}` : "", it.url].filter(Boolean).join(" · ")}
                   </span>
                 )}
               </div>
@@ -166,6 +168,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
               ))}
             </ul>
           )}
+          {(sec.type === "publications" || sec.type === "additional") && sec.items.map(it => <div key={it.id} style={{marginBottom:6}}><strong>{it.title}</strong>{it.details && <p style={{margin:0,whiteSpace:"pre-wrap"}}>{it.details}</p>}</div>)}
         </section>
       ))}
     </div>

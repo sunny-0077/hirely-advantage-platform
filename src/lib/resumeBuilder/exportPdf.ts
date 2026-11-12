@@ -49,7 +49,7 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
 
   const heading = (s: string) => {
     y += baseSize * 0.4;
-    ensureSpace(baseSize * 1.6);
+    ensureSpace(baseSize * 4);
     pdf.setFont(font, "bold");
     pdf.setFontSize(baseSize + 1);
     pdf.setTextColor(...accent);
@@ -57,7 +57,7 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     y += baseSize * 1.05;
     pdf.setDrawColor(...accent);
     pdf.setLineWidth(0.6);
-    pdf.line(margin, y, pageW - margin, y);
+    if (doc.presentation?.headingRule !== false) pdf.line(margin, y, pageW - margin, y);
     y += baseSize * 0.55;
     pdf.setTextColor(20, 20, 20);
   };
@@ -82,8 +82,8 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     pdf.setFont(font, "bold");
     pdf.setFontSize(baseSize + 8);
     pdf.setTextColor(...accent);
-    pdf.text(p.name, margin, y + baseSize + 8);
-    y += baseSize + 14;
+    const nameLines = pdf.splitTextToSize(p.name,maxW);
+    for (const nameLine of nameLines) { ensureSpace(baseSize+14); pdf.text(nameLine,doc.presentation?.headerAlign === "center" ? pageW/2 : margin,y+baseSize+8,{align:doc.presentation?.headerAlign === "center" ? "center":"left"}); y+=baseSize+14; }
   }
   if (p.headline) {
     text(p.headline, { size: baseSize + 1, color: [60, 60, 60] });
@@ -153,12 +153,16 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
         break;
       case "certifications":
         for (const it of sec.items) {
-          const right = [it.issuer, it.date].filter(Boolean).join(" · ");
+          const right = [it.issuer, it.date, it.expiry ? `Expires ${it.expiry}` : "", it.url].filter(Boolean).join(" · ");
           text(`${it.name}${right ? "  —  " + right : ""}`);
         }
         break;
       case "achievements":
         for (const a of sec.items) bullet(a);
+        break;
+      case "publications":
+      case "additional":
+        for (const it of sec.items) { if(it.title) text(it.title,{bold:true}); if(it.details) text(it.details); }
         break;
     }
   }
