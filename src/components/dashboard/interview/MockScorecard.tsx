@@ -17,7 +17,7 @@ type Turn = {
  * derived sub-scores: clarity, structure, relevance.
  */
 const hueFor = (score: number) => {
-  if (score >= 80) return "#22C55E"; // emerald
+  if (score >= 80) return "#0B7A52"; // emerald
   if (score >= 60) return "#F59E0B"; // amber
   return "#F43F5E"; // rose
 };
