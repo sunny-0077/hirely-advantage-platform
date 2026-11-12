@@ -3,13 +3,6 @@ import type { ResumeDocument } from "./types";
 import { buildRenderModel, dateRange } from "./render";
 import { documentFonts, fontBase64 } from "./fonts";
 
-const FONT_MAP: Record<string, string> = {
-  Inter: "helvetica",
-  Arial: "helvetica",
-  Times: "times",
-  Georgia: "times",
-};
-
 export async function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
   const pdf = new jsPDF({ unit: "pt", format: "letter" });
   const serif=doc.settings.fontFamily==="Times"||doc.settings.fontFamily==="Georgia";
@@ -38,7 +31,7 @@ export async function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
 
   const text = (
     s: string,
-    opts: { size?: number; bold?: boolean; color?: [number, number, number]; indent?: number } = {},
+    opts: { size?: number; bold?: boolean; color?: [number, number, number]; indent?: number; center?: boolean } = {},
   ) => {
     const size = opts.size ?? baseSize;
     pdf.setFont(font, opts.bold ? "bold" : "normal");
@@ -47,7 +40,7 @@ export async function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     const lines = pdf.splitTextToSize(s, maxW - (opts.indent ?? 0));
     for (const line of lines) {
       ensureSpace(size * lineGap);
-      pdf.text(line, margin + (opts.indent ?? 0), y + size);
+      pdf.text(line, opts.center ? pageW/2 : margin + (opts.indent ?? 0), y + size, {align:opts.center?"center":"left"});
       y += size * lineGap;
     }
   };
@@ -91,11 +84,11 @@ export async function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     for (const nameLine of nameLines) { ensureSpace(baseSize+14); pdf.text(nameLine,doc.presentation?.headerAlign === "center" ? pageW/2 : margin,y+baseSize+8,{align:doc.presentation?.headerAlign === "center" ? "center":"left"}); y+=baseSize+14; }
   }
   if (p.headline) {
-    text(p.headline, { size: baseSize + 1, color: [60, 60, 60] });
+    text(p.headline, { size: baseSize + 1, color: [60, 60, 60], center:doc.presentation?.headerAlign==="center" });
   }
   const contactParts = [p.email, p.phone, p.location, ...p.links.map((l) => l.url)].filter(Boolean);
   if (contactParts.length) {
-    text(contactParts.join("  |  "), { size: baseSize - 1, color: [80, 80, 80] });
+    text(contactParts.join("  |  "), { size: baseSize - 1, color: [80, 80, 80], center:doc.presentation?.headerAlign==="center" });
   }
   y += 6;
 

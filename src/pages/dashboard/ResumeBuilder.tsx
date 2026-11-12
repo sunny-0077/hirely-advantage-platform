@@ -35,7 +35,8 @@ const ResumeBuilder = () => {
   const [role, setRole] = useState("");
   const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
+  const requestedVersion = params.get("version");
   const [selection, setSelection] = useState<LibrarySelection | null>(null);
   const [versionId, setVersionId] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
@@ -48,17 +49,18 @@ const ResumeBuilder = () => {
   const dirty = !!doc && JSON.stringify(doc) !== savedContent;
   useEffect(() => { const listener=(e:BeforeUnloadEvent)=>{if(dirty)e.preventDefault();};window.addEventListener("beforeunload",listener);return()=>window.removeEventListener("beforeunload",listener); }, [dirty]);
   useEffect(() => {
-    const id=params.get("version"); if(!id || !user)return;
+    const id=requestedVersion; if(!id || !user)return;
     let active=true; setLoadingVersion(true); setVersionError(false);
     supabase.from("resume_versions").select("*").eq("id",id).eq("user_id",user.id).single().then(({data,error})=>{
       if(!active)return;
-      try { if(error||!data)throw error; const next=validateDocument(data.document);setDoc(next);setVersionId(data.id);setRevision(data.revision);setVersionName(data.name);setSavedContent(JSON.stringify(next));setMetadata(data);setPicking(false); }
+      try { if(error||!data)throw error; const next=validateDocument(data.document);setDoc(next);setSelection(null);setRole("");setVersionId(data.id);setRevision(data.revision);setVersionName(data.name);setSavedContent(JSON.stringify(next));setMetadata(data);setPicking(false); }
       catch {setVersionError(true);toast.error("Couldn't open this resume version.");} finally {setLoadingVersion(false);}
     });return()=>{active=false;};
-  },[params,user?.id]);
+  },[requestedVersion,user?.id]);
 
   // Drop any legacy global draft from older builds (cross-user leakage).
   useEffect(() => {
+    if (requestedVersion) return;
     try { localStorage.removeItem(LEGACY_KEY); } catch { /* ignore */ }
   }, []);
 
@@ -90,12 +92,12 @@ const ResumeBuilder = () => {
     } catch {
       /* ignore */
     }
-  }, [storageKey]);
+  }, [storageKey, requestedVersion]);
 
   useEffect(() => {
-    if (!doc || !storageKey) return;
+    if (!doc || !storageKey || loadingVersion || versionError || (requestedVersion && versionId !== requestedVersion)) return;
     try { localStorage.setItem(storageKey, JSON.stringify({ doc, role, selection, versionId, revision, versionName, metadata })); } catch { toast.error("Browser draft storage is full. Save a version to keep your work."); }
-  }, [doc, role, storageKey, selection, versionId, revision, versionName, metadata]);
+  }, [doc, role, storageKey, selection, versionId, revision, versionName, metadata, loadingVersion, versionError, requestedVersion]);
 
   const templateMeta = useMemo(
     () => ATS_TEMPLATES.find((t) => t.id === doc?.templateId),
@@ -126,6 +128,7 @@ const ResumeBuilder = () => {
       if(result.error)throw result.error;
       if(!result.data){toast.error("A newer version was saved elsewhere. Save as a new version to keep these edits.");return;}
       setVersionId(result.data.id);setRevision(result.data.revision);setSavedContent(JSON.stringify(doc));toast.success(copy?"New resume version saved":"Resume version saved");
+      if(requestedVersion && requestedVersion !== result.data.id)setParams({version:result.data.id},{replace:true});
     }catch {toast.error("Couldn't save. Your edits remain in this draft.");}finally{setSaving(false);}
   };
 
@@ -135,6 +138,7 @@ const ResumeBuilder = () => {
     setDoc(null);
     setRole("");
     setSelection(null);setVersionId(null);setRevision(0);setMetadata(null);setVersionName("Untitled resume");
+    setSavedContent("");setParams({}, {replace:true});
     setPicking(true);
   };
 
@@ -188,7 +192,7 @@ const ResumeBuilder = () => {
         <Button variant="outline" onClick={()=>setPicking(true)}>
           <ArrowLeft className="w-3.5 h-3.5" /> Templates
         </Button>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-[11px] text-sky-300">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 text-xs text-primary">
           <ShieldCheck className="w-3 h-3" /> {selection?.design.label ?? templateMeta?.name ?? "Resume"}
         </div>
 
