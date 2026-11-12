@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { MessageSquareWarning, Star } from "lucide-react";
+import { Star } from "lucide-react";
+import { IconMessageReportFilled } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,7 +40,7 @@ export function PlatformFeedbackButton() {
 
   return <>
     <button type="button" onClick={() => setOpen(true)} className="flex gap-3 items-center rounded-lg px-3 py-3 text-sm text-muted-foreground hover:text-foreground mb-4 w-full text-left">
-      <MessageSquareWarning className="size-4" />Give Feedback / Report Issue
+      <IconMessageReportFilled className="size-4" />Give Feedback / Report Issue
     </button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
