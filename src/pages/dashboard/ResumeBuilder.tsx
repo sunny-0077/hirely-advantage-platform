@@ -60,12 +60,12 @@ const ResumeBuilder = () => {
 
   // Drop any legacy global draft from older builds (cross-user leakage).
   useEffect(() => {
-    if (requestedVersion) return;
     try { localStorage.removeItem(LEGACY_KEY); } catch { /* ignore */ }
   }, []);
 
   // Hydrate from localStorage so the user never loses their draft (per-user).
   useEffect(() => {
+    if (requestedVersion) return;
     if (!storageKey) {
       // No user yet — make sure we don't show stale state from a previous user.
       setDoc(null);
