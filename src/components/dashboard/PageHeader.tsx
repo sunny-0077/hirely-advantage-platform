@@ -14,7 +14,6 @@ interface PageHeaderProps {
  * Fade-up on mount using the app's shared easing curve.
  */
 export function PageHeader({
-  eyebrow,
   title,
   description,
   statusLabel,
@@ -38,12 +37,7 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0">
-        {eyebrow && (
-          <p className="text-[11px] uppercase tracking-normal text-muted-foreground font-medium">
-            {eyebrow}
-          </p>
-        )}
-        <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.3] mt-1.5">
+        <h1 className="font-display font-semibold tracking-tight text-foreground text-[24px] sm:text-[28px] leading-[1.3]">
           {title}
         </h1>
         {description && (
