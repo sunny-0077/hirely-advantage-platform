@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useResumeSource } from "@/hooks/useResumeSource";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -58,7 +57,6 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
 
 export default function Jobs() {
   const navigate = useNavigate();
-  const savedResume = useResumeSource();
   const inFlight = useRef(false);
   const requestKeys = useRef(new Map<string, string>());
   const retryKey = (key: string) => { const id = requestKeys.current.get(key) ?? crypto.randomUUID(); requestKeys.current.set(key, id); return id; };
