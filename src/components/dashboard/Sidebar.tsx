@@ -33,7 +33,7 @@ const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?:
      {({ isActive }) => <>
        {isActive && <motion.span layoutId="sidebar-selected" transition={transition} className="pointer-events-none absolute inset-0 rounded-md bg-accent" />}
        <AnimatePresence>{hovered === to && !isActive && <motion.span layoutId="sidebar-hover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transition} className="pointer-events-none absolute inset-0 rounded-md bg-muted" />}</AnimatePresence>
-       <Icon className="relative z-10 size-4 shrink-0" />
+       <motion.span className="relative z-10 inline-flex shrink-0" animate={hovered === to && !reducedMotion ? { scale: [1, 1.22, 1.12], rotate: [0, -10, 0] } : { scale: 1, rotate: 0 }} transition={{ duration: 0.35, ease: "easeOut" }}><Icon className="size-4" /></motion.span>
        <AnimatePresence initial={false}>{!collapsed && <motion.span key="label" initial={{ opacity: 0, filter: reducedMotion ? "none" : "blur(4px)" }} animate={{ opacity: 1, filter: "blur(0px)" }} exit={{ opacity: 0, filter: reducedMotion ? "none" : "blur(4px)" }} transition={{ duration: reducedMotion ? 0 : 0.2 }} className="relative z-10 flex-1 whitespace-nowrap">{label}</motion.span>}</AnimatePresence>
      </>}
    </NavLink></TooltipTrigger>{collapsed && <TooltipContent side="right">{label}</TooltipContent>}</Tooltip>
