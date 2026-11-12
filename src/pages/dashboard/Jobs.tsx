@@ -185,7 +185,7 @@ export default function Jobs() {
       ) : jobs.length === 0 ? (
         <EmptyState icon={Briefcase} title={`No ${city} roles yet`} description="New jobs are added regularly. Try another city for now." />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {jobs.map((j) => (
             <article key={j.id} className={cn("rounded-lg border border-border bg-card p-6 flex flex-col gap-5")}>
               <div>
