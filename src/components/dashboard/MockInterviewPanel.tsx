@@ -656,7 +656,7 @@ const CoachingBubble = ({ feedback, score }: { feedback: string; score: number |
     score === null
       ? "text-foreground/70"
       : score >= 80
-        ? "text-emerald-700 dark:text-emerald-400"
+        ? "text-sky-700 dark:text-sky-400"
         : score >= 60
           ? "text-amber-700 dark:text-amber-400"
           : "text-rose-700 dark:text-rose-400";
@@ -689,7 +689,7 @@ const DebriefCard = ({ session }: { session: Session }) => {
   const score = session.overall_score ?? 0;
   const color =
     score >= 80
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-sky-700 dark:text-sky-400"
       : score >= 60
         ? "text-amber-600 dark:text-amber-400"
         : "text-rose-600 dark:text-rose-400";
@@ -714,13 +714,13 @@ const DebriefCard = ({ session }: { session: Session }) => {
 
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-emerald-700 dark:text-emerald-400 font-medium">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-sky-700 dark:text-sky-400 font-medium">
             Strengths
           </p>
           <ul className="mt-2 space-y-2">
             {(session.strengths ?? []).map((s, i) => (
               <li key={i} className="flex gap-2 text-[13px] text-foreground/80 tracking-tight leading-snug">
-                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-sky-700 dark:text-sky-400 shrink-0" />
                 <span>{s}</span>
               </li>
             ))}

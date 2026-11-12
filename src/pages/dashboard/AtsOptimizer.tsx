@@ -444,7 +444,7 @@ function ResultsView({ result }: { result: Result }) {
                   className={cn(
                     "rounded-xl border p-4 transition-colors",
                     add
-                      ? "border-emerald-500/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.07]"
+                      ? "border-sky-500/20 bg-sky-500/[0.04] hover:bg-sky-500/[0.07]"
                       : "border-amber-500/25 bg-amber-500/[0.05] hover:bg-amber-500/[0.08]",
                   )}
                 >
@@ -453,7 +453,7 @@ function ResultsView({ result }: { result: Result }) {
                       className={cn(
                         "shrink-0 w-8 h-8 rounded-xl flex items-center justify-center mt-0.5",
                         add
-                          ? "bg-emerald-500/15 text-emerald-700"
+                          ? "bg-sky-500/15 text-sky-700"
                           : "bg-amber-500/15 text-amber-700",
                       )}
                     >
@@ -468,7 +468,7 @@ function ResultsView({ result }: { result: Result }) {
                           className={cn(
                             "text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 rounded-full font-semibold",
                             add
-                              ? "bg-emerald-500/15 text-emerald-800"
+                              ? "bg-sky-500/15 text-sky-800"
                               : "bg-amber-500/15 text-amber-800",
                           )}
                         >
@@ -482,7 +482,7 @@ function ResultsView({ result }: { result: Result }) {
                             className={cn(
                               "ml-auto text-[10.5px] font-semibold px-2.5 py-1 rounded-full transition-colors",
                               isAdded(s.keyword)
-                                ? "bg-emerald-500/15 text-emerald-700 cursor-default"
+                                ? "bg-sky-500/15 text-sky-700 cursor-default"
                                 : "bg-orange-500 text-white hover:bg-orange-600",
                             )}
                           >
@@ -521,7 +521,7 @@ function ResultsView({ result }: { result: Result }) {
                     <p className="mt-1 text-[12.5px] text-foreground/70 leading-relaxed">{r.before}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] tracking-[0.18em] uppercase text-emerald-700 font-medium">After</p>
+                    <p className="text-[10px] tracking-[0.18em] uppercase text-sky-700 font-medium">After</p>
                     <p className="mt-1 text-[12.5px] text-foreground leading-relaxed">{r.after}</p>
                   </div>
                 </div>
@@ -673,7 +673,7 @@ function MatchRing({ value, projected }: { value: number; projected: number }) {
 
 function MiniStat({ label, value, tone }: { label: string; value: number; tone?: "ok" | "warn" }) {
   const toneClass =
-    tone === "ok" ? "text-emerald-600" : tone === "warn" ? "text-orange-600" : "text-foreground";
+    tone === "ok" ? "text-sky-700" : tone === "warn" ? "text-orange-600" : "text-foreground";
   return (
     <div className="rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] px-3 py-2">
       <p className="text-[9.5px] tracking-[0.18em] uppercase text-foreground/50 font-semibold">{label}</p>
@@ -703,10 +703,10 @@ function TagGroup({
 }) {
   const palette = {
     matched: {
-      chip: "bg-emerald-500/12 border-emerald-500/30 text-emerald-800 dark:text-emerald-200",
-      chipMust: "ring-emerald-500/40",
-      badge: "bg-emerald-500/15 text-emerald-700",
-      header: "text-emerald-700 dark:text-emerald-300",
+      chip: "bg-sky-500/12 border-sky-500/30 text-sky-800 dark:text-sky-200",
+      chipMust: "ring-sky-500/40",
+      badge: "bg-sky-500/15 text-sky-700",
+      header: "text-sky-700 dark:text-sky-300",
     },
     critical: {
       chip: "bg-rose-500/12 border-rose-500/35 text-rose-800 dark:text-rose-200",
@@ -802,9 +802,9 @@ function SafetyCard({
 }) {
   const palette = {
     good: {
-      ring: "text-emerald-600",
-      track: "text-emerald-500/15",
-      chip: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+      ring: "text-sky-700",
+      track: "text-sky-500/15",
+      chip: "bg-sky-500/10 text-sky-700 border-sky-500/20",
       icon: ShieldCheck,
       headline: "Most suggested keywords are supported by your resume content.",
     },

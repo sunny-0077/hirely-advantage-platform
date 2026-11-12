@@ -23,7 +23,7 @@ export function TemplatePicker({
                 : "border-border/60 bg-card/60 hover:border-foreground/20")
             }
           >
-            <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.18em] text-emerald-300/85 mb-2">
+            <div className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.18em] text-sky-300/85 mb-2">
               <ShieldCheck className="w-3 h-3" /> ATS-safe
             </div>
             <div className="text-[14.5px] font-semibold text-foreground tracking-tight">

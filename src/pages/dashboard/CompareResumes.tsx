@@ -654,7 +654,7 @@ const ResumeScoreCard = ({
           <ul className="mt-1.5 space-y-1">
             {score.strengths.map((s, i) => (
               <li key={i} className="text-[12.5px] leading-[1.5] text-foreground/75 pl-3 relative tracking-tight">
-                <span className="absolute left-0 top-[8px] w-1 h-1 rounded-full bg-[hsl(150_55%_45%)]" />
+                <span className="absolute left-0 top-[8px] w-1 h-1 rounded-full bg-[hsl(199_89%_48%)]" />
                 {s}
               </li>
             ))}

@@ -529,7 +529,7 @@ const InterviewPrep = () => {
                         <span
                           className={cn(
                             wordCount >= 150 && wordCount <= 300
-                              ? "text-emerald-600 dark:text-emerald-400"
+                              ? "text-sky-700 dark:text-sky-400"
                               : "text-amber-600 dark:text-amber-400",
                           )}
                         >
@@ -686,7 +686,7 @@ const AnalysisView = ({
   const score = analysis.overall_score ?? 0;
   const scoreColor =
     score >= 80
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-sky-700 dark:text-sky-400"
       : score >= 60
         ? "text-amber-600 dark:text-amber-400"
         : "text-rose-600 dark:text-rose-400";
@@ -874,13 +874,13 @@ const AnalysisView = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <SectionCard className="p-4 sm:p-5">
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-emerald-700 dark:text-emerald-400 font-medium">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-sky-700 dark:text-sky-400 font-medium">
             What you did well
           </p>
           <ul className="mt-3 space-y-2">
             {(analysis.strengths ?? []).map((s, i) => (
               <li key={i} className="flex gap-2 text-[13px] text-foreground/80 tracking-tight leading-snug">
-                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-sky-700 dark:text-sky-400 shrink-0" />
                 <span>{s}</span>
               </li>
             ))}
@@ -926,7 +926,7 @@ const AnalysisView = ({
                   className={cn(
                     "mt-0.5 w-5 h-5 rounded-full grid place-items-center shrink-0 text-[10px] font-semibold",
                     part?.present
-                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                      ? "bg-sky-500/15 text-sky-700 dark:text-sky-400"
                       : "bg-rose-500/15 text-rose-700 dark:text-rose-400",
                   )}
                 >
@@ -956,7 +956,7 @@ const AnalysisView = ({
                 {analysis.matched_keywords.map((k) => (
                   <span
                     key={k}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11.5px] tracking-tight"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-700 dark:text-sky-400 text-[11.5px] tracking-tight"
                   >
                     <Check className="w-2.5 h-2.5" />
                     {k}
@@ -990,7 +990,7 @@ const ScoreBar = ({ label, value }: { label: string; value: number | null }) => 
   const v = value ?? 0;
   const color =
     v >= 80
-      ? "bg-emerald-500"
+      ? "bg-sky-500"
       : v >= 60
         ? "bg-amber-500"
         : "bg-rose-500";

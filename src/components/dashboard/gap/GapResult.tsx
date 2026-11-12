@@ -55,8 +55,8 @@ const META: Record<string, Meta> = {
   },
   strength: {
     icon: CheckCircle2,
-    accent: "bg-emerald-500/10 ring-1 ring-emerald-500/20",
-    iconColor: "text-emerald-600",
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-700",
     label: "Working",
   },
   score: {
@@ -79,8 +79,8 @@ const META: Record<string, Meta> = {
   },
   evidence: {
     icon: Table2,
-    accent: "bg-teal-500/10 ring-1 ring-teal-500/20",
-    iconColor: "text-teal-600",
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-700",
     label: "Evidence map",
   },
   contact: {
@@ -103,8 +103,8 @@ const META: Record<string, Meta> = {
   },
   skills: {
     icon: KeyRound,
-    accent: "bg-emerald-500/10 ring-1 ring-emerald-500/20",
-    iconColor: "text-emerald-600",
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-700",
     label: "Skills",
   },
   failure: {
@@ -330,7 +330,7 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
       {/* Compact, unmissable results header */}
       <div className="flex items-center justify-between gap-4 pb-3 border-b border-foreground/[0.08]">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15" />
+          <span className="inline-flex h-1.5 w-1.5 rounded-full bg-sky-500 ring-4 ring-sky-500/15" />
           <h2 className="text-[15px] font-semibold tracking-tight text-foreground truncate">
             Your report is ready
           </h2>

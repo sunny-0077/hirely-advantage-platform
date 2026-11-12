@@ -159,7 +159,7 @@ const ResumeBuilder = () => {
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Templates
         </button>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[11px] text-emerald-300">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-[11px] text-sky-300">
           <ShieldCheck className="w-3 h-3" /> {templateMeta?.name ?? "ATS-safe"}
         </div>
 

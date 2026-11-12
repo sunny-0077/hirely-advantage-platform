@@ -90,7 +90,7 @@ export const TransformationPanel = ({ versions, className }: Props) => {
           </p>
           <p className="mt-2 text-[14px] text-foreground/70 tracking-tight leading-snug">
             Re-upload an improved resume to unlock the Before vs After view — we'll show exactly
-            what improved, in green.
+            what improved, in blue.
           </p>
           <div className="mt-4">
             <VersionRow v={sorted[0]} active />
@@ -172,7 +172,7 @@ export const TransformationPanel = ({ versions, className }: Props) => {
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[11px] tracking-tight border transition-colors",
                       isAfter
-                        ? "bg-[hsl(150_55%_45%/0.12)] border-[hsl(150_55%_45%/0.25)] text-[hsl(150_45%_28%)]"
+                        ? "bg-[hsl(199_89%_48%/0.12)] border-[hsl(199_89%_48%/0.25)] text-[hsl(201_94%_32%)]"
                         : "bg-transparent border-foreground/[0.08] text-foreground/55 hover:bg-foreground/[0.04] disabled:opacity-30 disabled:cursor-not-allowed",
                     )}
                   >
@@ -224,7 +224,7 @@ const TransformationHero = ({ before, after }: { before: VersionLite; after: Ver
             {improved ? (
               <>
                 You moved up{" "}
-                <span className="text-[hsl(140_60%_70%)]">+{delta} points</span>.
+                <span className="text-[hsl(198_93%_68%)]">+{delta} points</span>.
               </>
             ) : same ? (
               <>Same score — let's push it higher.</>
@@ -237,7 +237,7 @@ const TransformationHero = ({ before, after }: { before: VersionLite; after: Ver
           className={cn(
             "shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium tracking-tight",
             improved
-              ? "bg-[hsl(150_55%_45%/0.18)] text-[hsl(140_60%_75%)]"
+              ? "bg-[hsl(199_89%_48%/0.18)] text-[hsl(198_93%_72%)]"
               : same
               ? "bg-white/10 text-white/70"
               : "bg-[hsl(0_70%_55%/0.18)] text-[hsl(0_70%_80%)]",
@@ -291,7 +291,7 @@ const BigScore = ({
         style={{
           width: `${Math.max(0, Math.min(100, value))}%`,
           background: accent
-            ? "linear-gradient(90deg,hsl(140 60% 65%),hsl(150 55% 75%))"
+            ? "linear-gradient(90deg,hsl(198 93% 62%),hsl(198 93% 72%))"
             : "linear-gradient(90deg,hsl(0 0% 100% / 0.3),hsl(0 0% 100% / 0.55))",
         }}
       />
@@ -316,7 +316,7 @@ const MiniDelta = ({ label, delta }: { label: string; delta: number }) => {
         className={cn(
           "inline-flex items-center gap-1 text-[12px] font-medium tabular-nums tracking-tight",
           up
-            ? "text-[hsl(140_60%_75%)]"
+            ? "text-[hsl(198_93%_72%)]"
             : down
             ? "text-[hsl(0_70%_80%)]"
             : "text-white/60",
@@ -345,7 +345,7 @@ const CompareCard = ({ before, after }: { before: VersionLite; after: VersionLit
             Before vs After · what changed
           </p>
           <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-            Improvements highlighted in green.
+            Improvements highlighted in blue.
           </p>
         </div>
         <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-foreground/55">
@@ -397,7 +397,7 @@ const CompareBar = ({
           className={cn(
             "inline-flex items-center gap-1 text-[11.5px] font-medium tabular-nums tracking-tight",
             up
-              ? "text-[hsl(150_45%_28%)]"
+              ? "text-[hsl(201_94%_32%)]"
               : down
               ? "text-[hsl(0_60%_45%)]"
               : "text-foreground/50",
@@ -415,7 +415,7 @@ const CompareBar = ({
             className={cn(
               "ml-1 px-1.5 py-0.5 rounded-full text-[10px]",
               up
-                ? "bg-[hsl(150_55%_45%/0.12)]"
+                ? "bg-[hsl(199_89%_48%/0.12)]"
                 : down
                 ? "bg-[hsl(0_70%_55%/0.10)]"
                 : "bg-foreground/[0.05]",
@@ -438,7 +438,7 @@ const CompareBar = ({
           style={{
             width: `${a}%`,
             background: up
-              ? "linear-gradient(90deg,hsl(150 55% 40%),hsl(140 60% 55%))"
+              ? "linear-gradient(90deg,hsl(199 89% 45%),hsl(199 89% 50%))"
               : down
               ? "linear-gradient(90deg,hsl(0 60% 50%),hsl(15 70% 60%))"
               : "linear-gradient(90deg,#0E0B1F,#6D54B3)",
@@ -469,7 +469,7 @@ const CountTile = ({
       className={cn(
         "rounded-xl px-3.5 py-3 border",
         isImprovement
-          ? "bg-[hsl(150_55%_45%/0.06)] border-[hsl(150_55%_45%/0.18)]"
+          ? "bg-[hsl(199_89%_48%/0.06)] border-[hsl(199_89%_48%/0.18)]"
           : isRegression
           ? "bg-[hsl(0_70%_55%/0.05)] border-[hsl(0_70%_55%/0.14)]"
           : "bg-foreground/[0.025] border-foreground/[0.06]",
@@ -485,7 +485,7 @@ const CountTile = ({
           className={cn(
             "text-[20px] leading-none font-semibold tabular-nums tracking-[-0.02em]",
             isImprovement
-              ? "text-[hsl(150_45%_28%)]"
+              ? "text-[hsl(201_94%_32%)]"
               : isRegression
               ? "text-[hsl(0_60%_38%)]"
               : "text-foreground",
@@ -498,7 +498,7 @@ const CountTile = ({
         className={cn(
           "mt-1 text-[11px] font-medium tabular-nums tracking-tight",
           isImprovement
-            ? "text-[hsl(150_45%_32%)]"
+            ? "text-[hsl(201_94%_32%)]"
             : isRegression
             ? "text-[hsl(0_55%_42%)]"
             : "text-foreground/50",
