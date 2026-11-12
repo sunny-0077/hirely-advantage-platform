@@ -1,8 +1,9 @@
 # Roadmap
 
 - [x] Inspect existing resume editor, Master Resume storage, exports and occupational data sources; propose the scalable Resume Template Library structure before implementation.
-- [ ] Build the approved occupational catalogue, role/level template browser, Master Resume mapping, editing and saved versions; awaiting approval of the library plan.
-- [ ] Validate approved library search, content preservation, private version saving and PDF exports on desktop/mobile; awaiting library implementation and a usable signed-in account.
+- [x] Build the occupational catalogue, role/level template browser, Master Resume mapping, editing and saved versions: 45,808 titles, 35 industries, 26 career levels and three reusable designs with seven professional blueprints.
+- [x] Validate catalogue coverage, search, synonyms, pagination, private version CRUD/revisions and Unicode multi-page PDF/DOCX exports; 34 regression tests passed and temporary test versions removed.
+- [ ] Verify library browsing, editing, switching and version reopening through the real desktop/mobile workspace; blocked by the requesting account's unfinished onboarding. No setup bypass or invented profile facts.
 
 - [x] Balance workspace sizing without shrinking body text: compact shared cards and overview tiles, place the home studio beside documents/jobs, retain full-width pages and modest side gutters.
 
