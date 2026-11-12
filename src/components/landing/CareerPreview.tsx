@@ -28,7 +28,7 @@ export function CareerPreview() {
           <div><p className="text-[10px] uppercase font-semibold text-muted-foreground mb-1">Application workspace</p><h3 className="text-lg font-semibold">Data Analyst <span className="font-normal text-muted-foreground">/ Example Co.</span></h3></div>
           <span className="flex items-center gap-1 text-xs text-muted-foreground">Preparing<ChevronRight className="size-3" /></span>
         </div>
-        <div className="flex gap-1 border-b border-border mb-5 overflow-x-auto" role="tablist" aria-label="Example document">
+        <div className="flex flex-wrap gap-x-1 gap-y-2 border-b border-border mb-5" role="tablist" aria-label="Example document">
           {views.map(v => <Button key={v} role="tab" aria-selected={view === v} variant="ghost" size="sm" onClick={() => setView(v)} className={cn("rounded-none border-b-2 text-xs px-3", view === v ? "border-primary text-primary" : "border-transparent text-muted-foreground")}>{v}</Button>)}
         </div>
         <div className="grid sm:grid-cols-[1fr_190px] gap-6">
