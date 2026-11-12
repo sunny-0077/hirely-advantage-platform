@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Mic, Briefcase, Send, Bookmark, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser } from "lucide-react";
+import { Mail, Mic, Briefcase, Send, Bookmark, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { LogoLockup } from "@/components/landing/Logo";
 import { PlatformFeedbackButton } from "@/components/feedback/PlatformFeedbackButton";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -24,7 +27,21 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
  const isAdmin = useIsAdmin();
  const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
  const group=(items:typeof workspaceLinks,soon=false)=><nav className="flex flex-col gap-0.5 mb-3">{items.map(({to,label,icon:Icon})=><NavLink key={to} to={to} onClick={onNavigate} className={({isActive})=>cn("flex items-center gap-2.5 px-3 py-1.5 rounded-md text-[13px] leading-5 transition-colors",isActive?"bg-accent text-primary font-semibold":"text-muted-foreground hover:text-foreground hover:bg-muted")}><Icon className="size-4 shrink-0" strokeWidth={1.8} /><span className="flex-1">{label}</span>{soon&&<span className="text-[9px] uppercase text-muted-foreground">Soon</span>}</NavLink>)}</nav>;
- return <><div className="px-3 pt-1 mb-5"><LogoLockup size="text-2xl" /></div><SectionLabel>Workspace</SectionLabel>{group(workspaceLinks)}<SectionLabel>Suite</SectionLabel>{group(suite)}<SectionLabel>Tracking</SectionLabel>{group(tracking,true)}<div className="border-t border-border pt-2 mb-3"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></>;
+ return <><div className="px-3 pt-1 mb-5"><LogoLockup size="text-2xl" /></div><SectionLabel>Workspace</SectionLabel>{group(workspaceLinks)}<SectionLabel>Suite</SectionLabel>{group(suite)}<SectionLabel>Tracking</SectionLabel>{group(tracking,true)}<div className="border-t border-border pt-2 mb-3"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-1.5 text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /><SidebarSignOut /></>;
+};
+
+const SidebarSignOut = () => {
+  const [busy, setBusy] = useState(false);
+  const queryClient = useQueryClient();
+  return <Button variant="ghost" size="sm" className="mt-3 justify-start gap-2.5 px-3 text-[13px] text-muted-foreground" disabled={busy} onClick={async () => {
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) toast.error("Couldn't sign out. Please try again.");
+      else queryClient.clear();
+    } catch { toast.error("Couldn't sign out. Please try again."); }
+    finally { setBusy(false); }
+  }}><LogOut className="size-4" />{busy ? "Signing out…" : "Sign out"}</Button>;
 };
 
 const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
