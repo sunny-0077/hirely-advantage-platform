@@ -5,6 +5,7 @@ Build an extensive, searchable professional resume library—not a small collect
 
 ## What the inspection found
 - The existing Resume Builder already has editing, live preview, five template presets, PDF/DOCX export and a user-scoped browser draft. It does not currently save multiple named versions to the account.
+- Its current Templates button starts over and clears the draft; replace that path with non-destructive switching and keep starting over as a separate confirmed action.
 - Master Resume stores structured career facts in the existing profile. It contains richer information than the builder supports, including publications, volunteering, languages and credential links.
 - The current database has uploaded resumes, but no occupational catalogue, reusable library definitions or builder-version tables. Uploaded files must not be repurposed as editable versions.
 - PDF and on-screen preview have separate rendering paths, and PDF font choices currently map to built-in fonts. Export fidelity needs checking rather than assuming it matches the preview.
@@ -53,7 +54,7 @@ All new tables live in `public`; existing profile and uploaded-resume schemas re
 | `resume_role_blueprints` | Versioned professional section structures and guidance |
 | `resume_template_assignments` | Occupation/level/blueprint/design compatibility and optional title overrides; unique combinations |
 | `resume_catalogue_sources` | Dataset version, source URL/licence, attribution, import date and modifications |
-| `resume_versions` | Owner UUID, name, selected title/level/design/blueprint versions, validated content snapshot, revision counter and timestamps |
+| `resume_versions` | Owner UUID, name, selected title/level/design/blueprint versions, document schema version, validated content snapshot, revision counter and timestamps |
 
 - Catalogue read policies expose only published records to signed-in users. Catalogue writes are restricted to trusted server-side imports; no new admin roles or editable browser permissions.
 - Personal versions have owner-only SELECT/INSERT/UPDATE/DELETE policies using `auth.uid()` and a revision check to prevent stale tabs overwriting newer edits. No foreign keys to managed auth tables.
