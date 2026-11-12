@@ -5,6 +5,7 @@
 - [x] Redesign public pages, shared controls and authenticated workspace with the new restrained visual identity; backend, auth, payment and credit handlers unchanged.
 - [x] Inspect all public sections at desktop/tablet/mobile sizes, verify illustrative tabs and mobile navigation, inspect sign-in/signup/onboarding, and run 54 existing regression tests. No paid generation or profile saves performed.
 - [x] Replace the bright mint accent site-wide with deep emerald (#0B7A52 actions, #E8F4EE tints, #06281C panels); verified in-browser on public pages, sign-in and eight workspace pages at desktop plus phone, no old mint remains, build OK.
+- [x] Replace every green site-wide with sky blue (#0369A1 actions, #F0F9FF/#E0F2FE tints, #051E2C panels, #38BDF8 accent text on panels); verified in-browser on landing, pricing, sign-in and seven workspace pages at desktop plus phone — zero green pixels found, all pages rendered real content, build OK. Google's own logo green and the resume-document colour choices left untouched.
 
 - [ ] Inspect real authenticated workspace pages at desktop/mobile sizes; current authorized session redirects to onboarding Personal information (Step 1 of 3). No account switching, invented facts or onboarding bypass.
 
