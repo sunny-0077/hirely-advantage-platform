@@ -25,7 +25,8 @@ const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?:
  const [hovered, setHovered] = useState<string | null>(null);
  const reducedMotion = useReducedMotion();
  const transition = reducedMotion ? { duration: 0 } : { type: "spring" as const, stiffness: 350, damping: 30 };
- const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
+ const workspaceLinks = [{to:"/app/home",label:"My workspace",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},...suite];
+ const careerLinks = [{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
  const group = (items: typeof workspaceLinks) => <nav className="flex flex-col gap-[2.1px] mb-[12.6px]" onMouseLeave={() => setHovered(null)}>{items.map(({ to, label, icon: Icon }) =>
    <Tooltip key={to}><TooltipTrigger asChild><NavLink to={to} aria-label={label} onClick={onNavigate} onMouseEnter={() => setHovered(to)} onFocus={() => setHovered(to)} onBlur={() => setHovered(null)} className="relative flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors overflow-hidden text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-semibold">
      {({ isActive }) => <>
@@ -39,7 +40,7 @@ const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?:
  return <LayoutGroup><div className="flex items-center justify-between pt-1 mb-[21px] min-h-8">
    {!collapsed && <div className="px-3"><LogoLockup size="text-2xl" /></div>}
    {onToggle && <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onToggle} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} className="size-8 shrink-0 text-muted-foreground">{collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}</Button></TooltipTrigger><TooltipContent side="right">{collapsed ? "Expand sidebar" : "Collapse sidebar"}</TooltipContent></Tooltip>}
- </div>{!collapsed && <SectionLabel>Workspace</SectionLabel>}{group(workspaceLinks)}{!collapsed && <SectionLabel>Suite</SectionLabel>}{group(suite)}
+ </div>{!collapsed && <SectionLabel>Workspace</SectionLabel>}{group(workspaceLinks)}{!collapsed && <SectionLabel>My career</SectionLabel>}{group(careerLinks)}
  <AnimatePresence initial={false}>{!collapsed && <motion.div key="details" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.15 }} className="min-w-[204px]"><div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></motion.div>}</AnimatePresence><SidebarSignOut collapsed={collapsed} /></LayoutGroup>;
 };
 
