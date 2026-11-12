@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Mail, Mic, Briefcase, X, LayoutDashboard, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Mail, Mic, Briefcase, X, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,13 @@ import { PlatformFeedbackButton } from "@/components/feedback/PlatformFeedbackBu
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useBetaOffer } from "@/components/billing/BetaOffer";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import type { LucideIcon } from "lucide-react";
+
+const HomeFilled = (({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true" {...(props as object)}>
+    <path d="M12.707 2.293l9 9c.63 .63 .184 1.707 -.707 1.707h-1v6a3 3 0 0 1 -3 3h-1v-7a3 3 0 0 0 -2.824 -2.995l-.176 -.005h-2a3 3 0 0 0 -3 3v7h-1a3 3 0 0 1 -3 -3v-6h-1c-.89 0 -1.337 -1.077 -.707 -1.707l9 -9a1 1 0 0 1 1.414 0m.293 11.707a1 1 0 0 1 1 1v7h-4v-7a1 1 0 0 1 .883 -.993l.117 -.007z" />
+  </svg>
+)) as unknown as LucideIcon;
 
 const suite = [
   { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
@@ -25,7 +32,7 @@ const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?:
  const [hovered, setHovered] = useState<string | null>(null);
  const reducedMotion = useReducedMotion();
  const transition = reducedMotion ? { duration: 0 } : { type: "spring" as const, stiffness: 350, damping: 30 };
- const workspaceLinks = [{to:"/app/home",label:"Dashboard",icon:LayoutDashboard},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},...suite];
+ const workspaceLinks = [{to:"/app/home",label:"Dashboard",icon:HomeFilled},{to:"/app/master-resume",label:"Master Resume",icon:FileUser},{to:"/app/jobs",label:"Jobs",icon:Briefcase},...suite];
  const careerLinks = [{to:"/app/documents",label:"My documents",icon:FolderOpen},{to:"/app/applications",label:"Applications",icon:ClipboardList},{to:"/app/profile",label:"My profile",icon:UserRound}];
  const group = (items: typeof workspaceLinks) => <nav className="flex flex-col gap-[2.1px] mb-[12.6px]" onMouseLeave={() => setHovered(null)}>{items.map(({ to, label, icon: Icon }) =>
    <Tooltip key={to}><TooltipTrigger asChild><NavLink to={to} aria-label={label} onClick={onNavigate} onMouseEnter={() => setHovered(to)} onFocus={() => setHovered(to)} onBlur={() => setHovered(null)} className="relative flex items-center gap-2.5 px-3 py-[6.3px] rounded-md text-[13px] leading-5 transition-colors overflow-hidden text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-semibold">
