@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { authErrorMessage, workspaceDestination } from "@/lib/onboarding";
 import { passwordResetRedirectUrl } from "@/lib/authNavigation";
+import { emailCredentials } from "@/lib/emailCredentials";
 
 const emailSchema = z
   .string()
@@ -107,19 +108,16 @@ const Auth = () => {
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
+    const form = new FormData(e.currentTarget as HTMLFormElement);
     setLoading(true);
     setAuthError("");
     try {
-      const emailParsed = emailSchema.safeParse(email);
-      if (!emailParsed.success) throw new Error(emailParsed.error.issues[0].message);
-      const passParsed = passwordSchema.safeParse(password);
-      if (!passParsed.success) throw new Error(passParsed.error.issues[0].message);
+      const credentials = emailCredentials(form, mode === "signup");
 
       if (mode === "signup") {
         const validName = z.string().trim().min(1, "Enter your full name").max(100).parse(name);
         const { data, error } = await supabase.auth.signUp({
-          email: emailParsed.data,
-          password: passParsed.data,
+          ...credentials,
           options: {
             emailRedirectTo: authRedirectUrl(),
             data: { full_name: validName },
@@ -129,18 +127,15 @@ const Auth = () => {
         const outcome = signupOutcome(data);
         setPassword("");
         if (outcome === "sign-in") {
-          setExistingEmail(emailParsed.data);
+          setExistingEmail(credentials.email);
         } else if (outcome === "confirmation") {
-          pendingSignup.current = { email: emailParsed.data, password: passParsed.data };
-          setConfirmationEmail(emailParsed.data);
+          pendingSignup.current = credentials;
+          setConfirmationEmail(credentials.email);
           setResendUntil(Date.now() + 60000);
           setNow(Date.now());
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: emailParsed.data,
-          password: passParsed.data,
-        });
+        const { error } = await supabase.auth.signInWithPassword(credentials);
         if (error) throw error;
       }
     } catch (err) {
@@ -354,6 +349,10 @@ const Auth = () => {
 
             <input
               type="email"
+              name="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              inputMode="email"
               aria-label="Email"
               autoComplete="email"
               placeholder="Email"
@@ -366,6 +365,7 @@ const Auth = () => {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
                 aria-label="Password"
                 autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 placeholder="Password"
