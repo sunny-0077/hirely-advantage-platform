@@ -11,6 +11,12 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+/** Only a definite server rejection may sign the user out; network blips keep the current state. */
+const isAuthRejection = (error: unknown) => {
+  const status = (error as { status?: number } | null)?.status;
+  return status === undefined || status === 401 || status === 403 || (status >= 400 && status < 500);
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -19,48 +25,84 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let active = true;
-    let generation = 0;
-    const syncSession = async () => {
-      const request = ++generation;
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        const result = currentSession ? await supabase.auth.getUser() : null;
-        if (!active || request !== generation) return;
-        const validated = result?.error ? null : result?.data.user;
-        setSession(validated ? currentSession : null);
-        setUser(validated ?? null);
-      } catch {
-        if (!active || request !== generation) return;
-        setSession(null);
-        setUser(null);
-      } finally {
-        if (active && request === generation) setLoading(false);
+    // Bumped by every sign-out: results started before a logout are discarded.
+    let signOuts = 0;
+    // Bumped by every validation: only the newest validation may apply its result.
+    let latestCheck = 0;
+    // Newest session announced by the auth client. Mobile tab returns and brokered
+    // preview storage can briefly read back empty, so this is the fallback source.
+    let known: Session | null = null;
+    let validatedUserId: string | null = null;
+
+    const signOutLocally = () => {
+      known = null; validatedUserId = null;
+      setSession(null); setUser(null); setLoading(false); setRecovering(false);
+    };
+
+    const validate = async (candidate: Session | null, logoutMark: number) => {
+      const check = ++latestCheck;
+      const stillCurrent = () => active && check === latestCheck && logoutMark === signOuts;
+      if (!candidate) {
+        if (stillCurrent()) signOutLocally();
+        return;
       }
+      try {
+        const { data, error } = await supabase.auth.getUser(candidate.access_token);
+        if (!stillCurrent()) return;
+        if (data?.user && !error) {
+          known = candidate; validatedUserId = data.user.id;
+          setSession(candidate); setUser(data.user); setLoading(false);
+        } else if (isAuthRejection(error)) {
+          // A newer session may have arrived while this one was being checked.
+          if (known && known.access_token !== candidate.access_token) return void validate(known, logoutMark);
+          signOutLocally();
+        } else setLoading(false);
+      } catch {
+        if (stillCurrent()) setLoading(false);
+      }
+    };
+
+    const syncFromStorage = async () => {
+      const logoutMark = signOuts;
+      let stored: Session | null = null;
+      try {
+        stored = (await supabase.auth.getSession()).data.session;
+      } catch { /* fall back to the announced session */ }
+      if (!active || logoutMark !== signOuts) return;
+      await validate(stored ?? known, logoutMark);
     };
 
     // Listener FIRST so OAuth/session callbacks cannot race the initial read.
     const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
       if (!active) return;
-      const eventGeneration = ++generation;
       if (event === "PASSWORD_RECOVERY") setRecovering(true);
       if (!sess) {
-        setSession(null); setUser(null); setLoading(false); setRecovering(false);
+        signOuts++;
+        latestCheck++;
+        signOutLocally();
+        return;
+      }
+      known = sess;
+      if (sess.user?.id && sess.user.id === validatedUserId) {
+        // Token refresh for the already validated user: no loading flash.
+        setSession(sess);
         return;
       }
       // Never expose an event's unvalidated user to private routes.
       setLoading(true);
+      const logoutMark = signOuts;
+      // Defer: auth client calls made inside this callback can deadlock.
       window.setTimeout(() => {
-        // A queued sign-in check must not supersede a later logout.
-        if (active && sess && eventGeneration === generation) void syncSession();
+        if (active && logoutMark === signOuts) void validate(sess, logoutMark);
       }, 0);
     });
 
     // Then hydrate the existing session. Never leave the UI blank if this fails.
-    void syncSession();
+    void syncFromStorage();
 
-    const onFocus = () => void syncSession();
+    const onFocus = () => void syncFromStorage();
     const onVisible = () => {
-      if (document.visibilityState === "visible") void syncSession();
+      if (document.visibilityState === "visible") void syncFromStorage();
     };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisible);
