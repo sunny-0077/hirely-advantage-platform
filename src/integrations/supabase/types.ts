@@ -967,6 +967,89 @@ export type Database = {
           },
         ]
       }
+      resume_career_levels: {
+        Row: {
+          id: string
+          label: string
+          published: boolean
+          sort_order: number
+        }
+        Insert: {
+          id: string
+          label: string
+          published?: boolean
+          sort_order: number
+        }
+        Update: {
+          id?: string
+          label?: string
+          published?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      resume_catalogue_sources: {
+        Row: {
+          attribution: string
+          id: string
+          label: string
+          license: string
+          modifications: string
+          published: boolean
+          source_url: string
+          version: string
+        }
+        Insert: {
+          attribution: string
+          id: string
+          label: string
+          license: string
+          modifications?: string
+          published?: boolean
+          source_url: string
+          version: string
+        }
+        Update: {
+          attribution?: string
+          id?: string
+          label?: string
+          license?: string
+          modifications?: string
+          published?: boolean
+          source_url?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      resume_categories: {
+        Row: {
+          id: string
+          industry_id: string
+          label: string
+          published: boolean
+        }
+        Insert: {
+          id: string
+          industry_id: string
+          label: string
+          published?: boolean
+        }
+        Update: {
+          id?: string
+          industry_id?: string
+          label?: string
+          published?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_categories_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "resume_industries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resume_enhancements: {
         Row: {
           achievements: Json
@@ -1030,6 +1113,214 @@ export type Database = {
           summary?: string | null
           user_id?: string
           verifiable_claims?: Json
+        }
+        Relationships: []
+      }
+      resume_industries: {
+        Row: {
+          id: string
+          label: string
+          published: boolean
+          sort_order: number
+        }
+        Insert: {
+          id: string
+          label: string
+          published?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          label?: string
+          published?: boolean
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      resume_job_titles: {
+        Row: {
+          category_id: string
+          id: string
+          industry_id: string
+          normalized_title: string
+          occupation_id: string
+          popular_rank: number | null
+          published: boolean
+          published_at: string
+          title: string
+        }
+        Insert: {
+          category_id: string
+          id: string
+          industry_id: string
+          normalized_title: string
+          occupation_id: string
+          popular_rank?: number | null
+          published?: boolean
+          published_at?: string
+          title: string
+        }
+        Update: {
+          category_id?: string
+          id?: string
+          industry_id?: string
+          normalized_title?: string
+          occupation_id?: string
+          popular_rank?: number | null
+          published?: boolean
+          published_at?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_job_titles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resume_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_job_titles_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "resume_industries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_job_titles_occupation_id_fkey"
+            columns: ["occupation_id"]
+            isOneToOne: false
+            referencedRelation: "resume_occupations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_occupation_categories: {
+        Row: {
+          category_id: string
+          occupation_id: string
+        }
+        Insert: {
+          category_id: string
+          occupation_id: string
+        }
+        Update: {
+          category_id?: string
+          occupation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_occupation_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resume_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_occupation_categories_occupation_id_fkey"
+            columns: ["occupation_id"]
+            isOneToOne: false
+            referencedRelation: "resume_occupations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_occupation_levels: {
+        Row: {
+          level_id: string
+          occupation_id: string
+        }
+        Insert: {
+          level_id: string
+          occupation_id: string
+        }
+        Update: {
+          level_id?: string
+          occupation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_occupation_levels_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "resume_career_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_occupation_levels_occupation_id_fkey"
+            columns: ["occupation_id"]
+            isOneToOne: false
+            referencedRelation: "resume_occupations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_occupations: {
+        Row: {
+          blueprint_id: string
+          id: string
+          published: boolean
+          published_at: string
+          source_code: string | null
+          source_id: string | null
+          title: string
+        }
+        Insert: {
+          blueprint_id: string
+          id: string
+          published?: boolean
+          published_at?: string
+          source_code?: string | null
+          source_id?: string | null
+          title: string
+        }
+        Update: {
+          blueprint_id?: string
+          id?: string
+          published?: boolean
+          published_at?: string
+          source_code?: string | null
+          source_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_occupations_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "resume_role_blueprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_occupations_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "resume_catalogue_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_role_blueprints: {
+        Row: {
+          definition: Json
+          id: string
+          label: string
+          published: boolean
+          version: number
+        }
+        Insert: {
+          definition: Json
+          id: string
+          label: string
+          published?: boolean
+          version?: number
+        }
+        Update: {
+          definition?: Json
+          id?: string
+          label?: string
+          published?: boolean
+          version?: number
         }
         Relationships: []
       }
@@ -1107,6 +1398,205 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      resume_template_assignments: {
+        Row: {
+          blueprint_id: string
+          design_id: string
+          id: string
+          level_id: string
+          occupation_id: string
+          published: boolean
+          title_id: string | null
+        }
+        Insert: {
+          blueprint_id: string
+          design_id: string
+          id: string
+          level_id: string
+          occupation_id: string
+          published?: boolean
+          title_id?: string | null
+        }
+        Update: {
+          blueprint_id?: string
+          design_id?: string
+          id?: string
+          level_id?: string
+          occupation_id?: string
+          published?: boolean
+          title_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_template_assignments_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "resume_role_blueprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_template_assignments_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "resume_template_designs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_template_assignments_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "resume_career_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_template_assignments_occupation_id_fkey"
+            columns: ["occupation_id"]
+            isOneToOne: false
+            referencedRelation: "resume_occupations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_template_assignments_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "resume_job_titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_template_designs: {
+        Row: {
+          definition: Json
+          id: string
+          label: string
+          published: boolean
+          renderer_key: string
+          version: number
+        }
+        Insert: {
+          definition: Json
+          id: string
+          label: string
+          published?: boolean
+          renderer_key: string
+          version?: number
+        }
+        Update: {
+          definition?: Json
+          id?: string
+          label?: string
+          published?: boolean
+          renderer_key?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      resume_title_aliases: {
+        Row: {
+          alias: string
+          normalized_alias: string
+          title_id: string
+        }
+        Insert: {
+          alias: string
+          normalized_alias: string
+          title_id: string
+        }
+        Update: {
+          alias?: string
+          normalized_alias?: string
+          title_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_title_aliases_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "resume_job_titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resume_versions: {
+        Row: {
+          blueprint_id: string | null
+          blueprint_version: number
+          created_at: string
+          design_id: string | null
+          design_version: number
+          document: Json
+          id: string
+          level_id: string | null
+          name: string
+          revision: number
+          schema_version: number
+          title_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blueprint_id?: string | null
+          blueprint_version?: number
+          created_at?: string
+          design_id?: string | null
+          design_version?: number
+          document: Json
+          id?: string
+          level_id?: string | null
+          name: string
+          revision?: number
+          schema_version?: number
+          title_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          blueprint_id?: string | null
+          blueprint_version?: number
+          created_at?: string
+          design_id?: string | null
+          design_version?: number
+          document?: Json
+          id?: string
+          level_id?: string | null
+          name?: string
+          revision?: number
+          schema_version?: number
+          title_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_versions_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "resume_role_blueprints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_versions_design_id_fkey"
+            columns: ["design_id"]
+            isOneToOne: false
+            referencedRelation: "resume_template_designs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_versions_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "resume_career_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resume_versions_title_id_fkey"
+            columns: ["title_id"]
+            isOneToOne: false
+            referencedRelation: "resume_job_titles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resumes: {
         Row: {
@@ -1308,6 +1798,25 @@ export type Database = {
         Returns: number
       }
       refund_credits: { Args: { _ledger_id: string }; Returns: undefined }
+      search_resume_titles: {
+        Args: {
+          p_category?: string
+          p_industry?: string
+          p_level?: string
+          p_offset?: number
+          p_search?: string
+          p_sort?: string
+        }
+        Returns: {
+          category_id: string
+          id: string
+          industry_id: string
+          occupation_id: string
+          popular_rank: number
+          title: string
+          total_count: number
+        }[]
+      }
       spend_credits: {
         Args: { _action: string; _units?: number; _user_id: string }
         Returns: string

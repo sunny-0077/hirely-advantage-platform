@@ -15,6 +15,7 @@ import { AtsMatchSummary } from "@/components/dashboard/AtsMatchSummary";
 import { DocumentFeedback } from "@/components/feedback/DocumentFeedback";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { SavedResumeVersions } from "@/components/dashboard/resumeBuilder/SavedResumeVersions";
 
 const fmt = (d: string) => new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
@@ -73,8 +74,9 @@ export function MyDocuments() {
     if (error || !data) return toast.error("Couldn't open file");
     window.open(data.signedUrl, "_blank", "noopener");
   }
-  return <div className="max-w-5xl mx-auto">
+  return <div className="w-full min-w-0">
     <PageHeader eyebrow="Candidate portal" title="My documents" />
+    <SavedResumeVersions />
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load documents. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
     {q.isPending ? <p role="status">Loading documents…</p> : <div className="grid gap-8 lg:grid-cols-2">
       <section><div className="flex items-center justify-between mb-3"><h2 className="text-lg font-semibold">Resumes</h2><Button asChild size="sm" variant="outline"><Link to="/app/resume">Upload</Link></Button></div>

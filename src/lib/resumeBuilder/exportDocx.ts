@@ -29,7 +29,7 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
     opts: { bold?: boolean; size?: number; color?: string; indent?: number; spacingAfter?: number } = {},
   ) =>
     new Paragraph({
-      spacing: { after: opts.spacingAfter ?? 60, line: 280 },
+      spacing: { after: opts.spacingAfter ?? 60, line: doc.settings.spacing === "compact" ? 250 : doc.settings.spacing === "relaxed" ? 320 : 280 },
       indent: opts.indent ? { left: opts.indent } : undefined,
       children: [
         new TextRun({
@@ -45,7 +45,8 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
   const heading = (text: string) =>
     new Paragraph({
       spacing: { before: 200, after: 80 },
-      border: {
+      keepNext: true,
+      border: doc.presentation?.headingRule === false ? undefined : {
         bottom: { color: accent, space: 1, style: BorderStyle.SINGLE, size: 6 },
       },
       children: [
@@ -72,7 +73,7 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
   if (p.name) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.LEFT,
+        alignment: doc.presentation?.headerAlign === "center" ? AlignmentType.CENTER : AlignmentType.LEFT,
         spacing: { after: 60 },
         children: [
           new TextRun({ text: p.name, font, bold: true, size: sizeHalfPt + 12, color: accent }),
@@ -111,7 +112,7 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
       case "experience":
         for (const it of sec.items) {
           children.push(para(`${it.role}${it.company ? ", " + it.company : ""}`, { bold: true }));
-          const meta = [it.location, dateRange(it.start, it.end)].filter(Boolean).join("  |  ");
+          const meta = [it.location, dateRange(it.start, it.end),it.employmentType].filter(Boolean).join("  |  ");
           if (meta) children.push(para(meta, { color: "555555", size: sizeHalfPt - 2 }));
           for (const b of it.bullets.filter(Boolean)) children.push(bullet(b));
         }
@@ -133,12 +134,16 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
         break;
       case "certifications":
         for (const it of sec.items) {
-          const right = [it.issuer, it.date].filter(Boolean).join(" · ");
+          const right = [it.issuer, it.date, it.expiry ? `Expires ${it.expiry}` : "", it.url].filter(Boolean).join(" · ");
           children.push(para(`${it.name}${right ? "  —  " + right : ""}`));
         }
         break;
       case "achievements":
         for (const a of sec.items) children.push(bullet(a));
+        break;
+      case "publications":
+      case "additional":
+        for(const it of sec.items) { if(it.title) children.push(para(it.title,{bold:true})); if(it.details) children.push(para(it.details)); }
         break;
     }
   }

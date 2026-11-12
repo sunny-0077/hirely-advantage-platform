@@ -1,17 +1,15 @@
 import jsPDF from "jspdf";
 import type { ResumeDocument } from "./types";
 import { buildRenderModel, dateRange } from "./render";
+import { documentFonts, fontBase64 } from "./fonts";
 
-const FONT_MAP: Record<string, string> = {
-  Inter: "helvetica",
-  Arial: "helvetica",
-  Times: "times",
-  Georgia: "times",
-};
-
-export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
+export async function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
   const pdf = new jsPDF({ unit: "pt", format: "letter" });
-  const font = FONT_MAP[doc.settings.fontFamily] ?? "helvetica";
+  const serif=doc.settings.fontFamily==="Times"||doc.settings.fontFamily==="Georgia";
+  const [regular,bold]=await Promise.all([fontBase64(serif?documentFonts.serif.url:documentFonts.sans.url),fontBase64(serif?documentFonts.serifBold.url:documentFonts.sansBold.url)]);
+  pdf.addFileToVFS("HirelyRegular.ttf",regular);pdf.addFont("HirelyRegular.ttf","HirelyDocument","normal");
+  pdf.addFileToVFS("HirelyBold.ttf",bold);pdf.addFont("HirelyBold.ttf","HirelyDocument","bold");
+  const font = "HirelyDocument";
   const baseSize = doc.settings.fontSize;
   const lineGap =
     doc.settings.spacing === "compact" ? 1.18 : doc.settings.spacing === "relaxed" ? 1.5 : 1.32;
@@ -33,7 +31,7 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
 
   const text = (
     s: string,
-    opts: { size?: number; bold?: boolean; color?: [number, number, number]; indent?: number } = {},
+    opts: { size?: number; bold?: boolean; color?: [number, number, number]; indent?: number; center?: boolean } = {},
   ) => {
     const size = opts.size ?? baseSize;
     pdf.setFont(font, opts.bold ? "bold" : "normal");
@@ -42,14 +40,14 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     const lines = pdf.splitTextToSize(s, maxW - (opts.indent ?? 0));
     for (const line of lines) {
       ensureSpace(size * lineGap);
-      pdf.text(line, margin + (opts.indent ?? 0), y + size);
+      pdf.text(line, opts.center ? pageW/2 : margin + (opts.indent ?? 0), y + size, {align:opts.center?"center":"left"});
       y += size * lineGap;
     }
   };
 
   const heading = (s: string) => {
     y += baseSize * 0.4;
-    ensureSpace(baseSize * 1.6);
+    ensureSpace(baseSize * 4);
     pdf.setFont(font, "bold");
     pdf.setFontSize(baseSize + 1);
     pdf.setTextColor(...accent);
@@ -57,7 +55,7 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     y += baseSize * 1.05;
     pdf.setDrawColor(...accent);
     pdf.setLineWidth(0.6);
-    pdf.line(margin, y, pageW - margin, y);
+    if (doc.presentation?.headingRule !== false) pdf.line(margin, y, pageW - margin, y);
     y += baseSize * 0.55;
     pdf.setTextColor(20, 20, 20);
   };
@@ -82,15 +80,15 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
     pdf.setFont(font, "bold");
     pdf.setFontSize(baseSize + 8);
     pdf.setTextColor(...accent);
-    pdf.text(p.name, margin, y + baseSize + 8);
-    y += baseSize + 14;
+    const nameLines = pdf.splitTextToSize(p.name,maxW);
+    for (const nameLine of nameLines) { ensureSpace(baseSize+14); pdf.text(nameLine,doc.presentation?.headerAlign === "center" ? pageW/2 : margin,y+baseSize+8,{align:doc.presentation?.headerAlign === "center" ? "center":"left"}); y+=baseSize+14; }
   }
   if (p.headline) {
-    text(p.headline, { size: baseSize + 1, color: [60, 60, 60] });
+    text(p.headline, { size: baseSize + 1, color: [60, 60, 60], center:doc.presentation?.headerAlign==="center" });
   }
   const contactParts = [p.email, p.phone, p.location, ...p.links.map((l) => l.url)].filter(Boolean);
   if (contactParts.length) {
-    text(contactParts.join("  |  "), { size: baseSize - 1, color: [80, 80, 80] });
+    text(contactParts.join("  |  "), { size: baseSize - 1, color: [80, 80, 80], center:doc.presentation?.headerAlign==="center" });
   }
   y += 6;
 
@@ -128,7 +126,7 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
       case "experience":
         for (const it of sec.items) {
           text(`${it.role}${it.company ? ", " + it.company : ""}`, { bold: true });
-          const meta = [it.location, dateRange(it.start, it.end)].filter(Boolean).join("  |  ");
+          const meta = [it.location, dateRange(it.start, it.end),it.employmentType].filter(Boolean).join("  |  ");
           if (meta) text(meta, { size: baseSize - 1, color: [80, 80, 80] });
           for (const b of it.bullets.filter(Boolean)) bullet(b);
           y += 4;
@@ -153,12 +151,16 @@ export function exportPdf(doc: ResumeDocument, filename = "resume.pdf") {
         break;
       case "certifications":
         for (const it of sec.items) {
-          const right = [it.issuer, it.date].filter(Boolean).join(" · ");
+          const right = [it.issuer, it.date, it.expiry ? `Expires ${it.expiry}` : "", it.url].filter(Boolean).join(" · ");
           text(`${it.name}${right ? "  —  " + right : ""}`);
         }
         break;
       case "achievements":
         for (const a of sec.items) bullet(a);
+        break;
+      case "publications":
+      case "additional":
+        for (const it of sec.items) { if(it.title) text(it.title,{bold:true}); if(it.details) text(it.details); }
         break;
     }
   }
