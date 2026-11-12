@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useResumeSource } from "@/hooks/useResumeSource";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -58,7 +57,6 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
 
 export default function Jobs() {
   const navigate = useNavigate();
-  const savedResume = useResumeSource();
   const inFlight = useRef(false);
   const requestKeys = useRef(new Map<string, string>());
   const retryKey = (key: string) => { const id = requestKeys.current.get(key) ?? crypto.randomUUID(); requestKeys.current.set(key, id); return id; };
@@ -173,10 +171,9 @@ export default function Jobs() {
 
   return (
     <div className="jobs-page">
-      <PageHeader className="mb-4" eyebrow="Job feed" title="Fresh roles in your city" description="Real openings from tech companies hiring in India, each with an honest truth card." />
+      <PageHeader className="mb-6" eyebrow="Job feed" title="Fresh roles in your city" />
 
-      {savedResume.data?.available && <p className="text-sm text-muted-foreground mb-3">Career facts source: {savedResume.data.label}</p>}
-      <div className="flex flex-wrap gap-2 mb-4" role="tablist" aria-label="City">
+      <div className="flex flex-wrap gap-2.5 mb-8" role="tablist" aria-label="City">
         {CITY_HUBS.map((c) => (
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
             className="rounded-md h-8 px-3" onClick={() => setCity(c)}>{c}</Button>
@@ -188,9 +185,9 @@ export default function Jobs() {
       ) : jobs.length === 0 ? (
         <EmptyState icon={Briefcase} title={`No ${city} roles yet`} description="New jobs are added regularly. Try another city for now." />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {jobs.map((j) => (
-            <article key={j.id} className={cn("rounded-lg border border-border bg-card p-4 flex flex-col gap-3")}>
+            <article key={j.id} className={cn("rounded-lg border border-border bg-card p-6 flex flex-col gap-5")}>
               <div>
                 <h3 className="font-semibold text-foreground leading-snug">{j.title}</h3>
                 <p className="text-sm text-muted-foreground">{j.company_name}</p>
@@ -199,7 +196,7 @@ export default function Jobs() {
                 </p>
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto grid grid-cols-1 lg:grid-cols-2 gap-1.5">
+              <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                 <Button size="sm" className="h-9 md:h-8 flex-1 font-semibold text-sm px-2 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Tailor Resume for ${j.title}`}>
                   {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4 xl:hidden" />}
