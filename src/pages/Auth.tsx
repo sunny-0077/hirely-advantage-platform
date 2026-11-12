@@ -135,8 +135,10 @@ const Auth = () => {
           setNow(Date.now());
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword(credentials);
+        const { data, error } = await supabase.auth.signInWithPassword(credentials);
         if (error) throw error;
+        // Go straight on; the dashboard waits for validation and routes unfinished setups to onboarding.
+        if (data.session) { navigate(returnPath, { replace: true }); return; }
       }
     } catch (err) {
       const msg = err instanceof Error && ["Enter a valid email", "Email too long", "At least 8 characters", "Too long"].includes(err.message) ? err.message : authErrorMessage(err);
