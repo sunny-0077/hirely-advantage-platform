@@ -29,16 +29,16 @@ type Job = {
 function TruthCardBadge({ t }: { t: TruthCard }) {
   const stack = (t.true_tech_stack ?? []).slice(0, 6);
   return (
-    <div className="rounded-md border-t border-border bg-background p-3 space-y-2.5">
+    <div className="rounded-md border-t border-border bg-background pt-2 space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">3-second truth</span>
-        <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+        <span className="text-[10px] font-semibold uppercase tracking-normal text-muted-foreground">3-second truth</span>
+        <span className="flex items-center gap-1 text-xs font-semibold text-foreground">
           <Wallet className="size-3.5 text-primary" />{t.estimated_ctc_range || "CTC not disclosed"}
         </span>
       </div>
       {stack.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {stack.map((s) => <Badge key={s} variant="secondary" className="font-medium">{s}</Badge>)}
+          {stack.map((s) => <Badge key={s} variant="secondary" className="font-medium text-[11px] px-2 py-0">{s}</Badge>)}
         </div>
       )}
       {(t.is_ghost_job || t.is_corporate_fluff) && (
@@ -49,7 +49,7 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
       )}
       {(t.red_flags ?? []).length > 0 && (
         <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-0.5">
-          {t.red_flags!.slice(0, 3).map((f) => <li key={f}>{f}</li>)}
+          {(t.red_flags ?? []).slice(0, 3).map((f) => <li key={f}>{f}</li>)}
         </ul>
       )}
     </div>
@@ -172,14 +172,14 @@ export default function Jobs() {
   };
 
   return (
-    <div>
-      <PageHeader eyebrow="Job feed" title="Fresh roles in your city" description="Real openings from tech companies hiring in India, each with an honest truth card." />
+    <div className="jobs-page">
+      <PageHeader className="mb-4 [&_h1]:text-[22px] [&_p]:text-[13px]" eyebrow="Job feed" title="Fresh roles in your city" description="Real openings from tech companies hiring in India, each with an honest truth card." />
 
-      {savedResume.data?.available && <p className="text-sm text-muted-foreground mb-4">Career facts source: {savedResume.data.label}</p>}
-      <div className="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="City">
+      {savedResume.data?.available && <p className="text-[13px] text-muted-foreground mb-3">Career facts source: {savedResume.data.label}</p>}
+      <div className="flex flex-wrap gap-2 mb-4" role="tablist" aria-label="City">
         {CITY_HUBS.map((c) => (
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
-            className="rounded-md" onClick={() => setCity(c)}>{c}</Button>
+            className="rounded-md h-8 px-3 text-xs" onClick={() => setCity(c)}>{c}</Button>
         ))}
       </div>
 
@@ -188,34 +188,34 @@ export default function Jobs() {
       ) : jobs.length === 0 ? (
         <EmptyState icon={Briefcase} title={`No ${city} roles yet`} description="New jobs are added regularly. Try another city for now." />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {jobs.map((j) => (
-            <article key={j.id} className={cn("rounded-lg border border-border bg-card p-5 flex flex-col gap-4")}>
+            <article key={j.id} className={cn("rounded-lg border border-border bg-card p-4 flex flex-col gap-3")}>
               <div>
-                <h3 className="font-semibold text-foreground leading-snug">{j.title}</h3>
-                <p className="text-sm text-muted-foreground">{j.company_name}</p>
-                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <h3 className="font-semibold text-foreground leading-snug !text-[13px]">{j.title}</h3>
+                <p className="text-xs text-muted-foreground">{j.company_name}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
                   <MapPin className="size-3.5" />{j.city_hub} · {j.work_mode ?? "On-site"}
                 </p>
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto grid grid-cols-1 lg:grid-cols-2 gap-2">
-                <Button size="lg" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+              <div className="mt-auto grid grid-cols-1 lg:grid-cols-2 gap-1.5">
+                <Button size="sm" className="h-9 md:h-8 flex-1 font-semibold text-xs px-2 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Tailor Resume for ${j.title}`}>
                   {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4 xl:hidden" />}
                   {busyJobId === j.id ? "Tailoring…" : <span className="truncate">Tailor Resume<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="sm" variant="secondary" className="h-9 md:h-8 flex-1 font-semibold text-xs px-2 min-w-0" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Generate Cover Letter for ${j.title}`}>
                   {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4 xl:hidden" />}
                   {letterJobId === j.id ? "Writing…" : <span className="truncate">Cover Letter<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button size="lg" variant="secondary" className="flex-1 font-semibold text-sm px-3 min-w-0" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
+                <Button size="sm" variant="secondary" className="h-9 md:h-8 flex-1 font-semibold text-xs px-2 min-w-0" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
                   aria-label={`Interview Prep for ${j.title}`}>
                   {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4 xl:hidden" />}
                   {prepJobId === j.id ? "Preparing…" : <span className="truncate">Interview Prep<span className="hidden 2xl:inline"> · 1 credit</span></span>}
                 </Button>
-                <Button asChild size="lg" variant="outline" className="flex-1 text-sm px-3 min-w-0" disabled={!j.apply_url}>
+                <Button asChild size="sm" variant="outline" className="h-9 md:h-8 flex-1 text-xs px-2 min-w-0" disabled={!j.apply_url}>
                   <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>
                 </Button>
               </div>
