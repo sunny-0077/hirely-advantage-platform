@@ -2,8 +2,8 @@ import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Glass card matching the landing palette.
- * `tone="dark"` switches to the dark forest-green panel used for accent moments.
+ * Shared workspace card with comfortable, compact spacing.
+ * `tone="dark"` switches to the semantic highlight panel.
  */
 type SectionCardProps = HTMLAttributes<HTMLDivElement> & {
   tone?: "glass" | "dark" | "subtle";
@@ -11,7 +11,7 @@ type SectionCardProps = HTMLAttributes<HTMLDivElement> & {
 
 export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
   ({ className, tone = "glass", children, ...props }, ref) => {
-    const base = "rounded-lg p-6";
+    const base = "rounded-lg p-4 sm:p-5";
     const tones: Record<NonNullable<SectionCardProps["tone"]>, string> = {
       glass: "bg-card border border-border shadow-subtle",
       subtle: "bg-muted border border-border",

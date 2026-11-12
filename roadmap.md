@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Balance workspace sizing without shrinking body text: compact shared cards and overview tiles, place the home studio beside documents/jobs, retain full-width pages and modest side gutters.
+
 - [x] Reduce unused margins across workspace screens and public sections; widen existing content and tighten form spacing without changing data or functionality. Public desktop/mobile checks and 14 regression tests passed; real workspace visual checks remain blocked by unfinished onboarding.
 
 - [x] Redesign public pages, shared controls and authenticated workspace with the new restrained visual identity; backend, auth, payment and credit handlers unchanged.
