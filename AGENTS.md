@@ -13,6 +13,7 @@
 - Accept password updates only on the public recovery route with a validated recovery session; auth state results are generation-guarded, because stale checks must not restore a signed-out workspace.
 - Email sign-in reads submitted form controls and applies signup strength rules only during signup, because mobile autofill may not update React state and existing passwords must remain usable.
 - Route signup confirmation to the public Hirely callback and show Verified only after getUser validates email_confirmed_at; keep pending signup credentials in tab memory only to resume the original tab after verification on another origin.
+- Public OAuth callbacks explicitly establish returned sessions before validating navigation and scrub credential parameters; deduplicate concurrent callback processing, because fresh mobile returns have no preexisting browser session.
 - Run every paid AI action through supabase/functions/_shared/credits.ts runPaidAction, because it enforces the 24h AI spend switch, deducts credits server-side, logs cost, and refunds on failure.
 - Plan tier, pass expiry and credit balance are writable only by server functions, because users must not grant themselves credits.
 - Job feed ingestion runs only in the ingest-jobs function (admin, service role, or the cron token stored in ingest_job_state), with a lease lock, a 24h spend ceiling below the global switch, and auto-pause on AI 402/403/429, because jobs_catalog is server-written and background AI must not starve paid user actions.
