@@ -74,6 +74,14 @@ const ResumeBuilder = () => {
       return;
     }
     const raw = localStorage.getItem(storageKey);
+    const presetTemplate = params.get("template");
+    if (!raw && presetTemplate) {
+      // Arrived from onboarding: start with the chosen layout and target role.
+      setDoc(emptyDocument(presetTemplate));
+      setRole((params.get("role") ?? "").slice(0, 120));
+      setPicking(false);
+      return;
+    }
     if (!raw) {
       setDoc(null);
       setRole("");
