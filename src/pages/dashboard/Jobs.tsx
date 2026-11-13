@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fetchPreferredJobs, useJobPreferences } from "@/hooks/useJobPreferences";
 import { WORK_MODES } from "@/lib/jobPreferences";
+import { JobLocationPicker } from "@/components/dashboard/JobLocationPicker";
+import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 type TruthCard = {
   true_tech_stack?: string[];
@@ -57,6 +60,12 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
 }
 
 export default function Jobs() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [editingLocations, setEditingLocations] = useState(false);
+  const [draftLocations, setDraftLocations] = useState<string[]>([]);
+  const [draftModes, setDraftModes] = useState<string[]>([]);
+  const [savingLocations, setSavingLocations] = useState(false);
   const navigate = useNavigate();
   const inFlight = useRef(false);
   const requestKeys = useRef(new Map<string, string>());
@@ -181,7 +190,7 @@ export default function Jobs() {
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
             className="rounded-md h-8 px-3" onClick={() => setCity(c)}>{c === "all" ? "All my locations" : c}</Button>
         ))}
-        <Button asChild size="sm" variant="link" className="h-8"><a href="/app/profile">Edit locations</a></Button>
+        <Button size="sm" variant="link" className="h-8" onClick={() => { setDraftLocations(myPlaces); setDraftModes(activeModes); setEditingLocations(true); }}>Edit locations</Button>
       </div>
       <div className="flex flex-wrap gap-2 mb-8" aria-label="Work mode">
         {WORK_MODES.map(m => { const on = activeModes.includes(m); return (
@@ -230,6 +239,25 @@ export default function Jobs() {
           ))}
         </div>
       )}
+
+      <Dialog open={editingLocations} onOpenChange={setEditingLocations}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Preferred job locations</DialogTitle><DialogDescription>Choose up to 3 cities or countries, plus worldwide remote.</DialogDescription></DialogHeader>
+          <JobLocationPicker locations={draftLocations} modes={draftModes} onLocations={setDraftLocations} onModes={setDraftModes} />
+          <Button disabled={savingLocations || !draftLocations.length || !draftModes.length} onClick={async () => {
+            if (!user) return;
+            setSavingLocations(true);
+            try {
+              const { data, error } = await supabase.from("profiles").update({ preferred_locations: draftLocations, work_modes: draftModes }).eq("user_id", user.id).select("user_id").single();
+              if (error || !data) throw error ?? new Error("Couldn't save locations");
+              setCity("all"); setModes(null);
+              await queryClient.invalidateQueries({ queryKey: ["job-preferences", user.id] });
+              setEditingLocations(false); toast.success("Job preferences updated");
+            } catch { toast.error("Couldn't save locations. Please try again."); }
+            finally { setSavingLocations(false); }
+          }}>{savingLocations ? "Saving…" : "Save locations"}</Button>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!tailorJob} onOpenChange={(o) => !o && setTailorJob(null)}>
         <DialogContent>
