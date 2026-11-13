@@ -15,6 +15,7 @@ import { AtsMatchSummary } from "@/components/dashboard/AtsMatchSummary";
 import { DocumentFeedback } from "@/components/feedback/DocumentFeedback";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { SavedResumeVersions } from "@/components/dashboard/resumeBuilder/SavedResumeVersions";
 
 const fmt = (d: string) => new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
@@ -222,6 +223,7 @@ export function MyProfile() {
       <Button type="submit" disabled={busy || !name.trim()}>{busy ? "Saving…" : "Save profile"}</Button>
     </form>}
     <CreditHistory />
+    <DeleteAccount />
   </div>;
 }
 
@@ -249,5 +251,36 @@ function CreditHistory() {
           <div><p>{LEDGER_LABELS[r.action_type] ?? r.action_type}</p><p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</p></div>
           <span className={r.credits_delta > 0 ? "font-medium text-primary" : "font-medium text-foreground"}>{r.credits_delta > 0 ? "+" : ""}{r.credits_delta}</span>
         </li>)}</ul>}
+  </div>;
+}
+
+function DeleteAccount() {
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    const { error } = await supabase.functions.invoke("delete-account", { body: { confirm } });
+    if (error) { setBusy(false); toast.error("Couldn't delete your account. Please try again."); return; }
+    await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+    toast.success("Your account has been deleted.");
+    window.location.replace("/");
+  };
+  return <div className="border-t border-border py-6 space-y-3 mt-5">
+    <h2 className="font-semibold text-destructive">Delete account</h2>
+    <p className="text-sm text-muted-foreground">Permanently removes your profile, resumes, documents, applications and credits. Signing in again with the same email starts a brand-new account.</p>
+    <AlertDialog onOpenChange={o => { if (!o) setConfirm(""); }}>
+      <AlertDialogTrigger asChild><Button variant="destructive" size="sm"><Trash2 className="h-4 w-4" /> Delete my account</Button></AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+          <AlertDialogDescription>This can't be undone. All your data and remaining credits will be lost. Type DELETE to confirm.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <Input aria-label="Type DELETE to confirm" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="DELETE" />
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+          <AlertDialogAction disabled={confirm !== "DELETE" || busy} onClick={e => { e.preventDefault(); void run(); }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{busy ? "Deleting…" : "Delete forever"}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>;
 }
