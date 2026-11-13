@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Expand free worldwide job sources with accurate location/remote restrictions, attribution, deduplication and existing ingestion safeguards.
+- [ ] Preserve multiple onboarding locations (three places plus worldwide remote), connect all preferences to job search and verify matching/tests/live feed.
+
 - [x] Fix fresh Google callback session establishment before dashboard validation; fresh mobile query and fragment returns now reach required onboarding rather than sign-in, with no preloaded browser storage. External Google account selection itself remains unverified.
 
 - [x] Repair mobile email autofill/sign-in validation and queued session races; verified real mobile dashboard entry, sidebar navigation, callback session routing and invalid-login feedback. Full external Google/inbox-link round trips remain unverified without completing those external interactions.
