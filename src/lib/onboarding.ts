@@ -15,7 +15,7 @@ export const careerSchema = z.object({
 export const masterResumeSchema = z.string().trim().max(50000, "Please keep your resume under 50,000 characters.");
 
 export function workspaceDestination(completed: boolean | undefined, requested = "/app"): string {
-  return completed ? requested : "/onboarding";
+  void completed; return requested;
 }
 
 export function authErrorMessage(error: unknown): string {

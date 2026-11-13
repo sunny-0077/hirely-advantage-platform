@@ -18,7 +18,6 @@ const DashboardLayout = () => {
   if (!user) return <Navigate to={`/auth?next=${encodeURIComponent(pathname)}`} replace />;
   if (recovering) return <Navigate to="/reset-password" replace />;
   if (workspace.error) return <main className="min-h-screen flex flex-col gap-4 items-center justify-center"><p role="alert">Couldn't load your workspace.</p><Button onClick={() => workspace.refetch()}>Retry</Button></main>;
-  if (!workspace.data?.onboarding_completed) return <Navigate to="/onboarding" replace />;
 
   return (
     <BetaOfferProvider>
