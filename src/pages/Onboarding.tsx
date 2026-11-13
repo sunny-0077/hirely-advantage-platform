@@ -1,111 +1,251 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Check, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileUp, Globe2, Loader2, MapPin, PenLine, Search, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useWorkspace } from "@/hooks/useWorkspace";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LogoLockup } from "@/components/landing/Logo";
-import { toast } from "sonner";
-import { personalSchema, careerSchema, masterResumeSchema } from "@/lib/onboarding";
+import { cn } from "@/lib/utils";
+import { validateImportFile, mapResumeText } from "@/lib/resumeImport";
+import { hashResumeText } from "@/lib/resumeHash";
+import { addLocation, EXPERIENCE_LEVELS, MAX_LOCATIONS, POPULAR_ROLES, postOnboardingPath, REMOTE_WORLDWIDE, suggestedHubs, WORK_MODES, type TemplateStyle } from "@/lib/jobPreferences";
 
-const STEPS = ["Personal information", "Career preferences", "Master resume"];
-const EMPTY = { full_name: "", country: "", preferred_currency: "", preferred_location: "", target_job_role: "", experience_level: "", preferred_job_location: "", employment_preference: "", master_resume_text: "" };
+const TOTAL = 5;
+type Form = { resume_mode: "upload" | "build" | null; resume_file_url: string | null; resume_name: string; preferred_template: TemplateStyle | null; target_job_role: string; experience_level: string; preferred_locations: string[]; work_modes: string[] };
+const EMPTY: Form = { resume_mode: null, resume_file_url: null, resume_name: "", preferred_template: null, target_job_role: "", experience_level: "", preferred_locations: [], work_modes: [] };
+
+function choice(active: boolean) {
+  return cn("rounded-xl border text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    active ? "border-primary bg-accent shadow-sm" : "border-border bg-card/70 hover:border-primary/50");
+}
+
+function useGlobalPlaces(query: string) {
+  const [results, setResults] = useState<string[]>([]);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) { setResults([]); return; }
+    const ctrl = new AbortController();
+    const t = setTimeout(() => {
+      fetch(`https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&name=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+        .then(r => r.json()).then((d: { results?: { name: string; country?: string; admin1?: string }[] }) => {
+          const seen = new Set<string>();
+          setResults((d.results ?? []).map(p => [p.name, p.country].filter(Boolean).join(", ")).filter(x => !seen.has(x) && seen.add(x)));
+        }).catch(() => setResults([]));
+    }, 250);
+    return () => { clearTimeout(t); ctrl.abort(); };
+  }, [query]);
+  return results;
+}
 
 export default function Onboarding() {
   const { user, loading, recovering } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [form, setForm] = useState(EMPTY);
+  const [form, setForm] = useState<Form>(EMPTY);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
-  const [importing, setImporting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [notice, setNotice] = useState("");
+  const [roleQuery, setRoleQuery] = useState("");
+  const [placeQuery, setPlaceQuery] = useState("");
+  const fileInput = useRef<HTMLInputElement>(null);
   const initialized = useRef<string | null>(null);
+  const places = useGlobalPlaces(placeQuery);
+  const hubs = useMemo(() => suggestedHubs(), []);
   const profile = useQuery({ queryKey: ["onboarding-profile", user?.id], enabled: Boolean(user), queryFn: async () => {
-    if (!user) return null;
-    const { data, error } = await supabase.from("profiles").select("full_name,country,preferred_currency,preferred_location,target_job_role,experience_level,preferred_job_location,employment_preference,master_resume_text,onboarding_step,onboarding_completed").eq("user_id", user.id).single();
+    const { data, error } = await supabase.from("profiles").select("full_name,country,resume_mode,resume_file_url,preferred_template,target_job_role,experience_level,preferred_locations,work_modes,onboarding_step,onboarding_completed").eq("user_id", user!.id).single();
     if (error) throw error;
     return data;
   } });
   useEffect(() => {
-    if (!profile.data || !user || initialized.current === user.id) return;
-    const data = profile.data;
-    setForm({ full_name: data.full_name ?? "", country: data.country ?? "", preferred_currency: data.preferred_currency ?? "", preferred_location: data.preferred_location ?? "", target_job_role: data.target_job_role ?? "", experience_level: data.experience_level ?? "", preferred_job_location: data.preferred_job_location ?? "", employment_preference: data.employment_preference ?? "", master_resume_text: data.master_resume_text ?? "" });
-    setStep(data.onboarding_step);
+    const d = profile.data;
+    if (!d || !user || initialized.current === user.id) return;
+    setForm({ resume_mode: (d.resume_mode as Form["resume_mode"]) ?? null, resume_file_url: d.resume_file_url, resume_name: d.resume_file_url ? d.resume_file_url.split("/").pop()?.replace(/^\d+-/, "") ?? "" : "", preferred_template: (d.preferred_template as TemplateStyle) ?? null, target_job_role: d.target_job_role ?? "", experience_level: d.experience_level ?? "", preferred_locations: d.preferred_locations ?? [], work_modes: d.work_modes ?? [] });
+    setRoleQuery(d.target_job_role ?? "");
+    setStep(Math.min(TOTAL, Math.max(1, d.onboarding_step)));
     initialized.current = user.id;
   }, [profile.data, user]);
-  const field = (key: keyof typeof EMPTY, value: string) => setForm(previous => ({ ...previous, [key]: value }));
+
   if (loading || (user && profile.isPending)) return <main className="p-10" role="status">Loading account…</main>;
   if (!user) return <Navigate to="/auth?mode=signup" replace />;
   if (recovering) return <Navigate to="/reset-password" replace />;
   if (profile.data?.onboarding_completed) return <Navigate to="/app/home" replace />;
-  async function save(advance: boolean, skipResume = false) {
-    if (!user) return;
-    setBusy(true);
+
+  const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm(p => ({ ...p, [k]: v }));
+  const valid = [
+    form.resume_mode === "build" || (form.resume_mode === "upload" && !!form.resume_file_url),
+    form.resume_mode === "upload" || !!form.preferred_template,
+    form.target_job_role.trim().length > 1,
+    !!form.experience_level,
+    form.preferred_locations.length > 0 && form.work_modes.length > 0,
+  ][step - 1];
+
+  async function uploadResume(file: File | undefined) {
+    if (!file || !user) return;
     setNotice("");
+    try { validateImportFile(file); } catch (e) { setNotice(e instanceof Error ? e.message : "Choose a PDF or DOCX."); return; }
+    setUploading(true);
     try {
-      const personal = personalSchema.parse(form);
-      const career = step >= 2 ? careerSchema.parse(form) : null;
-      const resume = step === 3 ? masterResumeSchema.parse(form.master_resume_text) : undefined;
+      const { data: s } = await supabase.auth.getSession();
+      if (!s.session) throw new Error("Please sign in again.");
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-master-resume`, { method: "POST", headers: { Authorization: `Bearer ${s.session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/octet-stream", "x-resume-filename": encodeURIComponent(file.name) }, body: file });
+      const out = await res.json();
+      if (!res.ok || typeof out.text !== "string" || out.text.trim().length < 80) throw new Error(out.error || "Couldn't read enough text from this resume.");
+      const text: string = out.text.slice(0, 50000);
+      const path = `${user.id}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+      const mime = file.name.toLowerCase().endsWith(".pdf") ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      const up = await supabase.storage.from("resumes").upload(path, file, { contentType: mime, upsert: false });
+      if (up.error) throw new Error("Upload failed. Please try again.");
+      const content_hash = await hashResumeText(text);
+      const { data: existing } = await supabase.from("resumes").select("id").eq("user_id", user.id).eq("content_hash", content_hash).maybeSingle();
+      if (!existing) {
+        const ins = await supabase.from("resumes").insert({ user_id: user.id, file_name: file.name, file_path: path, file_size: file.size, mime_type: mime, raw_text: text, content_hash });
+        if (ins.error) { await supabase.storage.from("resumes").remove([path]); throw new Error(ins.error.message.includes("quota") ? "You've reached your resume upload limit." : "Couldn't save this resume."); }
+      }
+      // Fill only empty profile details, using facts found in the user's own resume.
+      const facts = mapResumeText(text).resume;
+      const p = profile.data;
+      const patch: { full_name?: string; display_name?: string; country?: string } = {};
+      if (!p?.full_name && facts.personal.fullName) { patch.full_name = facts.personal.fullName; patch.display_name = facts.personal.fullName; }
+      if (!p?.country && facts.personal.country) patch.country = facts.personal.country;
+      if (Object.keys(patch).length) await supabase.from("profiles").update(patch).eq("user_id", user.id);
+      if (!form.target_job_role && facts.summary.headline) { set("target_job_role", facts.summary.headline.slice(0, 120)); setRoleQuery(facts.summary.headline.slice(0, 120)); }
+      setForm(f => ({ ...f, resume_mode: "upload", resume_file_url: path, resume_name: file.name }));
+    } catch (e) { setNotice(e instanceof Error ? e.message : "Couldn't upload this resume."); }
+    finally { setUploading(false); }
+  }
+
+  async function persist(nextStep: number, complete: boolean) {
+    if (!user) return false;
+    setBusy(true); setNotice("");
+    try {
       const { data, error } = await supabase.from("profiles").update({
-        ...personal, display_name: personal.full_name, ...(career ?? {}),
-        ...(resume !== undefined && !skipResume ? { master_resume_text: resume } : {}),
-        onboarding_step: advance ? Math.min(3, step + 1) : step,
-        onboarding_completed: advance && step === 3,
-      })
-        .eq("user_id", user.id).select("user_id").maybeSingle();
-      if (error) throw error;
-      if (!data) throw new Error("Your profile isn't ready yet. Refresh and try again.");
-      await queryClient.invalidateQueries({ queryKey: ["workspace", user.id] });
-      if (advance && step === 3) { await queryClient.invalidateQueries({ queryKey: ["workspace-home", user.id] }); navigate("/app/home", { replace: true }); }
-      else if (advance) setStep(previous => previous + 1);
-      else setNotice("Progress saved. You can return to finish later.");
-    } catch (error) { setNotice(error && typeof error === "object" && "issues" in error ? "Please complete all fields in this step." : "Couldn't save your profile. Please try again."); }
+        resume_mode: form.resume_mode, resume_file_url: form.resume_mode === "upload" ? form.resume_file_url : null,
+        preferred_template: form.preferred_template, target_job_role: form.target_job_role.trim().slice(0, 200) || null,
+        experience_level: form.experience_level || null, preferred_locations: form.preferred_locations, work_modes: form.work_modes,
+        preferred_job_location: form.preferred_locations.join("; ").slice(0, 200) || null,
+        employment_preference: form.work_modes.length === 1 && form.work_modes[0] === "Remote" ? "Remote" : "Full-time",
+        onboarding_step: nextStep, onboarding_completed: complete,
+      }).eq("user_id", user.id).select("user_id").maybeSingle();
+      if (error || !data) throw error ?? new Error();
+      return true;
+    } catch { setNotice("Couldn't save your answers. Please try again."); return false; }
     finally { setBusy(false); }
   }
-  async function importFile(file: File | undefined) {
-    if (!file) return;
-    setImporting(true);
-    try {
-      const { MAX_FILE_BYTES, ACCEPTED_EXTS, extractResumeText } = await import("@/lib/resumeParser");
-      if (file.size > MAX_FILE_BYTES) throw new Error("Choose a file under 5 MB.");
-      if (!ACCEPTED_EXTS.some(extension => file.name.toLowerCase().endsWith(extension)) || (file.type && !["application/pdf", "text/plain"].includes(file.type))) throw new Error("Choose a PDF or TXT resume.");
-      const text = masterResumeSchema.parse(await extractResumeText(file));
-      if (!text) throw new Error("No readable text found. Paste your resume instead.");
-      field("master_resume_text", text);
-      toast.success("Resume imported. Save to keep it.");
-    } catch (error) { toast.error(error instanceof Error && !('issues' in error) ? error.message : "Couldn't import this resume. Paste the text instead."); }
-    finally { setImporting(false); }
+
+  async function next() {
+    if (!valid || busy) return;
+    if (step < TOTAL) {
+      const target = step === 1 && form.resume_mode === "upload" ? 3 : step + 1;
+      if (await persist(target, false)) setStep(target);
+      return;
+    }
+    if (await persist(TOTAL, true)) {
+      await queryClient.invalidateQueries({ queryKey: ["workspace", user!.id] });
+      await queryClient.invalidateQueries({ queryKey: ["onboarding-profile", user!.id] });
+      navigate(postOnboardingPath(form), { replace: true });
+    }
   }
-  const selector = (id: keyof typeof EMPTY, label: string, options: { value: string; label: string }[]) => <div className="space-y-2"><Label htmlFor={id}>{label}</Label><Select value={form[id]} onValueChange={value => field(id, value)}><SelectTrigger id={id}><SelectValue placeholder="Select…" /></SelectTrigger><SelectContent>{options.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>;
-  const textField = (id: keyof typeof EMPTY, label: string, maxLength: number) => <div className="space-y-2"><Label htmlFor={id}>{label}</Label><Input id={id} required maxLength={maxLength} value={form[id]} onChange={event => field(id, event.target.value)} /></div>;
-  return <main className="min-h-screen bg-background px-6 py-16 flex justify-center items-start">
-    <div className="w-full max-w-xl space-y-8">
-      <LogoLockup size="text-2xl" />
-      <div><p className="text-sm text-muted-foreground">Step {step} of 3</p><h1 className="text-3xl font-semibold mt-2">{STEPS[step - 1]}</h1></div>
-      <ol className="grid grid-cols-3 gap-3" aria-label="Onboarding progress">{STEPS.map((label, index) => <li key={label} className={`border-t-2 pt-3 text-xs ${index + 1 <= step ? "border-primary text-foreground" : "border-border text-muted-foreground"}`} aria-current={index + 1 === step ? "step" : undefined}>{index + 1 < step ? <Check className="size-4 mb-1" /> : null}{label}</li>)}</ol>
-      {profile.error && <p role="alert" className="text-destructive">Couldn't load your account. <Button variant="link" onClick={() => profile.refetch()}>Retry</Button></p>}
-      <form onSubmit={event => { event.preventDefault(); void save(true); }} className="space-y-6">
-        <fieldset disabled={busy || importing || Boolean(profile.error)} className="space-y-5">
-          {step === 1 && <>{textField("full_name", "Full name", 100)}{textField("country", "Country", 100)}{selector("preferred_currency", "Preferred currency", ["INR", "USD", "EUR", "GBP", "CAD", "AUD", "SGD", "AED"].map(value => ({ value, label: value })))}{textField("preferred_location", "Preferred location", 200)}</>}
-          {step === 2 && <>{textField("target_job_role", "Target job role", 200)}{selector("experience_level", "Experience level", [{ value: "student", label: "Student / no experience" }, { value: "entry", label: "Entry level" }, { value: "mid", label: "Mid level" }, { value: "senior", label: "Senior level" }])}{textField("preferred_job_location", "Preferred job location", 200)}{selector("employment_preference", "Employment preference", ["Full-time", "Internship", "Contract", "Remote"].map(value => ({ value, label: value })))}</>}
-          {step === 3 && <><p className="text-muted-foreground text-sm">Your Master Resume is the foundation of Hirely. Resume tailoring, cover letters, and interview guides use it to reflect your real experience. Add it now or finish later in My profile.</p><div className="space-y-2"><Label htmlFor="master_resume_text">Master resume text</Label><Textarea id="master_resume_text" rows={10} maxLength={50000} value={form.master_resume_text} onChange={event => field("master_resume_text", event.target.value)} /></div><Label htmlFor="resume-import" className="flex items-center gap-2"><Upload className="size-4" />Import PDF or TXT (up to 5 MB, 3 PDF pages)</Label><Input id="resume-import" type="file" accept=".pdf,.txt" onChange={event => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />{importing && <p role="status">Reading resume…</p>}<p className="text-sm text-muted-foreground">You can skip this step. AI generation will require a Master Resume before you start.</p></>}
-        </fieldset>
-        {notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}
-        <div className="flex flex-wrap gap-3">
-          {step > 1 && <Button type="button" variant="outline" disabled={busy || importing} onClick={() => setStep(previous => previous - 1)}><ArrowLeft />Back</Button>}
-          <Button type="button" variant="secondary" disabled={busy || importing || Boolean(profile.error)} onClick={() => void save(false)}>Save progress</Button>
-          <Button type="submit" disabled={busy || importing || Boolean(profile.error)}>{busy ? "Saving…" : step === 3 ? "Open My Workspace" : "Save and continue"}<ArrowRight /></Button>
-          {step === 3 && <Button type="button" variant="link" disabled={busy || importing} onClick={() => void save(true, true)}>Set up resume later</Button>}
+  const back = () => setStep(s => (s === 3 && form.resume_mode === "upload" ? 1 : Math.max(1, s - 1)));
+
+  const roleSuggestions = POPULAR_ROLES.filter(r => r.toLowerCase().includes(roleQuery.trim().toLowerCase())).slice(0, 8);
+  const realLocations = form.preferred_locations.filter(l => l !== REMOTE_WORLDWIDE);
+  const full = realLocations.length >= MAX_LOCATIONS;
+  const toggle = (k: "work_modes", v: string) => set(k, form[k].includes(v) ? form[k].filter(x => x !== v) : [...form[k], v]);
+  const toggleLocation = (v: string) => set("preferred_locations", form.preferred_locations.includes(v) ? form.preferred_locations.filter(x => x !== v) : addLocation(form.preferred_locations, v));
+  const pickPlace = (v: string) => { set("preferred_locations", addLocation(form.preferred_locations, v)); setPlaceQuery(""); };
+
+  const heads = [
+    ["How would you like to start?", "Upload your current resume for an instant AI score, or build a new one from scratch."],
+    ["Which resume style do you prefer?", "We'll format your details using this layout in the AI Resume Builder."],
+    ["What job title are you aiming for?", "This personalizes your AI Resume Builder, Cover Letter Generator, and Interview Prep questions."],
+    ["What is your current experience level?", "Helps us calibrate your Resume Analyzer grading and Interview Prep difficulty."],
+    ["Where should we find jobs for you?", "Search any city or country worldwide, or choose global remote roles."],
+  ][step - 1];
+
+  return <main className="onboarding-mesh min-h-screen px-4 py-8 sm:py-14 flex justify-center items-start">
+    <div className="w-full max-w-2xl space-y-6">
+      <div className="flex items-center justify-between"><LogoLockup size="text-xl" /><span className="text-sm text-muted-foreground">Step {step} of {TOTAL}</span></div>
+      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden" role="progressbar" aria-valuemin={1} aria-valuemax={TOTAL} aria-valuenow={step} aria-label="Onboarding progress">
+        <div className="h-full rounded-full bg-primary transition-all duration-500 ease-out" style={{ width: `${(step / TOTAL) * 100}%` }} />
+      </div>
+      <section className="rounded-2xl border border-border/70 bg-card/75 backdrop-blur-xl shadow-lg p-5 sm:p-8 space-y-6">
+        <header className="space-y-2"><h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{heads[0]}</h1><p className="text-muted-foreground">{heads[1]}</p></header>
+        {profile.error && <p role="alert" className="text-destructive">Couldn't load your account. <Button variant="link" onClick={() => profile.refetch()}>Retry</Button></p>}
+
+        {step === 1 && <div className="grid gap-4 sm:grid-cols-2">
+          <div role="button" tabIndex={0} aria-pressed={form.resume_mode === "upload"} aria-label="Upload Existing Resume"
+            onClick={() => fileInput.current?.click()} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.current?.click(); } }}
+            onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)}
+            onDrop={e => { e.preventDefault(); setDragging(false); void uploadResume(e.dataTransfer.files?.[0]); }}
+            className={cn(choice(form.resume_mode === "upload"), "p-5 border-dashed cursor-pointer min-h-44 flex flex-col gap-3", dragging && "border-primary bg-accent")}>
+            {uploading ? <Loader2 className="size-6 animate-spin text-primary" /> : form.resume_file_url ? <Check className="size-6 text-primary" /> : <FileUp className="size-6 text-primary" />}
+            <span className="font-semibold">Upload Existing Resume</span>
+            <span className="text-sm text-muted-foreground">{uploading ? "Reading your resume…" : form.resume_file_url ? form.resume_name || "Resume uploaded" : "Drag and drop a PDF or DOCX, or tap to choose. Up to 5 MB."}</span>
+            <input ref={fileInput} type="file" accept=".pdf,.docx" className="sr-only" onChange={e => { void uploadResume(e.target.files?.[0]); e.target.value = ""; }} />
+          </div>
+          <button type="button" aria-pressed={form.resume_mode === "build"} onClick={() => set("resume_mode", "build")} className={cn(choice(form.resume_mode === "build"), "p-5 min-h-44 flex flex-col gap-3")}>
+            <PenLine className="size-6 text-primary" /><span className="font-semibold">Build a New Resume</span>
+            <span className="text-sm text-muted-foreground">Start from scratch in the AI Resume Builder.</span>
+          </button>
+        </div>}
+
+        {step === 2 && <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+          {(["minimal", "modern", "classic"] as const).map(t => <button key={t} type="button" aria-pressed={form.preferred_template === t} onClick={() => set("preferred_template", t)} className={cn(choice(form.preferred_template === t), "p-4 space-y-3")}>
+            <div className="aspect-[3/4] rounded-lg bg-background border border-border p-3 space-y-1.5" aria-hidden>
+              <div className={cn("h-2.5 rounded-sm bg-foreground", t === "classic" ? "w-1/2 mx-auto" : "w-2/3")} />
+              {t === "modern" && <div className="h-1 w-full bg-primary rounded-sm" />}
+              <div className="h-1.5 w-1/3 rounded-sm bg-muted-foreground/40" />
+              {[0, 1, 2].map(i => <div key={i} className="pt-2 space-y-1">
+                <div className={cn("h-1.5 w-1/3 rounded-sm", t === "modern" ? "bg-primary" : "bg-foreground/70", t === "classic" && "border-b border-foreground")} />
+                <div className="h-1 w-full rounded-sm bg-muted" /><div className="h-1 w-5/6 rounded-sm bg-muted" />
+              </div>)}
+            </div>
+            <span className="block font-semibold capitalize text-center">{t}</span>
+          </button>)}
+        </div>}
+
+        {step === 3 && <div className="space-y-4">
+          <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input aria-label="Target job title" className="pl-9 h-12" placeholder="Search or type a job title" maxLength={120} value={roleQuery}
+              onChange={e => { setRoleQuery(e.target.value); set("target_job_role", e.target.value); }} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); void next(); } }} /></div>
+          <div className="flex flex-wrap gap-2">{roleSuggestions.map(r => <button key={r} type="button" onClick={() => { setRoleQuery(r); set("target_job_role", r); }}
+            className={cn("rounded-full border px-3 py-1.5 text-sm", form.target_job_role === r ? "border-primary bg-accent text-accent-foreground" : "border-border bg-card/70 hover:border-primary/50")}>{r}</button>)}</div>
+        </div>}
+
+        {step === 4 && <div className="grid gap-3 sm:grid-cols-2">{EXPERIENCE_LEVELS.map(l => <button key={l.value} type="button" aria-pressed={form.experience_level === l.value} onClick={() => set("experience_level", l.value)}
+          className={cn(choice(form.experience_level === l.value), "px-5 py-4 font-semibold flex items-center justify-between")}>{l.label}{form.experience_level === l.value && <Check className="size-4 text-primary" />}</button>)}</div>}
+
+        {step === 5 && <div className="space-y-5">
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input aria-label="Search cities or countries" className="pl-9 h-12" disabled={full} placeholder={full ? `Up to ${MAX_LOCATIONS} places selected` : "Search any city or country"} value={placeQuery} maxLength={120}
+              onChange={e => setPlaceQuery(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); if (placeQuery.trim()) pickPlace(places[0] ?? placeQuery); } }} />
+            {placeQuery.trim().length > 1 && !full && <ul className="absolute z-10 mt-1 w-full rounded-xl border border-border bg-popover shadow-lg overflow-hidden" role="listbox">
+              {places.map(p => <li key={p}><button type="button" className="w-full text-left px-4 py-2.5 text-sm hover:bg-accent" onClick={() => pickPlace(p)}>{p}</button></li>)}
+              <li><button type="button" className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent" onClick={() => pickPlace(placeQuery)}>Use “{placeQuery.trim()}”</button></li>
+            </ul>}
+          </div>
+          {realLocations.length > 0 && <div className="flex flex-wrap gap-2">{realLocations.map(l => <span key={l} className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground pl-3 pr-1.5 py-1 text-sm">{l}
+            <button type="button" aria-label={`Remove ${l}`} className="rounded-full p-0.5 hover:bg-primary-foreground/20" onClick={() => toggleLocation(l)}><X className="size-3.5" /></button></span>)}</div>}
+          <div className="space-y-2"><p className="text-sm font-medium">Quick picks</p><div className="flex flex-wrap gap-2">
+            <button type="button" aria-pressed={form.preferred_locations.includes(REMOTE_WORLDWIDE)} onClick={() => toggleLocation(REMOTE_WORLDWIDE)}
+              className={cn("inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold", form.preferred_locations.includes(REMOTE_WORLDWIDE) ? "border-primary bg-primary text-primary-foreground" : "border-primary/60 text-primary bg-card/70")}><Globe2 className="size-4" />{REMOTE_WORLDWIDE}</button>
+            {hubs.filter(h => !form.preferred_locations.includes(h)).map(h => <button key={h} type="button" disabled={full} onClick={() => toggleLocation(h)} className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-sm hover:border-primary/50 disabled:opacity-50">{h}</button>)}
+          </div></div>
+          <div className="space-y-2"><p className="text-sm font-medium">Work mode</p><div className="flex flex-wrap gap-2">{WORK_MODES.map(m => <button key={m} type="button" aria-pressed={form.work_modes.includes(m)} onClick={() => toggle("work_modes", m)}
+            className={cn("rounded-full border px-4 py-1.5 text-sm", form.work_modes.includes(m) ? "border-primary bg-accent text-accent-foreground font-semibold" : "border-border bg-card/70")}>{m}</button>)}</div></div>
+        </div>}
+
+        {notice && <p role="status" className="text-sm text-destructive">{notice}</p>}
+        <div className="flex items-center justify-between gap-3 pt-2">
+          {step > 1 ? <Button type="button" variant="outline" disabled={busy || uploading} onClick={back}><ArrowLeft />Back</Button> : <span />}
+          <Button type="button" disabled={!valid || busy || uploading || Boolean(profile.error)} onClick={() => void next()}>{busy ? "Saving…" : step === TOTAL ? "Finish" : "Continue"}<ArrowRight /></Button>
         </div>
-      </form>
-      <Button variant="link" disabled={busy} onClick={async () => { const { error } = await supabase.auth.signOut(); if (error) toast.error("Couldn't sign out. Try again."); else queryClient.clear(); }}>Sign out</Button>
+      </section>
     </div>
   </main>;
 }
