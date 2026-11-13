@@ -169,6 +169,13 @@
       "when": 1794572381824,
       "tag": "0023_allow_global_job_locations",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794577651187,
+      "tag": "0024_profiles_user_column_update_grants",
+      "breakpoints": true
     }
   ]
 }
