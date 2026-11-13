@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertTriangle, Briefcase, ExternalLink, Loader2, Mail, MessagesSquare, MapPin, Sparkles, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { fetchPreferredJobs, useJobPreferences } from "@/hooks/useJobPreferences";
+import { WORK_MODES } from "@/lib/jobPreferences";
 
 export const CITY_HUBS = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Delhi NCR", "Remote"] as const;
 
@@ -60,7 +62,9 @@ export default function Jobs() {
   const inFlight = useRef(false);
   const requestKeys = useRef(new Map<string, string>());
   const retryKey = (key: string) => { const id = requestKeys.current.get(key) ?? crypto.randomUUID(); requestKeys.current.set(key, id); return id; };
-  const [city, setCity] = useState<string>("Bengaluru");
+  const prefs = useJobPreferences();
+  const [city, setCity] = useState<string>("all");
+  const [modes, setModes] = useState<string[] | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [tailorJob, setTailorJob] = useState<Job | null>(null);
@@ -68,18 +72,18 @@ export default function Jobs() {
   const [resumeId, setResumeId] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const myPlaces = prefs.data?.locations ?? [];
+  const activeModes = modes ?? prefs.data?.modes ?? [];
   useEffect(() => {
+    if (prefs.isPending) return;
     let alive = true;
     setLoading(true);
-    supabase.from("jobs_catalog").select("*").eq("city_hub", city).order("fetched_at", { ascending: false }).limit(60)
-      .then(({ data, error }) => {
-        if (!alive) return;
-        if (error) toast.error("Couldn't load jobs");
-        setJobs((data ?? []) as unknown as Job[]);
-        setLoading(false);
-      });
+    fetchPreferredJobs(city === "all" ? myPlaces : [city], activeModes, prefs.data?.role ?? "")
+      .then(data => { if (alive) setJobs(data as unknown as Job[]); })
+      .catch(() => { if (alive) toast.error("Couldn't load jobs"); })
+      .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [city]);
+  }, [city, prefs.isPending, prefs.data, activeModes.join("|")]);
 
   const [busyJobId, setBusyJobId] = useState<string | null>(null);
   void setResumes; void setResumeId;
@@ -171,19 +175,25 @@ export default function Jobs() {
 
   return (
     <div className="jobs-page">
-      <PageHeader className="mb-6" eyebrow="Job feed" title="Fresh roles in your city" />
+      <PageHeader className="mb-6" title={prefs.data?.role ? `${prefs.data.role} roles for you` : "Jobs for you"} />
 
-      <div className="flex flex-wrap gap-2.5 mb-8" role="tablist" aria-label="City">
-        {CITY_HUBS.map((c) => (
+      <div className="flex flex-wrap gap-2.5 mb-3" role="tablist" aria-label="Location">
+        {["all", ...myPlaces].map((c) => (
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
-            className="rounded-md h-8 px-3" onClick={() => setCity(c)}>{c}</Button>
+            className="rounded-md h-8 px-3" onClick={() => setCity(c)}>{c === "all" ? "All my locations" : c}</Button>
         ))}
+        <Button asChild size="sm" variant="link" className="h-8"><a href="/app/profile">Edit locations</a></Button>
+      </div>
+      <div className="flex flex-wrap gap-2 mb-8" aria-label="Work mode">
+        {WORK_MODES.map(m => { const on = activeModes.includes(m); return (
+          <Button key={m} size="sm" aria-pressed={on} variant={on ? "secondary" : "ghost"} className="rounded-full h-7 px-3"
+            onClick={() => setModes(on ? activeModes.filter(x => x !== m) : [...activeModes, m])}>{m}</Button>); })}
       </div>
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>
       ) : jobs.length === 0 ? (
-        <EmptyState icon={Briefcase} title={`No ${city} roles yet`} description="New jobs are added regularly. Try another city for now." />
+        <EmptyState icon={Briefcase} title="No matching roles yet" description="New openings are added regularly. Try another location or work mode." />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {jobs.map((j) => (

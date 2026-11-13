@@ -823,10 +823,15 @@ export type Database = {
           preferred_currency: string | null
           preferred_job_location: string | null
           preferred_location: string | null
+          preferred_locations: string[]
+          preferred_template: string | null
+          resume_file_url: string | null
+          resume_mode: string | null
           skills: string[]
           target_job_role: string | null
           updated_at: string
           user_id: string
+          work_modes: string[]
         }
         Insert: {
           avatar_url?: string | null
@@ -856,10 +861,15 @@ export type Database = {
           preferred_currency?: string | null
           preferred_job_location?: string | null
           preferred_location?: string | null
+          preferred_locations?: string[]
+          preferred_template?: string | null
+          resume_file_url?: string | null
+          resume_mode?: string | null
           skills?: string[]
           target_job_role?: string | null
           updated_at?: string
           user_id: string
+          work_modes?: string[]
         }
         Update: {
           avatar_url?: string | null
@@ -889,10 +899,15 @@ export type Database = {
           preferred_currency?: string | null
           preferred_job_location?: string | null
           preferred_location?: string | null
+          preferred_locations?: string[]
+          preferred_template?: string | null
+          resume_file_url?: string | null
+          resume_mode?: string | null
           skills?: string[]
           target_job_role?: string | null
           updated_at?: string
           user_id?: string
+          work_modes?: string[]
         }
         Relationships: []
       }
