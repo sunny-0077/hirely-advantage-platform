@@ -1,12 +1,12 @@
-// Ingests fresh Indian tech-hub jobs from public Greenhouse/Lever feeds,
+// Ingests worldwide jobs from public employer boards and Arbeitnow,
 // extracts a Truth Card with Gemini Flash, and upserts into jobs_catalog.
 // Callable only by admins (JWT) or the service role (scheduled runs).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { buildTruthCardInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
+import { globalLocation, safeApplyUrl, type RawJob } from "../_shared/global-jobs.ts";
+import { GREENHOUSE, LEVER, fetchGreenhouse, fetchLever, fetchArbeitnow } from "./feeds.ts";
 
-const GREENHOUSE = ["razorpaysoftwareprivatelimited", "groww", "databricks", "mongodb", "gitlab"];
-const LEVER = ["cred", "meesho", "zeta", "paytm"];
 const MAX_NEW_PER_RUN = 25;
 const EST_COST_PER_JOB = 0.0006;
 // Background imports stop once total 24h AI spend reaches this, leaving the
@@ -14,61 +14,12 @@ const EST_COST_PER_JOB = 0.0006;
 const INGEST_SPEND_CEILING_USD = 3;
 class AiHalt extends Error { constructor(public reason: string) { super(reason); } }
 
-type City = "Bengaluru" | "Hyderabad" | "Pune" | "Mumbai" | "Delhi NCR" | "Remote";
-type RawJob = { source: string; sourceId: string; title: string; company: string; location: string; applyUrl: string; description: string };
-
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-
-export function cityHub(location: string): City | null {
-  const l = location.toLowerCase();
-  if (/bengaluru|bangalore/.test(l)) return "Bengaluru";
-  if (/hyderabad/.test(l)) return "Hyderabad";
-  if (/pune/.test(l)) return "Pune";
-  if (/mumbai|bombay|navi mumbai/.test(l)) return "Mumbai";
-  if (/delhi|gurgaon|gurugram|noida|ncr/.test(l)) return "Delhi NCR";
-  if (/remote/.test(l) && /india|apac|asia/.test(l)) return "Remote";
-  return null;
-}
-
-function workMode(location: string, text: string): string {
-  const s = `${location} ${text.slice(0, 3000)}`.toLowerCase();
-  if (/remote/.test(location.toLowerCase())) return "Remote";
-  if (/hybrid/.test(s)) return "Hybrid";
-  return "On-site";
-}
-
-const stripHtml = (h: string) =>
-  h.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'")
-    .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 
 async function sha256(s: string) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function fetchGreenhouse(token: string): Promise<RawJob[]> {
-  const r = await fetch(`https://boards-api.greenhouse.io/v1/boards/${token}/jobs?content=true`);
-  if (!r.ok) return [];
-  const d = await r.json();
-  return (d.jobs ?? []).map((j: any) => ({
-    source: "greenhouse", sourceId: String(j.id), title: j.title ?? "",
-    company: j.company_name ?? token, location: j.location?.name ?? "",
-    applyUrl: j.absolute_url ?? "", description: stripHtml(j.content ?? ""),
-  }));
-}
-
-async function fetchLever(company: string): Promise<RawJob[]> {
-  const r = await fetch(`https://api.lever.co/v0/postings/${company}?mode=json`);
-  if (!r.ok) return [];
-  const d = await r.json();
-  if (!Array.isArray(d)) return [];
-  return d.map((j: any) => ({
-    source: "lever", sourceId: String(j.id), title: j.text ?? "",
-    company: company.charAt(0).toUpperCase() + company.slice(1),
-    location: [j.categories?.location, ...(j.categories?.allLocations ?? []), j.workplaceType === "remote" ? "Remote India" : ""].filter(Boolean).join(", "),
-    applyUrl: j.applyUrl ?? j.hostedUrl ?? "", description: stripHtml(j.descriptionPlain ?? j.description ?? ""),
-  }));
 }
 
 const TRUTH_TOOL = {
@@ -80,7 +31,7 @@ const TRUTH_TOOL = {
       type: "object",
       properties: {
         true_tech_stack: { type: "array", items: { type: "string" }, description: "Up to 6 concrete tools/languages actually required. No soft skills." },
-        estimated_ctc_range: { type: "string", description: "Realistic annual CTC in India for this role/level, e.g. '₹18–28 LPA'. Use 'Not enough info' if unclear." },
+        estimated_ctc_range: { type: "string", description: "Salary explicitly disclosed in the posting, preserving its currency and period. Never estimate or convert. Use 'Salary not disclosed' when absent." },
         is_ghost_job: { type: "boolean", description: "True if the posting looks evergreen, vague, or not a real open seat." },
         is_corporate_fluff: { type: "boolean", description: "True if the description is mostly buzzwords with little concrete scope." },
         red_flags: { type: "array", items: { type: "string" }, description: "Up to 3 short, specific red flags. Empty if none." },
@@ -98,7 +49,7 @@ async function extractTruthCard(job: RawJob, apiKey: string) {
     body: JSON.stringify({
       model: "google/gemini-3.8-flash",
       messages: [
-        { role: "system", content: `You are a blunt Indian tech recruiter. Read the JSON job data and extract an honest truth card. Always call the truth_card tool. ${UNTRUSTED_INPUT_RULE}` },
+        { role: "system", content: `You are a careful international recruiter. Read the JSON job data and extract a factual truth card. Do not infer worldwide eligibility from remote work, invent salary, or assume Indian currency. Always call the truth_card tool. ${UNTRUSTED_INPUT_RULE}` },
         { role: "user", content: buildTruthCardInput(job) },
       ],
       tools: [TRUTH_TOOL],
@@ -117,8 +68,10 @@ async function extractTruthCard(job: RawJob, apiKey: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    const url = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    if (req.method !== "POST") return json({ error: "Use POST" }, 405);
+    const url = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !serviceKey) return json({ error: "Service not configured" }, 500);
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) return json({ error: "AI not configured" }, 500);
     const db = createClient(url, serviceKey, { auth: { persistSession: false } });
@@ -135,7 +88,7 @@ Deno.serve(async (req) => {
     }
 
     // Credit/policy pauses need a manual resume; rate-limit pauses clear on the next run.
-    if (state?.paused_reason && state.paused_reason !== "rate_limited" && isCron)
+    if (state?.paused_reason && state.paused_reason !== "rate_limited")
       return json({ skipped: "paused", reason: state.paused_reason });
 
     const { data: spend } = await db.rpc("ai_spend_last_24h");
@@ -150,18 +103,24 @@ Deno.serve(async (req) => {
     let pausedReason: string | null = null;
     try {
 
-    const feeds = await Promise.allSettled([...GREENHOUSE.map(fetchGreenhouse), ...LEVER.map(fetchLever)]);
+    const sources = [...GREENHOUSE.map(t => ({ name: `Greenhouse:${t}`, load: () => fetchGreenhouse(t) })), ...LEVER.map(t => ({ name: `Lever:${t}`, load: () => fetchLever(t) })),
+      { name: "Arbeitnow:Germany", load: () => fetchArbeitnow() }, { name: "Arbeitnow:UK", load: () => fetchArbeitnow(true) }];
+    const feeds = await Promise.allSettled(sources.map(s => s.load()));
+    const sourceFailures = feeds.flatMap((f, i) => f.status === "rejected" ? [sources[i].name] : []);
     const raw = feeds.flatMap((f) => (f.status === "fulfilled" ? f.value : []));
 
-    const candidates: (RawJob & { hash: string; city: City })[] = [];
+    const candidates: (RawJob & { hash: string; place: ReturnType<typeof globalLocation> })[] = [];
     const seen = new Set<string>();
     for (const j of raw) {
-      const city = cityHub(j.location);
-      if (!city || !j.title || !j.applyUrl || j.description.length < 200) continue;
-      const hash = await sha256(`${j.source}|${j.company.toLowerCase()}|${j.sourceId}|${j.title.toLowerCase().trim()}`);
+      const applyUrl = safeApplyUrl(j.applyUrl);
+      if (!j.title || !applyUrl || j.description.length < 200) continue;
+      const place = globalLocation(j.location, j.mode);
+      // Preserve original keys for existing board jobs; new feeds use stable source IDs.
+      const id = j.sourceId.split(":").slice(1).join(":");
+      const hash = await sha256(`${j.source.toLowerCase()}|${j.company.toLowerCase()}|${id}|${j.title.toLowerCase().trim()}`);
       if (seen.has(hash)) continue;
       seen.add(hash);
-      candidates.push({ ...j, hash, city });
+      candidates.push({ ...j, applyUrl, hash, place });
     }
 
     const have = new Set<string>();
@@ -171,21 +130,45 @@ Deno.serve(async (req) => {
       if (exErr) throw exErr;
       for (const e of existing ?? []) have.add(e.external_job_id);
     }
-    // Round-robin across cities so each hub gets fresh jobs.
-    const byCity = new Map<City, typeof candidates>();
-    for (const c of candidates.filter((c) => !have.has(c.hash))) byCity.set(c.city, [...(byCity.get(c.city) ?? []), c]);
+    // Refresh metadata on seen jobs without another AI call.
+    for (const j of candidates.filter(c => have.has(c.hash))) {
+      const { error } = await db.from("jobs_catalog").update({ city_hub: j.place.location, work_mode: j.place.workMode,
+        location_keys: j.place.keys, country_keys: j.place.countries, remote_scope: j.place.remoteScope, source: j.source, source_url: j.applyUrl,
+        source_job_id: j.sourceId, last_seen_at: new Date().toISOString() }).eq("external_job_id", j.hash);
+      if (error) throw error;
+    }
+    // Round-robin by source, then location: large boards cannot starve other feeds.
+    const byCity = new Map<string, typeof candidates>();
+    for (const c of candidates.filter((c) => !have.has(c.hash))) {
+      const key = `${c.source}:${c.place.location}`;
+      byCity.set(key, [...(byCity.get(key) ?? []), c]);
+    }
+    const groups = [...byCity.values()].sort((a, b) => a[0].source.localeCompare(b[0].source));
+    const sourceQueues = new Map<string, typeof groups>();
+    for (const g of groups) sourceQueues.set(g[0].source, [...(sourceQueues.get(g[0].source) ?? []), g]);
     const queue: typeof candidates = [];
-    while (queue.length < MAX_NEW_PER_RUN && [...byCity.values()].some((l) => l.length)) {
-      for (const l of byCity.values()) if (l.length && queue.length < MAX_NEW_PER_RUN) queue.push(l.shift()!);
+    while (queue.length < MAX_NEW_PER_RUN && [...sourceQueues.values()].some(l => l.length)) {
+      for (const buckets of sourceQueues.values()) {
+        if (queue.length >= MAX_NEW_PER_RUN) break;
+        const bucket = buckets.shift();
+        const next = bucket?.shift();
+        if (next) queue.push(next);
+        if (bucket?.length) buckets.push(bucket);
+      }
     }
 
     let inserted = 0, failed = 0;
     for (const j of queue) {
       try {
+        const { data: currentSpend, error: spendError } = await db.rpc("ai_spend_last_24h");
+        if (spendError) throw spendError;
+        if (Number(currentSpend ?? 0) + EST_COST_PER_JOB >= INGEST_SPEND_CEILING_USD) break;
         const truth = await extractTruthCard(j, apiKey);
         const { error } = await db.from("jobs_catalog").upsert({
           external_job_id: j.hash, title: j.title.slice(0, 200), company_name: j.company.slice(0, 120),
-          city_hub: j.city, work_mode: workMode(j.location, j.description), apply_url: j.applyUrl,
+          city_hub: j.place.location, work_mode: j.place.workMode, apply_url: j.applyUrl,
+          source: j.source, source_url: j.applyUrl, source_job_id: j.sourceId, location_keys: j.place.keys, country_keys: j.place.countries,
+          remote_scope: j.place.remoteScope, last_seen_at: new Date().toISOString(),
           raw_description: j.description.slice(0, 20000), truth_card_json: truth, fetched_at: new Date().toISOString(),
         }, { onConflict: "external_job_id" });
         if (error) throw error;
@@ -198,7 +181,7 @@ Deno.serve(async (req) => {
         await db.from("api_usage_logs").insert({ user_id: null, feature_name: "ingest-jobs", provider: "lovable-ai", estimated_cost_usd: 0, status: "failed" });
       }
     }
-    const result = { scanned: raw.length, eligible: candidates.length, inserted, failed, skipped_existing: have.size, paused: pausedReason };
+    const result = { scanned: raw.length, eligible: candidates.length, inserted, failed, skipped_existing: have.size, source_failures: sourceFailures, paused: pausedReason };
     await db.from("ingest_job_state").update({ paused_reason: pausedReason, last_run_at: new Date().toISOString(), last_result: result }).eq("id", "ingest-jobs");
     return json(result);
     } finally {
