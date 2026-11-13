@@ -5,7 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { buildTruthCardInput, UNTRUSTED_INPUT_RULE } from "../_shared/ai-input.ts";
 import { globalLocation, safeApplyUrl, type RawJob } from "../_shared/global-jobs.ts";
-import { GREENHOUSE, LEVER, fetchGreenhouse, fetchLever, fetchArbeitnow } from "./feeds.ts";
+import { GREENHOUSE, LEVER, fetchGreenhouse, fetchLever, fetchArbeitnow, hydrateJob } from "./feeds.ts";
 
 const MAX_NEW_PER_RUN = 25;
 const EST_COST_PER_JOB = 0.0006;
@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
     const seen = new Set<string>();
     for (const j of raw) {
       const applyUrl = safeApplyUrl(j.applyUrl);
-      if (!j.title || !applyUrl || j.description.length < 200) continue;
+      if (!j.title || !applyUrl || (j.source !== "Greenhouse" && j.description.length < 200)) continue;
       const place = globalLocation(j.location, j.mode);
       // Preserve original keys for existing board jobs; new feeds use stable source IDs.
       const id = j.sourceId.split(":").slice(1).join(":");
@@ -131,7 +131,10 @@ Deno.serve(async (req) => {
       for (const e of existing ?? []) have.add(e.external_job_id);
     }
     // Refresh metadata on seen jobs without another AI call.
-    for (const j of candidates.filter(c => have.has(c.hash))) {
+    const existingCandidates = candidates.filter(c => have.has(c.hash));
+    const offset = Number(state?.last_result?.metadata_offset ?? 0) % Math.max(1, existingCandidates.length);
+    const refresh = [...existingCandidates.slice(offset), ...existingCandidates.slice(0, offset)].slice(0, 60);
+    for (const j of refresh) {
       const { error } = await db.from("jobs_catalog").update({ city_hub: j.place.location, work_mode: j.place.workMode,
         location_keys: j.place.keys, country_keys: j.place.countries, remote_scope: j.place.remoteScope, source: j.source, source_url: j.applyUrl,
         source_job_id: j.sourceId, last_seen_at: new Date().toISOString() }).eq("external_job_id", j.hash);
@@ -163,13 +166,15 @@ Deno.serve(async (req) => {
         const { data: currentSpend, error: spendError } = await db.rpc("ai_spend_last_24h");
         if (spendError) throw spendError;
         if (Number(currentSpend ?? 0) + EST_COST_PER_JOB >= INGEST_SPEND_CEILING_USD) break;
-        const truth = await extractTruthCard(j, apiKey);
+        const hydrated = await hydrateJob(j);
+        if (hydrated.description.length < 200) continue;
+        const truth = await extractTruthCard(hydrated, apiKey);
         const { error } = await db.from("jobs_catalog").upsert({
           external_job_id: j.hash, title: j.title.slice(0, 200), company_name: j.company.slice(0, 120),
           city_hub: j.place.location, work_mode: j.place.workMode, apply_url: j.applyUrl,
           source: j.source, source_url: j.applyUrl, source_job_id: j.sourceId, location_keys: j.place.keys, country_keys: j.place.countries,
           remote_scope: j.place.remoteScope, last_seen_at: new Date().toISOString(),
-          raw_description: j.description.slice(0, 20000), truth_card_json: truth, fetched_at: new Date().toISOString(),
+          raw_description: hydrated.description.slice(0, 20000), truth_card_json: truth, fetched_at: new Date().toISOString(),
         }, { onConflict: "external_job_id" });
         if (error) throw error;
         inserted++;
@@ -181,7 +186,7 @@ Deno.serve(async (req) => {
         await db.from("api_usage_logs").insert({ user_id: null, feature_name: "ingest-jobs", provider: "lovable-ai", estimated_cost_usd: 0, status: "failed" });
       }
     }
-    const result = { scanned: raw.length, eligible: candidates.length, inserted, failed, skipped_existing: have.size, source_failures: sourceFailures, paused: pausedReason };
+    const result = { scanned: raw.length, eligible: candidates.length, inserted, failed, skipped_existing: have.size, metadata_offset: offset + refresh.length, source_failures: sourceFailures, paused: pausedReason };
     await db.from("ingest_job_state").update({ paused_reason: pausedReason, last_run_at: new Date().toISOString(), last_result: result }).eq("id", "ingest-jobs");
     return json(result);
     } finally {
