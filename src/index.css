@@ -120,3 +120,13 @@
  #root :is(h1,h2,h3) { font-weight: 800; color: hsl(var(--foreground)); }
  #root :is(.panel-forest,.bg-forest) :is(h1,h2,h3) { color: hsl(var(--forest-foreground)); }
 }
+
+@layer components {
+  .onboarding-mesh {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(at 12% 8%, hsl(var(--primary) / 0.10) 0px, transparent 45%),
+      radial-gradient(at 88% 12%, hsl(var(--accent) / 0.9) 0px, transparent 40%),
+      radial-gradient(at 70% 92%, hsl(var(--primary) / 0.07) 0px, transparent 45%);
+  }
+}
