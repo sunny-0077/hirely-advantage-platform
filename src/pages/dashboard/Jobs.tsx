@@ -95,7 +95,7 @@ export default function Jobs() {
     return () => { alive = false; };
   }, [city, prefs.isPending, prefs.data, activeModes.join("|"), myPlaces.join("|")]);
 
-  const openPicker = () => { setDraftLocations(myPlaces.length ? myPlaces : prefs.data?.locations ?? []); setDraftModes(activeModes); setEditingLocations(true); };
+  const openPicker = () => { setDraftLocations(myPlaces.length ? myPlaces : prefs.data?.locations ?? []); setDraftModes(activeModes.length ? activeModes : [...WORK_MODES]); setEditingLocations(true); };
   const [busyJobId, setBusyJobId] = useState<string | null>(null);
   void setResumes; void setResumeId;
 
