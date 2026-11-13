@@ -1,3 +1,5 @@
+import { nameFromEmail } from "@/lib/onboarding";
+import { useAuth as useAuthForName } from "@/hooks/useAuth";
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
@@ -32,6 +34,7 @@ async function errorMessage(error: unknown, data: unknown) {
 }
 
 export default function WorkspaceHome() {
+  const { user: authUser } = useAuthForName();
   const { user } = useAuth();
   const workspace = useWorkspace();
   const resumeSource = useResumeSource();
@@ -103,7 +106,7 @@ export default function WorkspaceHome() {
   const fmt = (s: string) => new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
   return <div className="workspace-home w-full min-w-0">
-    <PageHeader eyebrow="My workspace" title={workspace.data?.full_name ? `Welcome, ${workspace.data.full_name}.` : "Your dashboard."} description="Your opportunities, applications and next steps — together." />
+    <PageHeader eyebrow="My workspace" title={(workspace.data?.full_name || nameFromEmail(authUser?.email)) ? `Welcome, ${workspace.data?.full_name || nameFromEmail(authUser?.email)}.` : "Your dashboard."} description="Your opportunities, applications and next steps — together." />
     <GettingStarted />
 
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}

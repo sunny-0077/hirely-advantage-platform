@@ -15,7 +15,7 @@ export const careerSchema = z.object({
 export const masterResumeSchema = z.string().trim().max(50000, "Please keep your resume under 50,000 characters.");
 
 export function workspaceDestination(completed: boolean | undefined, requested = "/app"): string {
-  return completed ? requested : "/onboarding";
+  void completed; return requested;
 }
 
 export function authErrorMessage(error: unknown): string {
@@ -26,4 +26,11 @@ export function authErrorMessage(error: unknown): string {
   if (code === "weak_password") return "Choose a stronger password with at least 8 characters.";
   if (error instanceof z.ZodError) return error.issues[0]?.message ?? "Check your information.";
   return "We couldn't complete that request. Please try again, or request a new email link.";
+}
+
+/** Readable name from an email address, e.g. "john.doe92@mail.com" -> "John Doe". */
+export function nameFromEmail(email: string | null | undefined): string {
+  const local = (email ?? "").split("@")[0] ?? "";
+  return local.replace(/[0-9]+/g, " ").split(/[._\-+\s]+/).filter(Boolean)
+    .map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(" ").slice(0, 100);
 }

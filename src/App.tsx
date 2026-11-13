@@ -7,7 +7,6 @@ import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import AuthCallback from "./pages/AuthCallback.tsx";
 import ResetPassword from "./pages/ResetPassword";
-import Onboarding from "./pages/Onboarding";
 import WorkspaceHome from "./pages/dashboard/WorkspaceHome";
 import MasterResume from "./pages/dashboard/MasterResume";
 import MyApplications from "./pages/dashboard/MyApplications";
@@ -41,7 +40,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding" element={<Navigate to="/app" replace />} />
           <Route path="/master-resume" element={<Navigate to="/app/master-resume" replace />} />
           <Route path="/app" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/app/home" replace />} />

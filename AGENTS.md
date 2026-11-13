@@ -8,7 +8,8 @@
 - Resume library template switching preserves factual content; builder versions use validated documents and optimistic revision checks, because presentation changes and stale tabs must not destroy edits.
 - Resume previews and PDFs use CDN-hosted document fonts with Unicode support; account-version loading blocks draft persistence until resolved, because exports and loading races must preserve readable facts and local edits.
 
-- Require a validated signed-in user and completed profile onboarding for dashboard routes, because personal workspaces must not render for signed-out visitors.
+- Require a validated signed-in user for dashboard routes (onboarding removed; /onboarding redirects to /app), because personal workspaces must not render for signed-out visitors.
+- Jobs shows no listings until the user picks regions on that visit, because job suggestions must follow an explicit region choice.
 - Reuse `profiles` for onboarding and expose `user_profiles` only as a security-invoker identity view; use server-created identities and explicit onboarding completion, because duplicate stores and name-only gates lose reliable progress.
 - Accept password updates only on the public recovery route with a validated recovery session; auth results are discarded only after a later sign-out or newer check, validate announced session tokens directly, and sign out only on server rejection, because stale checks must not restore a signed-out workspace while mobile tab returns may briefly read empty storage.
 - Email sign-in reads submitted form controls and applies signup strength rules only during signup, because mobile autofill may not update React state and existing passwords must remain usable.

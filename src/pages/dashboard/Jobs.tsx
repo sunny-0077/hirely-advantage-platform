@@ -80,10 +80,12 @@ export default function Jobs() {
   const [resumeId, setResumeId] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const myPlaces = prefs.data?.locations ?? [];
+  const [chosenPlaces, setChosenPlaces] = useState<string[]>([]);
+  const myPlaces = chosenPlaces;
   const activeModes = modes ?? prefs.data?.modes ?? [];
   useEffect(() => {
     if (prefs.isPending) return;
+    if (!myPlaces.length) { setJobs([]); setLoading(false); return; }
     let alive = true;
     setLoading(true);
     fetchPreferredJobs(city === "all" ? myPlaces : [city], activeModes, prefs.data?.role ?? "")
@@ -91,8 +93,9 @@ export default function Jobs() {
       .catch(() => { if (alive) toast.error("Couldn't load jobs"); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [city, prefs.isPending, prefs.data, activeModes.join("|")]);
+  }, [city, prefs.isPending, prefs.data, activeModes.join("|"), myPlaces.join("|")]);
 
+  const openPicker = () => { setDraftLocations(myPlaces.length ? myPlaces : prefs.data?.locations ?? []); setDraftModes(activeModes.length ? activeModes : [...WORK_MODES]); setEditingLocations(true); };
   const [busyJobId, setBusyJobId] = useState<string | null>(null);
   void setResumes; void setResumeId;
 
@@ -186,11 +189,11 @@ export default function Jobs() {
       <PageHeader className="mb-6" title={prefs.data?.role ? `${prefs.data.role} roles for you` : "Jobs for you"} />
 
       <div className="flex flex-wrap gap-2.5 mb-3" role="tablist" aria-label="Location">
-        {["all", ...myPlaces].map((c) => (
+        {(myPlaces.length ? ["all", ...myPlaces] : []).map((c) => (
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
             className="rounded-md h-8 px-3" onClick={() => setCity(c)}>{c === "all" ? "All my locations" : c}</Button>
         ))}
-        <Button size="sm" variant="link" className="h-8" onClick={() => { setDraftLocations(myPlaces); setDraftModes(activeModes); setEditingLocations(true); }}>Edit locations</Button>
+        <Button size="sm" variant="link" className="h-8" onClick={openPicker}>{myPlaces.length ? "Change regions" : "Choose regions"}</Button>
       </div>
       <div className="flex flex-wrap gap-2 mb-8" aria-label="Work mode">
         {WORK_MODES.map(m => { const on = activeModes.includes(m); return (
@@ -200,6 +203,13 @@ export default function Jobs() {
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>
+      ) : !myPlaces.length ? (
+        <div className="rounded-lg border border-border bg-card p-10 text-center">
+          <MapPin className="mx-auto size-7 text-primary" />
+          <h2 className="mt-3 text-lg font-semibold text-foreground">Where do you want to work?</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Choose the regions you want to search, and we'll show real openings there.</p>
+          <Button className="mt-5" onClick={openPicker}>Choose regions</Button>
+        </div>
       ) : jobs.length === 0 ? (
         <EmptyState icon={Briefcase} title="No matching roles yet" description="New openings are added regularly. Try another location or work mode." />
       ) : (
@@ -252,7 +262,7 @@ export default function Jobs() {
               if (error || !data) throw error ?? new Error("Couldn't save locations");
               setCity("all"); setModes(null);
               await queryClient.invalidateQueries({ queryKey: ["job-preferences", user.id] });
-              setEditingLocations(false); toast.success("Job preferences updated");
+              setChosenPlaces(draftLocations); setCity("all"); setEditingLocations(false); toast.success("Showing jobs in your regions");
             } catch { toast.error("Couldn't save locations. Please try again."); }
             finally { setSavingLocations(false); }
           }}>{savingLocations ? "Saving…" : "Save locations"}</Button>
