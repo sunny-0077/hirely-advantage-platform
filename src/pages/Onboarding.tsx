@@ -56,7 +56,8 @@ export default function Onboarding() {
   const places = useGlobalPlaces(placeQuery);
   const hubs = useMemo(() => suggestedHubs(), []);
   const profile = useQuery({ queryKey: ["onboarding-profile", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const { data, error } = await supabase.from("profiles").select("full_name,country,resume_mode,resume_file_url,preferred_template,target_job_role,experience_level,preferred_locations,work_modes,onboarding_step,onboarding_completed").eq("user_id", user!.id).single();
+    if (!user) throw new Error("Please sign in again.");
+    const { data, error } = await supabase.from("profiles").select("full_name,country,resume_mode,resume_file_url,preferred_template,target_job_role,experience_level,preferred_locations,work_modes,onboarding_step,onboarding_completed").eq("user_id", user.id).single();
     if (error) throw error;
     return data;
   } });
@@ -137,15 +138,15 @@ export default function Onboarding() {
   }
 
   async function next() {
-    if (!valid || busy) return;
+    if (!valid || busy || !user) return;
     if (step < TOTAL) {
       const target = step === 1 && form.resume_mode === "upload" ? 3 : step + 1;
       if (await persist(target, false)) setStep(target);
       return;
     }
     if (await persist(TOTAL, true)) {
-      await queryClient.invalidateQueries({ queryKey: ["workspace", user!.id] });
-      await queryClient.invalidateQueries({ queryKey: ["onboarding-profile", user!.id] });
+      await queryClient.invalidateQueries({ queryKey: ["workspace", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["onboarding-profile", user.id] });
       navigate(postOnboardingPath(form), { replace: true });
     }
   }
@@ -163,7 +164,7 @@ export default function Onboarding() {
     ["Which resume style do you prefer?", "We'll format your details using this layout in the AI Resume Builder."],
     ["What job title are you aiming for?", "This personalizes your AI Resume Builder, Cover Letter Generator, and Interview Prep questions."],
     ["What is your current experience level?", "Helps us calibrate your Resume Analyzer grading and Interview Prep difficulty."],
-    ["Where should we find jobs for you?", "Search any city or country worldwide, or choose global remote roles."],
+    ["Where should we find jobs for you?", "Choose up to 3 cities or countries, plus worldwide remote roles."],
   ][step - 1];
 
   return <main className="onboarding-mesh min-h-screen px-4 py-8 sm:py-14 flex justify-center items-start">
@@ -229,8 +230,9 @@ export default function Onboarding() {
               <li><button type="button" className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent" onClick={() => pickPlace(placeQuery)}>Use “{placeQuery.trim()}”</button></li>
             </ul>}
           </div>
+          <p className="text-sm text-muted-foreground">{realLocations.length} / {MAX_LOCATIONS} locations selected</p>
           {realLocations.length > 0 && <div className="flex flex-wrap gap-2">{realLocations.map(l => <span key={l} className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground pl-3 pr-1.5 py-1 text-sm">{l}
-            <button type="button" aria-label={`Remove ${l}`} className="rounded-full p-0.5 hover:bg-primary-foreground/20" onClick={() => toggleLocation(l)}><X className="size-3.5" /></button></span>)}</div>}
+            <Button type="button" variant="ghost" size="icon" aria-label={`Remove ${l}`} className="rounded-full size-6 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground" onClick={() => toggleLocation(l)}><X className="size-3.5" /></Button></span>)}</div>}
           <div className="space-y-2"><p className="text-sm font-medium">Quick picks</p><div className="flex flex-wrap gap-2">
             <button type="button" aria-pressed={form.preferred_locations.includes(REMOTE_WORLDWIDE)} onClick={() => toggleLocation(REMOTE_WORLDWIDE)}
               className={cn("inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold", form.preferred_locations.includes(REMOTE_WORLDWIDE) ? "border-primary bg-primary text-primary-foreground" : "border-primary/60 text-primary bg-card/70")}><Globe2 className="size-4" />{REMOTE_WORLDWIDE}</button>

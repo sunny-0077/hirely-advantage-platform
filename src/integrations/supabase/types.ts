@@ -587,6 +587,7 @@ export type Database = {
           apply_url: string | null
           city_hub: string
           company_name: string
+          country_keys: string[]
           external_job_id: string
           fetched_at: string
           id: string
@@ -605,6 +606,7 @@ export type Database = {
           apply_url?: string | null
           city_hub: string
           company_name: string
+          country_keys?: string[]
           external_job_id: string
           fetched_at?: string
           id?: string
@@ -623,6 +625,7 @@ export type Database = {
           apply_url?: string | null
           city_hub?: string
           company_name?: string
+          country_keys?: string[]
           external_job_id?: string
           fetched_at?: string
           id?: string

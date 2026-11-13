@@ -13,8 +13,6 @@ import { cn } from "@/lib/utils";
 import { fetchPreferredJobs, useJobPreferences } from "@/hooks/useJobPreferences";
 import { WORK_MODES } from "@/lib/jobPreferences";
 
-export const CITY_HUBS = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Delhi NCR", "Remote"] as const;
-
 type TruthCard = {
   true_tech_stack?: string[];
   estimated_ctc_range?: string;
@@ -25,6 +23,7 @@ type TruthCard = {
 type Job = {
   id: string; title: string; company_name: string; city_hub: string; work_mode: string | null;
   apply_url: string | null; raw_description: string | null; truth_card_json: TruthCard; fetched_at: string;
+  source?: string | null; source_url?: string | null;
 };
 
 function TruthCardBadge({ t }: { t: TruthCard }) {
@@ -34,7 +33,7 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">3-second truth</span>
         <span className="flex items-center gap-1 text-sm font-semibold text-foreground">
-          <Wallet className="size-3.5 text-primary" />{t.estimated_ctc_range || "CTC not disclosed"}
+          <Wallet className="size-3.5 text-primary" />{t.estimated_ctc_range || "Salary not disclosed"}
         </span>
       </div>
       {stack.length > 0 && (
@@ -204,6 +203,7 @@ export default function Jobs() {
                 <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                   <MapPin className="size-3.5" />{j.city_hub} · {j.work_mode ?? "On-site"}
                 </p>
+                {j.source && j.source_url && <a href={j.source_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-muted-foreground underline">Source: {j.source}</a>}
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
               <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
