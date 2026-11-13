@@ -162,6 +162,13 @@
       "when": 1794572210382,
       "tag": "0022_job_country_matching_keys",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794572381824,
+      "tag": "0023_allow_global_job_locations",
+      "breakpoints": true
     }
   ]
 }
