@@ -52,8 +52,9 @@ export function jobLocationFilter(locations: string[], modes: string[]): string 
     const [city, ...rest] = l.split(",").map(locationKey);
     if (!city) return "";
     const country = rest.at(-1);
-    const cityMatch = `location_keys.cs.{${city}}`;
-    return country ? `and(${cityMatch},or(country_keys.cs.{${country}},country_keys.eq.{}))` : cityMatch;
+    const cityMatch = `location_keys.cs.{"${city}"}`;
+    // A city or state with no listings still shows real openings elsewhere in the same country.
+    return country ? `${cityMatch},country_keys.cs.{"${country}"},location_keys.cs.{"${country}"}` : cityMatch;
   }).filter(Boolean);
   if (locations.includes(REMOTE_WORLDWIDE)) parts.push("and(work_mode.eq.Remote,remote_scope.eq.Worldwide)");
   void modes; // Modes narrow the result separately; Remote never overrides a selected place.

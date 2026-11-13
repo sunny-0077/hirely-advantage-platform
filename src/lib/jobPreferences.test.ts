@@ -8,14 +8,14 @@ describe("job preferences", () => {
     expect(addLocation(l, REMOTE_WORLDWIDE)).toHaveLength(4);
   });
   it("filters jobs by the selected places, not a fixed city list", () => {
-    expect(jobLocationFilter(["London, UK", "Bangalore, India"], ["On-site"])).toBe("and(location_keys.cs.{london},or(country_keys.cs.{united kingdom},country_keys.eq.{})),and(location_keys.cs.{bengaluru},or(country_keys.cs.{india},country_keys.eq.{}))");
+    expect(jobLocationFilter(["London, UK", "Bangalore, India"], ["On-site"])).toBe('location_keys.cs.{"london"},country_keys.cs.{"united kingdom"},location_keys.cs.{"united kingdom"},location_keys.cs.{"bengaluru"},country_keys.cs.{"india"},location_keys.cs.{"india"}');
     expect(jobLocationFilter([REMOTE_WORLDWIDE], ["Hybrid"])).toBe("and(work_mode.eq.Remote,remote_scope.eq.Worldwide)");
   });
   it("keeps remote jobs constrained to selected cities unless worldwide was selected", () => {
-    expect(jobLocationFilter(["Toronto, Canada"], ["Remote"])).toBe("and(location_keys.cs.{toronto},or(country_keys.cs.{canada},country_keys.eq.{}))");
+    expect(jobLocationFilter(["Toronto, Canada"], ["Remote"])).toBe('location_keys.cs.{"toronto"},country_keys.cs.{"canada"},location_keys.cs.{"canada"}');
   });
   it("supports country selection and removes duplicate location choices", () => {
-    expect(jobLocationFilter(["USA"], [])).toBe("location_keys.cs.{united states}");
+    expect(jobLocationFilter(["USA"], [])).toBe('location_keys.cs.{"united states"}');
     expect(addLocation(["London, UK"], " london, uk ")).toEqual(["London, UK"]);
   });
   it("filters for role terms before limiting the feed", () => {
