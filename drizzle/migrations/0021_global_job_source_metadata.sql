@@ -1,0 +1,5 @@
+ALTER TABLE public.jobs_catalog ADD COLUMN IF NOT EXISTS source text, ADD COLUMN IF NOT EXISTS source_url text, ADD COLUMN IF NOT EXISTS source_job_id text, ADD COLUMN IF NOT EXISTS location_keys text[] NOT NULL DEFAULT '{}', ADD COLUMN IF NOT EXISTS remote_scope text NOT NULL DEFAULT 'Unknown', ADD COLUMN IF NOT EXISTS last_seen_at timestamptz NOT NULL DEFAULT now();
+CREATE INDEX IF NOT EXISTS jobs_catalog_location_keys_idx ON public.jobs_catalog USING gin(location_keys);
+CREATE INDEX IF NOT EXISTS jobs_catalog_last_seen_idx ON public.jobs_catalog(last_seen_at DESC);
+COMMENT ON COLUMN public.jobs_catalog.city_hub IS 'Original global employer location, including any remote geographic restrictions.';
+COMMENT ON COLUMN public.jobs_catalog.remote_scope IS 'Worldwide only when explicitly stated by the employer; otherwise Restricted or Unknown.';

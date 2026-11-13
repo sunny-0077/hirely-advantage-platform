@@ -148,6 +148,13 @@
       "when": 1794569165250,
       "tag": "0020_five_step_onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794572100148,
+      "tag": "0021_global_job_source_metadata",
+      "breakpoints": true
     }
   ]
 }
