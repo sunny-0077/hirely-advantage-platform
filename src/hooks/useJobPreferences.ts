@@ -16,16 +16,17 @@ export function useJobPreferences() {
 
 /** Loads catalogue openings for the given places and work modes, ordered by fit with the target role. */
 export async function fetchPreferredJobs(locations: string[], modes: string[], role: string, limit = 60) {
-  let q = supabase.from("jobs_catalog").select("*").gte("last_seen_at", new Date(Date.now() - 7 * 86400000).toISOString()).order("fetched_at", { ascending: false }).limit(limit * 3);
+  const base = () => { let q = supabase.from("jobs_catalog").select("*").gte("last_seen_at", new Date(Date.now() - 7 * 86400000).toISOString()).order("fetched_at", { ascending: false }).limit(limit * 3);
   const filter = jobLocationFilter(locations, modes);
   if (filter) q = q.or(filter);
   if (modes.length && modes.length < 3) q = q.in("work_mode", modes);
+  return q; };
   const roleFilter = jobRoleFilter(role);
-  const { data, error } = await (roleFilter ? q.or(roleFilter) : q);
+  const { data, error } = await (roleFilter ? base().or(roleFilter) : base());
   if (error) throw error;
   let rows = data ?? [];
   // No role match in these places yet: show other real openings there instead of an empty page.
-  if (!rows.length && roleFilter) { const r = await q; if (r.error) throw r.error; rows = r.data ?? []; }
+  if (!rows.length && roleFilter) { const r = await base(); if (r.error) throw r.error; rows = r.data ?? []; }
   const cities = locations.map(l => locationKey(l.split(",")[0] ?? ""));
   const inCity = (j: { location_keys?: string[] | null }) => (j.location_keys ?? []).some(k => cities.includes(k)) ? 1 : 0;
   return rankByRole(rows, role).map((j, i) => ({ j, i })).sort((a, b) => inCity(b.j) - inCity(a.j) || a.i - b.i).map(x => x.j).slice(0, limit);
