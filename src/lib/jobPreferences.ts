@@ -1,3 +1,4 @@
+import { locationKey } from "../../supabase/functions/_shared/global-jobs";
 export const REMOTE_WORLDWIDE = "Remote / Worldwide";
 export const WORK_MODES = ["On-site", "Hybrid", "Remote"] as const;
 export const MAX_LOCATIONS = 3;
@@ -34,23 +35,34 @@ export function addLocation(list: string[], value: string): string[] {
   return [...list, clean];
 }
 
-const ALIASES: Record<string, string> = { bangalore: "bengaluru", gurgaon: "delhi", gurugram: "delhi", noida: "delhi", "new delhi": "delhi", bombay: "mumbai" };
 /** City/country search terms used against the job feed's location field. */
 export function locationTerms(locations: string[]): string[] {
   const terms = new Set<string>();
   for (const loc of locations) {
     if (loc === REMOTE_WORLDWIDE) continue;
     const city = loc.split(",")[0].trim().toLowerCase();
-    if (city) terms.add(ALIASES[city] ?? city);
+    if (city) terms.add(locationKey(city));
   }
   return [...terms].map(t => t.replace(/[^\p{L}\p{N} .-]/gu, "")).filter(Boolean);
 }
 
 /** PostgREST OR filter for preferred places; remote preference matches remote openings anywhere. */
 export function jobLocationFilter(locations: string[], modes: string[]): string | null {
-  const parts = locationTerms(locations).map(t => `city_hub.ilike.*${t}*`);
-  if (locations.includes(REMOTE_WORLDWIDE) || modes.includes("Remote")) parts.push("work_mode.eq.Remote");
+  const parts = locations.filter(l => l !== REMOTE_WORLDWIDE).map(l => {
+    const [city, ...rest] = l.split(",").map(locationKey);
+    if (!city) return "";
+    const country = rest.at(-1);
+    const cityMatch = `location_keys.cs.{${city}}`;
+    return country ? `and(${cityMatch},or(country_keys.cs.{${country}},country_keys.eq.{}))` : cityMatch;
+  }).filter(Boolean);
+  if (locations.includes(REMOTE_WORLDWIDE)) parts.push("and(work_mode.eq.Remote,remote_scope.eq.Worldwide)");
+  void modes; // Modes narrow the result separately; Remote never overrides a selected place.
   return parts.length ? parts.join(",") : null;
+}
+
+export function jobRoleFilter(role: string): string | null {
+  const tokens = role.toLowerCase().split(/[^a-z0-9+#]+/).filter(w => w.length > 2 && !["senior", "junior", "lead", "staff", "principal"].includes(w));
+  return tokens.length ? tokens.slice(0, 8).map(w => `title.ilike.*${w}*`).join(",") : null;
 }
 
 export function roleScore(title: string, role: string): number {

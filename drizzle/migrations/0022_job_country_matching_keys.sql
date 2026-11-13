@@ -1,0 +1,1 @@
+ALTER TABLE public.jobs_catalog ADD COLUMN IF NOT EXISTS country_keys text[] NOT NULL DEFAULT '{}'; CREATE INDEX IF NOT EXISTS jobs_catalog_country_keys_idx ON public.jobs_catalog USING gin(country_keys);

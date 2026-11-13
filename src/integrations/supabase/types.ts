@@ -587,10 +587,17 @@ export type Database = {
           apply_url: string | null
           city_hub: string
           company_name: string
+          country_keys: string[]
           external_job_id: string
           fetched_at: string
           id: string
+          last_seen_at: string
+          location_keys: string[]
           raw_description: string | null
+          remote_scope: string
+          source: string | null
+          source_job_id: string | null
+          source_url: string | null
           title: string
           truth_card_json: Json
           work_mode: string | null
@@ -599,10 +606,17 @@ export type Database = {
           apply_url?: string | null
           city_hub: string
           company_name: string
+          country_keys?: string[]
           external_job_id: string
           fetched_at?: string
           id?: string
+          last_seen_at?: string
+          location_keys?: string[]
           raw_description?: string | null
+          remote_scope?: string
+          source?: string | null
+          source_job_id?: string | null
+          source_url?: string | null
           title: string
           truth_card_json?: Json
           work_mode?: string | null
@@ -611,10 +625,17 @@ export type Database = {
           apply_url?: string | null
           city_hub?: string
           company_name?: string
+          country_keys?: string[]
           external_job_id?: string
           fetched_at?: string
           id?: string
+          last_seen_at?: string
+          location_keys?: string[]
           raw_description?: string | null
+          remote_scope?: string
+          source?: string | null
+          source_job_id?: string | null
+          source_url?: string | null
           title?: string
           truth_card_json?: Json
           work_mode?: string | null

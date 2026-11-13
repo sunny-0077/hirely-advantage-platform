@@ -1,0 +1,1 @@
+ALTER TABLE public.jobs_catalog DROP CONSTRAINT jobs_catalog_city_hub_check; ALTER TABLE public.jobs_catalog ADD CONSTRAINT jobs_catalog_global_location_check CHECK (length(btrim(city_hub)) BETWEEN 1 AND 500) NOT VALID;

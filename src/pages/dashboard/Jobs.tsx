@@ -12,8 +12,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fetchPreferredJobs, useJobPreferences } from "@/hooks/useJobPreferences";
 import { WORK_MODES } from "@/lib/jobPreferences";
-
-export const CITY_HUBS = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Delhi NCR", "Remote"] as const;
+import { JobLocationPicker } from "@/components/dashboard/JobLocationPicker";
+import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 type TruthCard = {
   true_tech_stack?: string[];
@@ -25,6 +26,7 @@ type TruthCard = {
 type Job = {
   id: string; title: string; company_name: string; city_hub: string; work_mode: string | null;
   apply_url: string | null; raw_description: string | null; truth_card_json: TruthCard; fetched_at: string;
+  source?: string | null; source_url?: string | null;
 };
 
 function TruthCardBadge({ t }: { t: TruthCard }) {
@@ -34,7 +36,7 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">3-second truth</span>
         <span className="flex items-center gap-1 text-sm font-semibold text-foreground">
-          <Wallet className="size-3.5 text-primary" />{t.estimated_ctc_range || "CTC not disclosed"}
+          <Wallet className="size-3.5 text-primary" />{t.estimated_ctc_range || "Salary not disclosed"}
         </span>
       </div>
       {stack.length > 0 && (
@@ -58,6 +60,12 @@ function TruthCardBadge({ t }: { t: TruthCard }) {
 }
 
 export default function Jobs() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [editingLocations, setEditingLocations] = useState(false);
+  const [draftLocations, setDraftLocations] = useState<string[]>([]);
+  const [draftModes, setDraftModes] = useState<string[]>([]);
+  const [savingLocations, setSavingLocations] = useState(false);
   const navigate = useNavigate();
   const inFlight = useRef(false);
   const requestKeys = useRef(new Map<string, string>());
@@ -182,7 +190,7 @@ export default function Jobs() {
           <Button key={c} size="sm" role="tab" aria-selected={city === c} variant={city === c ? "default" : "outline"}
             className="rounded-md h-8 px-3" onClick={() => setCity(c)}>{c === "all" ? "All my locations" : c}</Button>
         ))}
-        <Button asChild size="sm" variant="link" className="h-8"><a href="/app/profile">Edit locations</a></Button>
+        <Button size="sm" variant="link" className="h-8" onClick={() => { setDraftLocations(myPlaces); setDraftModes(activeModes); setEditingLocations(true); }}>Edit locations</Button>
       </div>
       <div className="flex flex-wrap gap-2 mb-8" aria-label="Work mode">
         {WORK_MODES.map(m => { const on = activeModes.includes(m); return (
@@ -204,6 +212,7 @@ export default function Jobs() {
                 <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                   <MapPin className="size-3.5" />{j.city_hub} · {j.work_mode ?? "On-site"}
                 </p>
+                {j.source && j.source_url && <a href={j.source_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-muted-foreground underline">Source: {j.source}</a>}
               </div>
               <TruthCardBadge t={j.truth_card_json ?? {}} />
               <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
@@ -230,6 +239,25 @@ export default function Jobs() {
           ))}
         </div>
       )}
+
+      <Dialog open={editingLocations} onOpenChange={setEditingLocations}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Preferred job locations</DialogTitle><DialogDescription>Choose up to 3 cities or countries, plus worldwide remote.</DialogDescription></DialogHeader>
+          <JobLocationPicker locations={draftLocations} modes={draftModes} onLocations={setDraftLocations} onModes={setDraftModes} />
+          <Button disabled={savingLocations || !draftLocations.length || !draftModes.length} onClick={async () => {
+            if (!user) return;
+            setSavingLocations(true);
+            try {
+              const { data, error } = await supabase.from("profiles").update({ preferred_locations: draftLocations, work_modes: draftModes }).eq("user_id", user.id).select("user_id").single();
+              if (error || !data) throw error ?? new Error("Couldn't save locations");
+              setCity("all"); setModes(null);
+              await queryClient.invalidateQueries({ queryKey: ["job-preferences", user.id] });
+              setEditingLocations(false); toast.success("Job preferences updated");
+            } catch { toast.error("Couldn't save locations. Please try again."); }
+            finally { setSavingLocations(false); }
+          }}>{savingLocations ? "Saving…" : "Save locations"}</Button>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!tailorJob} onOpenChange={(o) => !o && setTailorJob(null)}>
         <DialogContent>

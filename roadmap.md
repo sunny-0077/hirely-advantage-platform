@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Expand free worldwide job sources: Greenhouse, Lever and Arbeitnow Germany/UK; verified 3,906 scanned, 25 inserted, zero failures and no paused AI. Remotive excluded because its free terms forbid gated listings; every-6h scheduler retained.
+- [x] Preserve three onboarding places plus worldwide remote using a shared selector; add Jobs preference editing and verify desktop/mobile selection, 18 tests and real country/city queries. No invented preferences were saved on the requesting account; fresh onboarding completion/save remains unverified.
+
 - [x] Fix fresh Google callback session establishment before dashboard validation; fresh mobile query and fragment returns now reach required onboarding rather than sign-in, with no preloaded browser storage. External Google account selection itself remains unverified.
 
 - [x] Repair mobile email autofill/sign-in validation and queued session races; verified real mobile dashboard entry, sidebar navigation, callback session routing and invalid-login feedback. Full external Google/inbox-link round trips remain unverified without completing those external interactions.

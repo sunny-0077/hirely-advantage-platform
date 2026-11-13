@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Check, FileUp, Globe2, Loader2, MapPin, PenLine, Search, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileUp, Loader2, PenLine, Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,9 @@ import { LogoLockup } from "@/components/landing/Logo";
 import { cn } from "@/lib/utils";
 import { validateImportFile, mapResumeText } from "@/lib/resumeImport";
 import { hashResumeText } from "@/lib/resumeHash";
-import { addLocation, EXPERIENCE_LEVELS, MAX_LOCATIONS, POPULAR_ROLES, postOnboardingPath, REMOTE_WORLDWIDE, suggestedHubs, WORK_MODES, type TemplateStyle } from "@/lib/jobPreferences";
+import { EXPERIENCE_LEVELS, POPULAR_ROLES, postOnboardingPath, type TemplateStyle } from "@/lib/jobPreferences";
+
+import { JobLocationPicker } from "@/components/dashboard/JobLocationPicker";
 
 const TOTAL = 5;
 type Form = { resume_mode: "upload" | "build" | null; resume_file_url: string | null; resume_name: string; preferred_template: TemplateStyle | null; target_job_role: string; experience_level: string; preferred_locations: string[]; work_modes: string[] };
@@ -19,24 +21,6 @@ const EMPTY: Form = { resume_mode: null, resume_file_url: null, resume_name: "",
 function choice(active: boolean) {
   return cn("rounded-xl border text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
     active ? "border-primary bg-accent shadow-sm" : "border-border bg-card/70 hover:border-primary/50");
-}
-
-function useGlobalPlaces(query: string) {
-  const [results, setResults] = useState<string[]>([]);
-  useEffect(() => {
-    const q = query.trim();
-    if (q.length < 2) { setResults([]); return; }
-    const ctrl = new AbortController();
-    const t = setTimeout(() => {
-      fetch(`https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&name=${encodeURIComponent(q)}`, { signal: ctrl.signal })
-        .then(r => r.json()).then((d: { results?: { name: string; country?: string; admin1?: string }[] }) => {
-          const seen = new Set<string>();
-          setResults((d.results ?? []).map(p => [p.name, p.country].filter(Boolean).join(", ")).filter(x => !seen.has(x) && seen.add(x)));
-        }).catch(() => setResults([]));
-    }, 250);
-    return () => { clearTimeout(t); ctrl.abort(); };
-  }, [query]);
-  return results;
 }
 
 export default function Onboarding() {
@@ -50,13 +34,11 @@ export default function Onboarding() {
   const [dragging, setDragging] = useState(false);
   const [notice, setNotice] = useState("");
   const [roleQuery, setRoleQuery] = useState("");
-  const [placeQuery, setPlaceQuery] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const initialized = useRef<string | null>(null);
-  const places = useGlobalPlaces(placeQuery);
-  const hubs = useMemo(() => suggestedHubs(), []);
   const profile = useQuery({ queryKey: ["onboarding-profile", user?.id], enabled: Boolean(user), queryFn: async () => {
-    const { data, error } = await supabase.from("profiles").select("full_name,country,resume_mode,resume_file_url,preferred_template,target_job_role,experience_level,preferred_locations,work_modes,onboarding_step,onboarding_completed").eq("user_id", user!.id).single();
+    if (!user) throw new Error("Please sign in again.");
+    const { data, error } = await supabase.from("profiles").select("full_name,country,resume_mode,resume_file_url,preferred_template,target_job_role,experience_level,preferred_locations,work_modes,onboarding_step,onboarding_completed").eq("user_id", user.id).single();
     if (error) throw error;
     return data;
   } });
@@ -137,33 +119,27 @@ export default function Onboarding() {
   }
 
   async function next() {
-    if (!valid || busy) return;
+    if (!valid || busy || !user) return;
     if (step < TOTAL) {
       const target = step === 1 && form.resume_mode === "upload" ? 3 : step + 1;
       if (await persist(target, false)) setStep(target);
       return;
     }
     if (await persist(TOTAL, true)) {
-      await queryClient.invalidateQueries({ queryKey: ["workspace", user!.id] });
-      await queryClient.invalidateQueries({ queryKey: ["onboarding-profile", user!.id] });
+      await queryClient.invalidateQueries({ queryKey: ["workspace", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["onboarding-profile", user.id] });
       navigate(postOnboardingPath(form), { replace: true });
     }
   }
   const back = () => setStep(s => (s === 3 && form.resume_mode === "upload" ? 1 : Math.max(1, s - 1)));
 
   const roleSuggestions = POPULAR_ROLES.filter(r => r.toLowerCase().includes(roleQuery.trim().toLowerCase())).slice(0, 8);
-  const realLocations = form.preferred_locations.filter(l => l !== REMOTE_WORLDWIDE);
-  const full = realLocations.length >= MAX_LOCATIONS;
-  const toggle = (k: "work_modes", v: string) => set(k, form[k].includes(v) ? form[k].filter(x => x !== v) : [...form[k], v]);
-  const toggleLocation = (v: string) => set("preferred_locations", form.preferred_locations.includes(v) ? form.preferred_locations.filter(x => x !== v) : addLocation(form.preferred_locations, v));
-  const pickPlace = (v: string) => { set("preferred_locations", addLocation(form.preferred_locations, v)); setPlaceQuery(""); };
-
   const heads = [
     ["How would you like to start?", "Upload your current resume for an instant AI score, or build a new one from scratch."],
     ["Which resume style do you prefer?", "We'll format your details using this layout in the AI Resume Builder."],
     ["What job title are you aiming for?", "This personalizes your AI Resume Builder, Cover Letter Generator, and Interview Prep questions."],
     ["What is your current experience level?", "Helps us calibrate your Resume Analyzer grading and Interview Prep difficulty."],
-    ["Where should we find jobs for you?", "Search any city or country worldwide, or choose global remote roles."],
+    ["Where should we find jobs for you?", "Choose up to 3 cities or countries, plus worldwide remote roles."],
   ][step - 1];
 
   return <main className="onboarding-mesh min-h-screen px-4 py-8 sm:py-14 flex justify-center items-start">
@@ -219,26 +195,8 @@ export default function Onboarding() {
         {step === 4 && <div className="grid gap-3 sm:grid-cols-2">{EXPERIENCE_LEVELS.map(l => <button key={l.value} type="button" aria-pressed={form.experience_level === l.value} onClick={() => set("experience_level", l.value)}
           className={cn(choice(form.experience_level === l.value), "px-5 py-4 font-semibold flex items-center justify-between")}>{l.label}{form.experience_level === l.value && <Check className="size-4 text-primary" />}</button>)}</div>}
 
-        {step === 5 && <div className="space-y-5">
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input aria-label="Search cities or countries" className="pl-9 h-12" disabled={full} placeholder={full ? `Up to ${MAX_LOCATIONS} places selected` : "Search any city or country"} value={placeQuery} maxLength={120}
-              onChange={e => setPlaceQuery(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); if (placeQuery.trim()) pickPlace(places[0] ?? placeQuery); } }} />
-            {placeQuery.trim().length > 1 && !full && <ul className="absolute z-10 mt-1 w-full rounded-xl border border-border bg-popover shadow-lg overflow-hidden" role="listbox">
-              {places.map(p => <li key={p}><button type="button" className="w-full text-left px-4 py-2.5 text-sm hover:bg-accent" onClick={() => pickPlace(p)}>{p}</button></li>)}
-              <li><button type="button" className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent" onClick={() => pickPlace(placeQuery)}>Use “{placeQuery.trim()}”</button></li>
-            </ul>}
-          </div>
-          {realLocations.length > 0 && <div className="flex flex-wrap gap-2">{realLocations.map(l => <span key={l} className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground pl-3 pr-1.5 py-1 text-sm">{l}
-            <button type="button" aria-label={`Remove ${l}`} className="rounded-full p-0.5 hover:bg-primary-foreground/20" onClick={() => toggleLocation(l)}><X className="size-3.5" /></button></span>)}</div>}
-          <div className="space-y-2"><p className="text-sm font-medium">Quick picks</p><div className="flex flex-wrap gap-2">
-            <button type="button" aria-pressed={form.preferred_locations.includes(REMOTE_WORLDWIDE)} onClick={() => toggleLocation(REMOTE_WORLDWIDE)}
-              className={cn("inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold", form.preferred_locations.includes(REMOTE_WORLDWIDE) ? "border-primary bg-primary text-primary-foreground" : "border-primary/60 text-primary bg-card/70")}><Globe2 className="size-4" />{REMOTE_WORLDWIDE}</button>
-            {hubs.filter(h => !form.preferred_locations.includes(h)).map(h => <button key={h} type="button" disabled={full} onClick={() => toggleLocation(h)} className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-sm hover:border-primary/50 disabled:opacity-50">{h}</button>)}
-          </div></div>
-          <div className="space-y-2"><p className="text-sm font-medium">Work mode</p><div className="flex flex-wrap gap-2">{WORK_MODES.map(m => <button key={m} type="button" aria-pressed={form.work_modes.includes(m)} onClick={() => toggle("work_modes", m)}
-            className={cn("rounded-full border px-4 py-1.5 text-sm", form.work_modes.includes(m) ? "border-primary bg-accent text-accent-foreground font-semibold" : "border-border bg-card/70")}>{m}</button>)}</div></div>
-        </div>}
+        {step === 5 && <JobLocationPicker locations={form.preferred_locations} modes={form.work_modes}
+          onLocations={v => set("preferred_locations", v)} onModes={v => set("work_modes", v)} />}
 
         {notice && <p role="status" className="text-sm text-destructive">{notice}</p>}
         <div className="flex items-center justify-between gap-3 pt-2">
