@@ -3,7 +3,7 @@
 - Bound editor panes to fit the viewport.
 
 - Public and authenticated interfaces share semantic CSS tokens and shared control variants; compatibility surface classes remain available without decorative effects so existing tools retain behavior.
-- Workspace page roots share one centered, capped content column with responsive gutters, because stretching content to fill wide screens looks unstructured.
+- Workspace page roots use the shared full-width layout with responsive gutters; constrain only inner reading and document surfaces, because page-level width caps leave large unused margins.
 - Workspace home uses an adaptive studio/activity split and compact shared card spacing without reducing body text, because dense layouts should use available width without stretching every tool across it.
 - Sidebar motion uses Motion with reduced-motion support and existing semantic colours; collapsed navigation retains named icon links, because animation must preserve accessibility and routing.
 - Default and filtered resume galleries use real server-paginated titles, never a curated frontend subset. Admin-validated imports keep occupational blueprints and designs separate from owner snapshots, because large catalogs must not inflate bundles or replace Master Resume facts.
