@@ -1,5 +1,7 @@
 # Project implementation rules
 
+- Bound editor panes to fit the viewport.
+
 - Public and authenticated interfaces share semantic CSS tokens and shared control variants; compatibility surface classes remain available without decorative effects so existing tools retain behavior.
 - Workspace page roots use the shared full-width layout with responsive gutters; constrain only inner reading and document surfaces, because page-level width caps leave large unused margins.
 - Workspace home uses an adaptive studio/activity split and compact shared card spacing without reducing body text, because dense layouts should use available width without stretching every tool across it.

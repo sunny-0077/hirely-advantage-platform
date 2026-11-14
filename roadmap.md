@@ -1,5 +1,9 @@
 # Roadmap
 
+## Compact resume editor
+- [x] Fit the editor into the viewport with a compact action bar, internal editing/preview scrolling, fitted A4 page and mobile Edit/Preview switching; retain all editing, save and export actions.
+- [x] Verify signed-in blank-template entry, name editing updating the live preview and additional action access; check 1280px desktop, 611px and 390px viewport fit without overflow or runtime errors. All 60 resume/catalog tests passed; build OK.
+
 ## Full template catalog
 - [x] Replace the 28 curated tiles with live paginated job-title cards across all 45,808 catalog titles; retain search, industry/category/level filters, samples and role design selection.
 - [x] Verify signed-in default catalog, different page-two titles, industry filtering, Electrician search and five role styles/full preview; check desktop, 611px and 390px without overflow or runtime errors. All 60 resume/catalog tests passed; build OK. Existing five visual structures remain unchanged.

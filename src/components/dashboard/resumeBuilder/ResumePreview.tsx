@@ -40,13 +40,14 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
   </div>;
 }
 
-export function FittedResumePreview({ doc, firstPageOnly = false, maxScale = 1 }: { doc: ResumeDocument; firstPageOnly?: boolean; maxScale?: number }) {
+export function FittedResumePreview({ doc, firstPageOnly = false, maxScale = 1, fitPage = false }: { doc: ResumeDocument; firstPageOnly?: boolean; maxScale?: number; fitPage?: boolean }) {
   const ref = useRef<HTMLDivElement>(null), content = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5), [height, setHeight] = useState(A4_HEIGHT);
   useEffect(() => {
     const container = ref.current, inner = content.current; if (!container || !inner) return;
-    const observer = new ResizeObserver(() => { setScale(Math.min(maxScale, container.clientWidth / A4_WIDTH)); setHeight(firstPageOnly ? A4_HEIGHT : inner.offsetHeight); });
-    observer.observe(container); observer.observe(inner); return () => observer.disconnect();
-  }, [firstPageOnly, maxScale]);
+    const parent = container.parentElement;
+    const observer = new ResizeObserver(() => { setScale(Math.min(maxScale, container.clientWidth / A4_WIDTH, fitPage && parent ? parent.clientHeight / A4_HEIGHT : maxScale)); setHeight(firstPageOnly ? A4_HEIGHT : inner.offsetHeight); });
+    observer.observe(container); observer.observe(inner); if (fitPage && parent) observer.observe(parent); return () => observer.disconnect();
+  }, [firstPageOnly, maxScale, fitPage]);
   return <div className="resume-canvas-viewport" ref={ref} style={{ height: height * scale }}><div className="resume-canvas-scaled" ref={content} style={{ width: A4_WIDTH, transform: `scale(${scale})` }}><ResumePreview doc={doc} /></div></div>;
 }

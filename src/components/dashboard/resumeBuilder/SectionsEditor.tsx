@@ -129,7 +129,7 @@ function SectionCard({
   updateContent: (p: Partial<ResumeDocument["content"]>) => void;
   role?: string;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(section.type === "summary");
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
