@@ -1,5 +1,9 @@
 # Roadmap
 
+## Full template catalog
+- [ ] Replace the 28 curated tiles with live paginated job-title cards across the complete catalog; retain search, industry/category/level filters, samples and role design selection.
+- [ ] Verify full catalog pagination, filtering, role selection and mobile sizing; run resume regression tests.
+
 ## Template gallery refinement
 - [x] Align search and category controls above a compact, consistent resume-preview grid using Hirely colors and fonts; filtered results use the same visual cards and template selection remains intact.
 - [x] Verify signed-in category filtering, catalogue search, role selection and full preview; check desktop, 611px and 390px layouts without horizontal overflow. All 28 focused preservation/style tests passed; build OK.
