@@ -44,7 +44,8 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
     if(!selected)throw new Error("Select a title");
     const [o,l,t]=await Promise.all([supabase.from("resume_occupations").select("*").eq("id",selected.occupation_id).single(),supabase.from("resume_occupation_levels").select("level_id").eq("occupation_id",selected.occupation_id),supabase.from("resume_job_titles").select("id,occupation_id,title,industry_id,category_id").eq("occupation_id",selected.occupation_id).order("popular_rank").limit(8)]);
     if(o.error||l.error||t.error)throw o.error??l.error??t.error;
-    const example = await loadOccupationExample(selected.occupation_id);
+    // Examples only enrich samples; designs must still open if the example file is unavailable.
+    const example = await loadOccupationExample(selected.occupation_id).catch(() => undefined);
     return {occupation:o.data,levels:l.data.map(x=>x.level_id),related:t.data,example};
   }});
   const [roleLevel,setRoleLevel]=useState("");
