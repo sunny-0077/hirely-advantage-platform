@@ -111,7 +111,7 @@ export default function WorkspaceHome() {
 
     {q.error && <p role="alert" className="text-destructive mb-5">Couldn't load your workspace. <Button variant="link" onClick={() => q.refetch()}>Retry</Button></p>}
 
-    <section aria-label="Overview" className="grid grid-cols-1 sm:grid-cols-3 gap-0 border-y border-border mb-5">
+    <section aria-label="Overview" className="grid grid-cols-1 min-[480px]:grid-cols-3 gap-0 border-y border-border mb-5">
       <Stat icon={Coins} label="Credits left" value={q.isPending ? "—" : String(profile?.credits_balance ?? 0)} action={q.isSuccess && (profile?.credits_balance ?? 0) <= 2 ? <Button size="sm" onClick={() => beta.open()}>Get Credits</Button> : undefined} />
       <Stat icon={CalendarClock} label={PLAN_LABEL[profile?.plan_tier ?? "scout_free"] ?? "Plan"} value={q.isPending ? "—" : profile?.pass_expires_at ? `Until ${fmt(profile.pass_expires_at)}` : "No expiry"} />
       <Stat icon={FileStack} label="Documents generated" value={q.isPending ? "—" : String(q.data?.total ?? 0)} />
@@ -127,7 +127,7 @@ export default function WorkspaceHome() {
       <div className="flex items-center gap-2 mb-1"><Wand2 className="size-5 text-primary" /><h2 id="studio" className="text-xl font-semibold">Custom Job Studio</h2></div>
       <p className="text-sm text-muted-foreground mb-4">Found a job somewhere else? Paste it here. {resumeSource.data?.available ? `Source: ${resumeSource.data.label}.` : "We'll check your saved resume before generating."}</p>
       {resumeSource.isError && <p role="alert" className="text-sm text-destructive mb-3">Couldn't check your saved resume. Generation will check again.</p>}
-      <div className="grid sm:grid-cols-2 gap-4 mb-4">
+      <div className="grid min-[480px]:grid-cols-2 gap-4 mb-4">
         <div className="space-y-1.5"><Label htmlFor="cjs-title">Job title</Label><Input id="cjs-title" maxLength={200} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Data Analyst" /></div>
         <div className="space-y-1.5"><Label htmlFor="cjs-company">Company name</Label><Input id="cjs-company" maxLength={200} value={company} onChange={e => setCompany(e.target.value)} placeholder="e.g. Swiggy" /></div>
       </div>
@@ -164,5 +164,5 @@ export default function WorkspaceHome() {
 }
 
 function Stat({ icon: I, label, value, action }: { icon: typeof Coins; label: string; value: string; action?: React.ReactNode }) {
-  return <div className="px-4 py-4 sm:border-r last:border-r-0 border-border"><div className="flex justify-between items-start mb-2"><I className="size-5 text-muted-foreground" />{action}</div><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
+  return <div className="px-4 py-4 min-[480px]:border-r last:border-r-0 border-border"><div className="flex justify-between items-start mb-2"><I className="size-5 text-muted-foreground" />{action}</div><p className="text-2xl font-semibold">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>;
 }
