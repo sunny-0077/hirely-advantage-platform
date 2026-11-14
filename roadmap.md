@@ -1,5 +1,9 @@
 # Roadmap
 
+## Balanced screen proportions
+- [ ] Replace forced full-width workspace sizing with centered, purpose-sized content and intentional side margins; refine dashboard columns while retaining readable text and viewport-bound editors.
+- [ ] Verify signed-in screens, template browsing and editing at wide desktop, tablet and phone sizes; run relevant regressions.
+
 ## Compact resume editor
 - [x] Fit the editor into the viewport with a compact action bar, internal editing/preview scrolling, fitted A4 page and mobile Edit/Preview switching; retain all editing, save and export actions.
 - [x] Verify signed-in blank-template entry, name editing updating the live preview and additional action access; check 1280px desktop, 611px and 390px viewport fit without overflow or runtime errors. All 60 resume/catalog tests passed; build OK.
