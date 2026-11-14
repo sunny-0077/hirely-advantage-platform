@@ -51,7 +51,7 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
   const [catalogCategory,setCatalogCategory]=useState<CatalogCategory>("All"); const [opening,setOpening]=useState<string|null>(null);
   const openRole=async(title:string)=>{
     setOpening(title);
-    try{const {data,error}=await supabase.rpc("search_resume_titles",{p_search:title,p_industry:"",p_category:"",p_level:"",p_sort:"popular",p_offset:0});if(error)throw error;const rows=(data??[]) as Title[];const pick=rows.find(r=>r.title.toLowerCase()===title.toLowerCase())??rows[0];if(pick)setSelected(pick);else setSearch(title);}
+    try{const {data,error}=await supabase.rpc("search_resume_titles",{p_search:title,p_industry:"",p_category:"",p_level:"",p_sort:"popular",p_offset:0});if(error)throw error;const rows=(data??[]) as Title[];const q=title.toLowerCase();const pick=rows.find(r=>r.title.toLowerCase()===q)??[...rows].filter(r=>r.title.toLowerCase().includes(q)).sort((a,b)=>a.title.length-b.title.length)[0]??rows[0];if(pick)setSelected(pick);else setSearch(title);}
     catch{setSearch(title);}finally{setOpening(null);}
   };
   useEffect(()=>{if(roleData.data)setRoleLevel(roleData.data.levels.includes(level)?level:roleData.data.levels.includes("experienced")?"experienced":roleData.data.levels[0]??"");},[roleData.data,level]);
