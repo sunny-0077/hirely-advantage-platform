@@ -32,7 +32,7 @@ const fallback: Record<VisualLayout, { skills: string[]; work: string; project: 
 };
 export function roleExample(title: string, layout?: VisualLayout, occupationTitle = ""): ResumeDocument {
   const selected = layout ?? classifyRole({ title, occupationTitle });
-  const domain = domains.find(d => d.match.test(occupationTitle || title)) ?? fallback[selected];
+  const domain = domains.find(d => d.match.test((occupationTitle || title).toLowerCase())) ?? fallback[selected];
   const doc = applyVisualLayout(emptyDocument("visual-example"), selected, true);
   doc.presentation = { ...doc.presentation, headerAlign: "left", headingRule: true, example: true };
   doc.content = {

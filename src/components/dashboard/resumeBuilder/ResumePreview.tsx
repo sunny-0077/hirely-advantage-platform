@@ -17,12 +17,12 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
       if (!active || !measureRef.current) return;
       const page = measureRef.current.querySelector<HTMLElement>(".resume-page"); if (!page) return;
       const main = page.querySelector<HTMLElement>('[data-resume-flow="main"]'); if (!main) return;
-      const start = main.getBoundingClientRect().top - page.getBoundingClientRect().top;
+      const start = main.offsetTop;
       const measureColumn = (kind: "main" | "rail") => {
         const flow = page.querySelector<HTMLElement>(`[data-resume-flow="${kind}"]`);
         if (!flow) return [[]];
         const padding = parseFloat(getComputedStyle(flow).paddingTop) + parseFloat(getComputedStyle(flow).paddingBottom);
-        const items = Array.from(flow.querySelectorAll<HTMLElement>("[data-block-id]")).map(el => ({ id: el.dataset.blockId ?? "", height: el.getBoundingClientRect().height + parseFloat(getComputedStyle(el).marginBottom) }));
+        const items = Array.from(flow.querySelectorAll<HTMLElement>("[data-block-id]")).map(el => ({ id: el.dataset.blockId ?? "", height: el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom) }));
         return paginateMeasurements(items, A4_HEIGHT - start - 62 - padding, A4_HEIGHT - 160 - padding);
       };
       setPlans({ main: measureColumn("main"), rail: measureColumn("rail") }); setReadyDoc(doc);
