@@ -51,7 +51,7 @@ export const RoadmapSection = () => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {milestones.map((m, i) => (
                 <Reveal key={i} delay={i * 80}>
-                  <div className="glass rounded-2xl p-5 h-full hover:bg-muted/60 transition-colors">
+                  <div className="glass rounded-2xl p-5 h-full hover:bg-white/70 transition-colors">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs font-mono text-foreground/50">{m.month}</span>
                       <span className="text-[10px] uppercase tracking-wider text-foreground/60 px-2 py-0.5 rounded-full bg-foreground/5">
