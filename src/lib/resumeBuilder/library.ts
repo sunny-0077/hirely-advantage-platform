@@ -5,7 +5,7 @@ import { APPROVED_SECTION_NAMES, DEFAULT_SECTION_NAME, type ResumeDocument, type
 import { applyVisualLayout, classifyRole } from "./visual";
 
 export type Blueprint = { id: string; label: string; version: number; definition: { order: SectionType[]; guidance: string[]; summaryPrompt: string } };
-export type Design = { id: string; label: string; version: number; definition: ResumeSettings & { headerAlign: "left" | "center"; headingRule: boolean } };
+export type Design = { id: string; label: string; version: number; definition: ResumeSettings & { headerAlign: "left" | "center"; headingRule: boolean; layout?: import("./types").VisualLayout } };
 export type LibrarySelection = { titleId: string; title: string; occupationId: string; occupationTitle?: string; industryId?: string; levelId: string; blueprint: Blueprint; design: Design };
 
 const str = z.string().max(10000);
@@ -54,8 +54,8 @@ export function mapMasterResume(raw: unknown): ResumeDocument {
 }
 
 export function applyLibraryTemplate(doc: ResumeDocument, selection: LibrarySelection): ResumeDocument {
-  const layout = selection.design.id.startsWith("visual-") ? selection.design.id.slice(7) : classifyRole({ title: selection.title, occupationTitle: selection.occupationTitle, industryId: selection.industryId, blueprintId: selection.blueprint.id, levelId: selection.levelId });
-  const visual = applyVisualLayout(doc, layout as import("./types").VisualLayout, true);
+  const layout = selection.design.definition.layout ?? classifyRole({ title: selection.title, occupationTitle: selection.occupationTitle, industryId: selection.industryId, blueprintId: selection.blueprint.id, levelId: selection.levelId });
+  const visual = applyVisualLayout(doc, layout, true);
   let order = [...visual.sections.map(s => s.type)];
   if (["student","internship","graduate","fresher","entry-level"].includes(selection.levelId)) order = ["summary","education","skills","projects",...order.filter(t => !["summary","education","skills","projects"].includes(t))];
   const sections = order.map(type => {

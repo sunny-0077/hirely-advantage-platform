@@ -143,7 +143,11 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
         break;
       case "publications":
       case "additional":
+      case "languages":
         for(const it of sec.items) { if(it.title) children.push(para(it.title,{bold:true})); if(it.details) children.push(para(it.details)); }
+        break;
+      case "portfolio":
+        for (const it of sec.items) children.push(para(`${it.label}: ${it.url}`));
         break;
     }
   }
@@ -172,7 +176,7 @@ export async function exportDocx(doc: ResumeDocument, filename = "resume.docx") 
       {
         properties: {
           page: {
-            size: { width: 12240, height: 15840 },
+            size: { width: 11906, height: 16838 },
             margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 },
           },
         },
