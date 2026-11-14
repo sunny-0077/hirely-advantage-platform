@@ -12,6 +12,7 @@ import { applyLibraryTemplate, type Blueprint, type Design, type LibrarySelectio
 import type { ResumeDocument } from "@/lib/resumeBuilder/types";
 import { classifyRole, hasResumeFacts, VISUAL_LAYOUTS } from "@/lib/resumeBuilder/visual";
 import { roleExample } from "@/lib/resumeBuilder/examples";
+import { loadOccupationExample } from "@/lib/resumeBuilder/occupationExamples";
 
 type Title = {id:string;occupation_id:string;title:string;industry_id:string;category_id:string;total_count:number};
 export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:LibrarySelection,useMaster:boolean,example?:boolean)=>void;current:ResumeDocument|null;onContinue?:()=>void}) {
@@ -28,7 +29,9 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
   const roleData=useQuery({queryKey:["resume-library-role",selected?.occupation_id],enabled:!!selected,queryFn:async()=>{
     if(!selected)throw new Error("Select a title");
     const [o,l,t]=await Promise.all([supabase.from("resume_occupations").select("*").eq("id",selected.occupation_id).single(),supabase.from("resume_occupation_levels").select("level_id").eq("occupation_id",selected.occupation_id),supabase.from("resume_job_titles").select("id,occupation_id,title,industry_id,category_id").eq("occupation_id",selected.occupation_id).order("popular_rank").limit(8)]);
-    if(o.error||l.error||t.error)throw o.error??l.error??t.error;return {occupation:o.data,levels:l.data.map(x=>x.level_id),related:t.data};
+    if(o.error||l.error||t.error)throw o.error??l.error??t.error;
+    const example = await loadOccupationExample(selected.occupation_id);
+    return {occupation:o.data,levels:l.data.map(x=>x.level_id),related:t.data,example};
   }});
   const [roleLevel,setRoleLevel]=useState("");
   useEffect(()=>{if(roleData.data)setRoleLevel(roleData.data.levels.includes(level)?level:roleData.data.levels.includes("experienced")?"experienced":roleData.data.levels[0]??"");},[roleData.data,level]);
@@ -42,7 +45,7 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
   // Persist existing catalogue design IDs; visual layout belongs to each private document.
   const designs:Design[]=baseDesign?VISUAL_LAYOUTS.filter(l=>l.id!=="ats").map<Design>(l=>({...baseDesign,label:l.label,definition:{...baseDesign.definition,layout:l.id,fontFamily:l.fontPairing==="classic"||l.fontPairing==="editorial"?"Georgia":"Arial",headerAlign:l.id==="executive"?"center":"left"}})).sort((a,b)=>Number(b.definition.layout===recommended)-Number(a.definition.layout===recommended)):[];
   const selection=(design:Design):LibrarySelection|null=>selected&&blueprint&&roleLevel?{titleId:selected.id,title:selected.title,occupationId:selected.occupation_id,occupationTitle:roleData.data?.occupation.title,industryId:selected.industry_id,levelId:roleLevel,blueprint,design}:null;
-  const previewDoc=(design:Design)=>{const s=selection(design);const source=current&&hasResumeFacts(current)?current:roleExample(selected?.title??"Professional",design.definition.layout,roleData.data?.occupation.title);return s?applyLibraryTemplate(source,s):source;};
+  const previewDoc=(design:Design)=>{const s=selection(design);const source=current&&hasResumeFacts(current)?current:roleExample(selected?.title??"Professional",design.definition.layout,roleData.data?.occupation.title,roleData.data?.example);return s?applyLibraryTemplate(source,s):source;};
   const selectClass="h-11 w-full rounded-md border border-input bg-background px-3 text-sm";
   const reset=()=>{setSearch("");setIndustry("");setCategory("");setLevel("");setOffset(0);setSelected(null);};
   return <div className="w-full min-w-0 space-y-6">
@@ -65,7 +68,7 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
       {blueprint&&<section className="border-t border-border pt-5"><h3 className="font-semibold">Professional focus</h3><ul className="mt-3 space-y-2 text-sm text-muted-foreground">{blueprint.definition.guidance.map(g=><li key={g}>{g}</li>)}</ul></section>}
       <section className="border-t border-border pt-5"><h3 className="font-semibold mb-3">Related titles</h3><div className="flex flex-wrap gap-2">{roleData.data?.related.filter(t=>t.id!==selected.id).map(t=><Button key={t.id} variant="outline" size="sm" className="h-auto whitespace-normal text-left" onClick={()=>setSelected({...t,total_count:0})}>{t.title}</Button>)}</div></section>
     </>}
-    <footer className="border-t border-border pt-4 text-xs text-muted-foreground">Occupation names adapted from O*NET® 31.0, USDOL/ETA, <a className="underline" href="https://www.onetcenter.org/license_db.html" target="_blank" rel="noreferrer">CC BY 4.0</a>. Hirely classifications and templates are not endorsed by USDOL/ETA.</footer>
+    <footer className="border-t border-border pt-4 text-xs text-muted-foreground">Occupation names, sample duties and skills adapted from O*NET® 31.0, USDOL/ETA, <a className="underline" href="https://www.onetcenter.org/license_db.html" target="_blank" rel="noreferrer">CC BY 4.0</a>. Hirely classifications and templates are not endorsed by USDOL/ETA. Sample achievements are illustrative.</footer>
     <Dialog open={!!preview} onOpenChange={o=>!o&&setPreview(null)}><DialogContent className="max-w-3xl max-h-[90vh] overflow-auto"><DialogHeader><DialogTitle>{preview?.label} · {selected?.title}</DialogTitle></DialogHeader>{preview&&<><p className="text-xs text-muted-foreground">{current&&hasResumeFacts(current)?"Your career facts":"Illustrative sample · not your career facts"}</p><FittedResumePreview doc={previewDoc(preview)}/></>}{preview&&<Button onClick={()=>{const s=selection(preview);if(s){onUse(s,!current);setPreview(null);}}}>{current?"Switch template":"Use Master Resume"}</Button>}</DialogContent></Dialog>
   </div>;
 }

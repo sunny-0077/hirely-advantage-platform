@@ -54,6 +54,13 @@ describe("role-adaptive resumes", () => {
     expect(next.sections[0].type).toBe("education"); expect(next.content).toEqual(doc.content);
     expect(moveResumeSection(next, next.sections[0].id, -1)).toBe(next);
   });
+  it("uses canonical occupational tasks and skills only in explicitly marked examples", () => {
+    const example = roleExample("Civil Engineer", "tech", "Civil Engineers", { title: "Civil Engineers", tasks: ["Inspect construction sites."], skills: ["AutoCAD", "Structural analysis"] });
+    expect(example.presentation?.example).toBe(true);
+    expect(example.content.skills[0].items).toEqual(["AutoCAD", "Structural analysis"]);
+    expect(example.content.experience[0].bullets[0]).toContain("Inspect construction sites.");
+    expect(emptyDocument("classic-ats").content.experience).toEqual([]);
+  });
   it("hides optional languages and portfolio without deleting the underlying facts", () => {
     const doc = roleExample("UX Designer", "creative"); const language = doc.sections.find(s => s.type === "languages"); const portfolio = doc.sections.find(s => s.type === "portfolio");
     if (language) language.enabled = false; if (portfolio) portfolio.enabled = false;

@@ -1,6 +1,7 @@
 import { emptyDocument } from "./templates";
 import { applyVisualLayout, classifyRole } from "./visual";
 import type { ResumeDocument, VisualLayout } from "./types";
+import type { OccupationExample } from "./occupationExamples";
 
 // Illustrations only: never called when mapping or switching a user's factual resume.
 const domains: { match: RegExp; skills: string[]; work: string; project: string }[] = [
@@ -30,16 +31,17 @@ const fallback: Record<VisualLayout, { skills: string[]; work: string; project: 
   student: { skills: ["Research", "Presentation", "Project coordination", "Data analysis"], work: "Coordinated a 4-person academic project and delivered all milestones on schedule.", project: "Capstone research project" },
   ats: { skills: ["Planning", "Analysis", "Communication", "Quality assurance"], work: "Improved a recurring team process, reducing manual work by 4 hours weekly.", project: "Process improvement project" },
 };
-export function roleExample(title: string, layout?: VisualLayout, occupationTitle = ""): ResumeDocument {
+export function roleExample(title: string, layout?: VisualLayout, occupationTitle = "", occupation?: OccupationExample): ResumeDocument {
   const selected = layout ?? classifyRole({ title, occupationTitle });
-  const domain = domains.find(d => d.match.test((occupationTitle || title).toLowerCase())) ?? fallback[selected];
+  const matched = domains.find(d => d.match.test((occupationTitle || title).toLowerCase())) ?? fallback[selected];
+  const domain = occupation ? { ...matched, skills: occupation.skills.length ? occupation.skills : matched.skills, work: `Key contribution: ${occupation.tasks[0] ?? matched.work}`, project: `${title} practice project` } : matched;
   const doc = applyVisualLayout(emptyDocument("visual-example"), selected, true);
   doc.presentation = { ...doc.presentation, headerAlign: "left", headingRule: true, example: true };
   doc.content = {
     personal: { name: "Alex Morgan", headline: title, email: "alex@example.com", phone: "+1 202 555 0142", location: "Your city", links: [{ label: selected === "tech" ? "GitHub" : "Portfolio", url: "https://example.com/work" }, { label: "LinkedIn", url: "https://example.com/profile" }] },
     summary: `${title} focused on ${domain.skills.slice(0, 2).join(" and ").toLowerCase()}. Combines disciplined delivery with collaborative problem-solving and clear communication.`,
     skills: [{ id: "example-skills", name: selected === "tech" ? "Tools & methods" : "Core expertise", items: domain.skills }],
-    experience: [{ id: "example-experience", role: selected === "student" ? `${title} Intern` : title, company: "Example organisation", location: "Your city", start: "2023", end: "Present", bullets: [domain.work, `Collaborated with cross-functional partners to document ${domain.skills[0].toLowerCase()} practices and deliver agreed milestones.`] }],
+    experience: [{ id: "example-experience", role: selected === "student" ? `${title} Intern` : title, company: "Example organisation", location: "Your city", start: "2023", end: "Present", bullets: occupation ? [...occupation.tasks.slice(0, 2).map(task => `Key contribution: ${task}`), "Maintained documented delivery plans across 3 workstreams, completing 95% of agreed milestones on time (illustrative)."] : [domain.work, `Collaborated with cross-functional partners to document ${domain.skills[0].toLowerCase()} practices and deliver agreed milestones.`] }],
     projects: [{ id: "example-project", name: domain.project, link: "https://example.com/project", description: `Applied ${domain.skills.slice(0, 3).join(", ")} to a scoped, end-to-end project.`, bullets: ["Documented decisions, reviewed outcomes and presented recommendations to a 4-person team."] }],
     education: [{ id: "example-education", degree: "Relevant degree / qualification", school: "Example university", location: "Your city", start: "2019", end: "2023", details: selected === "student" ? "CGPA: 8.7 / 10 · Relevant coursework and final-year project" : "Relevant coursework and professional development" }],
     certifications: [{ id: "example-cert", name: selected === "healthcare" ? "Relevant professional licence (example)" : "Relevant professional certification (example)", issuer: "Example awarding body", date: "2024" }],

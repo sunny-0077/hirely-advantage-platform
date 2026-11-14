@@ -11,6 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import { FittedResumePreview } from "@/components/dashboard/resumeBuilder/ResumePreview";
 import { ResumeToolbar } from "@/components/dashboard/resumeBuilder/ResumeToolbar";
 import { roleExample } from "@/lib/resumeBuilder/examples";
+import { loadOccupationExample } from "@/lib/resumeBuilder/occupationExamples";
 import { layoutMeta, resolvedLayout } from "@/lib/resumeBuilder/visual";
 import { SectionsEditor } from "@/components/dashboard/resumeBuilder/SectionsEditor";
 import { PersonalInfoCard } from "@/components/dashboard/resumeBuilder/PersonalInfoCard";
@@ -114,7 +115,7 @@ const ResumeBuilder = () => {
 
   const useTemplate = async (next: LibrarySelection, useMaster: boolean, withExample = false) => {
     try {
-      let source=withExample ? roleExample(next.title, next.design.definition.layout, next.occupationTitle) : doc;
+      let source=withExample ? roleExample(next.title, next.design.definition.layout, next.occupationTitle, await loadOccupationExample(next.occupationId)) : doc;
       if(!source && useMaster) {
         if(!user)return;
         const {data,error}=await supabase.from("profiles").select("master_resume_json").eq("user_id",user.id).single();
