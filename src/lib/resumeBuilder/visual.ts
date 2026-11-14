@@ -68,10 +68,10 @@ export function resolvedPairing(doc: ResumeDocument): FontPairing {
 }
 export function resolvedPalette(doc: ResumeDocument): ResumePalette { return doc.presentation?.palette ?? layoutMeta(resolvedArchetype(doc)).palette; }
 export function applyVisualLayout(doc: ResumeDocument, layout: VisualLayout, resetStyle = false): ResumeDocument {
-  const archetype = isResumeStyle(layout) ? resolvedArchetype(doc) : layout;
+  const archetype = isResumeStyle(layout) || (layout === "ats" && doc.presentation?.archetype) ? resolvedArchetype(doc) : layout;
   const meta = layoutMeta(archetype);
   const style = RESUME_STYLES.find(s => s.id === layout);
-  const sections = meta.order.map(type => doc.sections.find(s => s.type === type) ?? { id: `visual-${type}`, type, name: DEFAULT_SECTION_NAME[type], enabled: true });
+  const sections = isResumeStyle(layout) && !resetStyle ? [...doc.sections] : meta.order.map(type => doc.sections.find(s => s.type === type) ?? { id: `visual-${type}`, type, name: DEFAULT_SECTION_NAME[type], enabled: true });
   for (const s of doc.sections) if (!sections.some(x => x.id === s.id)) sections.push(s);
   return { ...doc, sections, presentation: { headerAlign: "left", headingRule: true, ...doc.presentation, layout, archetype, ...(resetStyle ? { palette: meta.palette, fontPairing: style?.fontPairing ?? meta.fontPairing } : {}) } };
 }

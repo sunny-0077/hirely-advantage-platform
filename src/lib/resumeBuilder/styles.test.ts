@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emptyDocument } from "./templates";
 import { roleExample } from "./examples";
 import { applyLibraryTemplate, roleStyleDesigns, validateDocument, type Design, type LibrarySelection } from "./library";
-import { applyVisualLayout, RESUME_STYLES, resolvedArchetype } from "./visual";
+import { applyVisualLayout, moveResumeSection, RESUME_STYLES, resolvedArchetype } from "./visual";
 
 const base: Design = { id: "modern", label: "Modern", version: 1, definition: { fontFamily: "Arial", fontSize: 11, spacing: "normal", accent: "#111827", headerAlign: "left", headingRule: true } };
 const roleSelection = (design: Design, title = "Software Engineer", levelId = "experienced", blueprintId = "technical"): LibrarySelection => ({ titleId: "catalogue-title", title, occupationId: "catalogue-occupation", levelId, blueprint: { id: blueprintId, label: "Professional", version: 1, definition: { order: ["summary", "experience", "skills"], guidance: [], summaryPrompt: "" } }, design });
@@ -69,5 +69,15 @@ describe("role-specific design styles", () => {
       const doc = roleExample("Existing role", layout);
       expect(validateDocument(JSON.parse(JSON.stringify(doc)))).toEqual(doc);
     }
+  });
+  it("keeps section reordering when switching among the five styles", () => {
+    const doc = moveResumeSection(roleExample("Software Engineer", "tech"), "visual-projects", -1);
+    for (const style of RESUME_STYLES) expect(applyVisualLayout(doc, style.id).sections).toEqual(doc.sections);
+    expect(doc.sections[1].type).toBe("projects");
+  });
+  it("retains the profession when switching through Classic ATS and back", () => {
+    const doc = applyVisualLayout(applyVisualLayout(roleExample("Nurse", "healthcare"), "ats"), "bold-accent-header");
+    expect(resolvedArchetype(doc)).toBe("healthcare");
+    expect(doc.content.personal.headline).toBe("Nurse");
   });
 });
