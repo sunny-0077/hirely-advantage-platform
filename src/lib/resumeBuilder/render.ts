@@ -57,7 +57,7 @@ function renderSection(s: Section, doc: ResumeDocument): RenderedSection | null 
     }
     case "publications":
     case "additional": {
-      const items = (c[s.type] ?? []).filter(a => (a.title || a.details) && (s.type !== "additional" || a.kind !== "language" || !doc.sections.some(x => x.type === "languages")));
+      const items = (c[s.type] ?? []).filter(a => (a.title || a.details) && (s.type !== "additional" || !("kind" in a) || a.kind !== "language" || !doc.sections.some(x => x.type === "languages")));
       return items.length ? {type:s.type,name:s.name,items} : null;
     }
     case "languages": {
