@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Compact resume editor
-- [ ] Fit the editor into the viewport with a compact action bar, internal editing/preview scrolling and mobile Edit/Preview switching; retain all editing, save and export actions.
-- [ ] Verify real editing and live preview, desktop/mobile sizing and resume tests.
+- [x] Fit the editor into the viewport with a compact action bar, internal editing/preview scrolling, fitted A4 page and mobile Edit/Preview switching; retain all editing, save and export actions.
+- [x] Verify signed-in blank-template entry, name editing updating the live preview and additional action access; check 1280px desktop, 611px and 390px viewport fit without overflow or runtime errors. All 60 resume/catalog tests passed; build OK.
 
 ## Full template catalog
 - [x] Replace the 28 curated tiles with live paginated job-title cards across all 45,808 catalog titles; retain search, industry/category/level filters, samples and role design selection.
