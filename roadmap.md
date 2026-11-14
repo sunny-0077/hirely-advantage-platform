@@ -1,5 +1,10 @@
 # Roadmap
 
+## Role-specific template styles
+- [ ] Replace industry buckets with five genuinely distinct design styles for every selected role, using its canonical duties, skills and career-level priorities.
+- [ ] Keep all factual content, saved-version compatibility, colours/fonts/section controls and existing export access intact.
+- [ ] Test all five styles and verify signed-in role selection, editing, switching, save/reopen, A4 export and desktop/mobile layouts.
+
 ## Visual resume engine
 - [x] Build six role-adaptive A4 layouts, plus retained classic ATS layout, with clearly separated illustrative previews; title aliases reuse attributed duties/skills for 923 canonical occupations, loaded from CDN on selection.
 - [x] Add eight palettes, four font pairings, layout switching, section ordering/visibility and responsive paginated canvas.
