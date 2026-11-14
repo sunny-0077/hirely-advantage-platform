@@ -20,14 +20,14 @@ export const ProductShowcase = () => {
         </div>
 
         <Reveal>
-          <div className="relative rounded-[1.75rem] overflow-hidden shadow-[var(--shadow-float)] bg-white border border-foreground/10">
+          <div className="relative rounded-[1.75rem] overflow-hidden shadow-[var(--shadow-float)] bg-card border border-foreground/10">
             {/* macOS title bar */}
             <div className="flex items-center gap-2 px-5 py-3.5 bg-[hsl(240_15%_97%)] border-b border-foreground/5">
               <span className="w-3 h-3 rounded-full bg-[#FF5F57]" />
               <span className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
               <span className="w-3 h-3 rounded-full bg-[#28C840]" />
               <div className="flex-1 flex justify-center">
-                <div className="px-3 py-1 rounded-md bg-white/80 text-[11px] text-foreground/50 font-mono border border-foreground/5">
+                <div className="px-3 py-1 rounded-md bg-card/80 text-[11px] text-foreground/50 font-mono border border-foreground/5">
                   app.hirely.ai/workspace
                 </div>
               </div>
@@ -36,7 +36,7 @@ export const ProductShowcase = () => {
             {/* Mock app body */}
             <div className="grid grid-cols-12 gap-0 bg-[hsl(240_25%_98.5%)]">
               {/* Sidebar */}
-              <aside className="hidden md:flex col-span-2 flex-col gap-1 p-4 border-r border-foreground/5 bg-white">
+              <aside className="hidden md:flex col-span-2 flex-col gap-1 p-4 border-r border-foreground/5 bg-card">
                 <div className="text-[10px] uppercase tracking-wider text-foreground/40 font-medium px-2 mb-1">Workspace</div>
                 {[
                   { l: "Resume", active: true },
@@ -68,7 +68,7 @@ export const ProductShowcase = () => {
                 </div>
 
                 {/* Score row */}
-                <div className="flex items-center gap-5 p-4 rounded-2xl bg-white border border-foreground/5">
+                <div className="flex items-center gap-5 p-4 rounded-2xl bg-card border border-foreground/5">
                   <div className="relative w-16 h-16">
                     <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
                       <circle cx="32" cy="32" r="26" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
@@ -88,7 +88,7 @@ export const ProductShowcase = () => {
                 </div>
 
                 {/* Rewrite card */}
-                <div className="p-4 rounded-2xl bg-white border border-foreground/5 space-y-2.5">
+                <div className="p-4 rounded-2xl bg-card border border-foreground/5 space-y-2.5">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 text-foreground/60" />
                     <span className="text-[10px] uppercase tracking-wider text-foreground/50 font-medium">AI Rewrite · bullet 3</span>
@@ -100,7 +100,7 @@ export const ProductShowcase = () => {
                 </div>
 
                 {/* Keywords */}
-                <div className="p-4 rounded-2xl bg-white border border-foreground/5">
+                <div className="p-4 rounded-2xl bg-card border border-foreground/5">
                   <div className="flex items-center gap-2 mb-2.5">
                     <Search className="w-3.5 h-3.5 text-foreground/60" />
                     <span className="text-[10px] uppercase tracking-wider text-foreground/50 font-medium">Keyword gap</span>
@@ -114,7 +114,7 @@ export const ProductShowcase = () => {
               </div>
 
               {/* Right rail */}
-              <aside className="hidden md:flex col-span-3 flex-col gap-3 p-5 border-l border-foreground/5 bg-white">
+              <aside className="hidden md:flex col-span-3 flex-col gap-3 p-5 border-l border-foreground/5 bg-card">
                 <div className="text-[10px] uppercase tracking-wider text-foreground/40 font-medium">Today</div>
                 <div className="p-3 rounded-xl bg-[hsl(var(--soft-lilac))]/40">
                   <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-foreground/60 font-medium">
@@ -125,11 +125,11 @@ export const ProductShowcase = () => {
                 <div className="p-3 rounded-xl bg-[hsl(var(--ethereal-blue))]/40">
                   <p className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">Applications</p>
                   <p className="font-display text-2xl font-semibold mt-1">7 / 10</p>
-                  <div className="mt-2 h-1.5 rounded-full bg-white/60 overflow-hidden">
+                  <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
                     <div className="h-full bg-foreground rounded-full" style={{ width: "70%" }} />
                   </div>
                 </div>
-                <div className="p-3 rounded-xl bg-white border border-foreground/5">
+                <div className="p-3 rounded-xl bg-card border border-foreground/5">
                   <p className="text-[10px] uppercase tracking-wider text-foreground/50 font-medium">Next interview</p>
                   <p className="text-sm font-medium mt-1">Stripe · onsite</p>
                   <p className="text-[11px] text-foreground/55 mt-0.5">Thu, 2:00 PM</p>
