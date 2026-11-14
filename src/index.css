@@ -114,8 +114,11 @@
  .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary-bright)); }
 }
 @layer utilities {
- /* Fill the workspace pane, without stretching nested previews or dialogs. */
+ /* Centered, naturally sized pages with intentional side whitespace (Rezi-like). */
+ .workspace-shell .workspace-page { width: 100%; max-width: 1160px; margin-inline: auto; }
  .workspace-shell .workspace-page > :first-child { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
+ /* Full editors need more room but still stay bounded. */
+ .workspace-shell .workspace-page:has(.workspace-wide) { max-width: 1400px; }
  /* Reference identity: bold black headings everywhere. */
  #root :is(h1,h2,h3) { font-weight: 800; color: hsl(var(--foreground)); }
  #root :is(.panel-forest,.bg-forest) :is(h1,h2,h3) { color: hsl(var(--forest-foreground)); }
