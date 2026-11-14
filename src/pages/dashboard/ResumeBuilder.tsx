@@ -198,7 +198,7 @@ const ResumeBuilder = () => {
 
   // ---------- Editor ----------
   return (
-    <div className="flex h-[calc(100dvh-104px)] md:h-[calc(100dvh-40px)] w-full min-w-0 flex-col overflow-hidden" aria-label="Resume editor workspace">
+    <div className="mx-auto flex h-[calc(100dvh-104px)] md:h-[calc(100dvh-40px)] w-full max-w-[1120px] min-w-0 flex-col overflow-hidden" aria-label="Resume editor workspace">
       <header className="flex shrink-0 items-center gap-2 border-b border-border pb-3">
         <Button variant="ghost" size="icon" title="Browse templates" aria-label="Browse templates" onClick={()=>setPicking(true)}><ArrowLeft className="size-4"/></Button>
         <div className="min-w-0 flex-1">
@@ -220,7 +220,7 @@ const ResumeBuilder = () => {
         <Button variant={editorView==="edit"?"secondary":"ghost"} size="sm" aria-pressed={editorView==="edit"} onClick={()=>setEditorView("edit")}>Edit</Button>
         <Button variant={editorView==="preview"?"secondary":"ghost"} size="sm" aria-pressed={editorView==="preview"} onClick={()=>setEditorView("preview")}>Preview</Button>
       </div>
-      <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(320px,.85fr)_minmax(0,1.15fr)]">
+      <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(300px,440px)_minmax(0,1fr)]">
         <section aria-label="Resume fields" className={`${editorView==="edit"?"flex":"hidden"} min-h-0 min-w-0 flex-col lg:flex lg:border-r lg:border-border`}>
           <div className="shrink-0 py-3 text-sm font-semibold">Resume content</div>
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pb-4 pr-2 lg:pr-4">
