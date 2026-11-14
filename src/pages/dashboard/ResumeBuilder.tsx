@@ -231,7 +231,7 @@ const ResumeBuilder = () => {
         <section aria-label="Live resume preview" className={`${editorView==="preview"?"flex":"hidden"} min-h-0 min-w-0 flex-col bg-surface lg:flex`}>
           <div className="flex shrink-0 items-center justify-between px-4 py-3 text-xs text-muted-foreground"><span className="font-semibold text-foreground">Live preview</span><span>A4 · 210 × 297 mm</span></div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-4 sm:px-5">
-            <div className="mx-auto max-w-[580px]"><FittedResumePreview doc={doc} /></div>
+            <div className="mx-auto h-full max-w-[580px]"><FittedResumePreview doc={doc} fitPage /></div>
           </div>
         </section>
       </div>
