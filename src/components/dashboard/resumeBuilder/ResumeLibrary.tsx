@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, ArrowRight, ChevronLeft, ChevronRight, FileText, LayoutTemplate } from "lucide-react";
+import { Search, ArrowRight, Loader2, ChevronLeft, ChevronRight, FileText, LayoutTemplate } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,21 @@ import { applyVisualLayout, classifyRole, hasResumeFacts, recommendedStyle, RESU
 import { roleExample } from "@/lib/resumeBuilder/examples";
 import { loadOccupationExample } from "@/lib/resumeBuilder/occupationExamples";
 
+const CATALOG_CATEGORIES = ["All", "Tech & Software", "Healthcare", "Business & Finance", "Creative & Marketing", "Product & Sales", "Students & Entry-Level"] as const;
+type CatalogCategory = typeof CATALOG_CATEGORIES[number];
+const CURATED: { title: string; category: Exclude<CatalogCategory, "All">; level?: string }[] = [
+  { title: "Software Engineer", category: "Tech & Software" }, { title: "Data Scientist", category: "Tech & Software" }, { title: "DevOps Engineer", category: "Tech & Software" }, { title: "Web Developer", category: "Tech & Software" }, { title: "Cybersecurity Analyst", category: "Tech & Software" }, { title: "Database Administrator", category: "Tech & Software" },
+  { title: "Registered Nurse", category: "Healthcare" }, { title: "Pharmacist", category: "Healthcare" }, { title: "Physical Therapist", category: "Healthcare" }, { title: "Medical Assistant", category: "Healthcare" },
+  { title: "Financial Analyst", category: "Business & Finance" }, { title: "Accountant", category: "Business & Finance" }, { title: "Management Consultant", category: "Business & Finance" }, { title: "Human Resources Manager", category: "Business & Finance" }, { title: "Operations Manager", category: "Business & Finance" },
+  { title: "UI/UX Designer", category: "Creative & Marketing" }, { title: "Graphic Designer", category: "Creative & Marketing" }, { title: "Marketing Director", category: "Creative & Marketing" }, { title: "Content Writer", category: "Creative & Marketing" }, { title: "Video Editor", category: "Creative & Marketing" },
+  { title: "Product Manager", category: "Product & Sales" }, { title: "Sales Representative", category: "Product & Sales" }, { title: "Account Manager", category: "Product & Sales" }, { title: "Customer Success Manager", category: "Product & Sales" },
+  { title: "Software Engineering Intern", category: "Students & Entry-Level", level: "student" }, { title: "Graduate Data Analyst", category: "Students & Entry-Level", level: "student" }, { title: "Marketing Intern", category: "Students & Entry-Level", level: "student" }, { title: "Teacher", category: "Students & Entry-Level", level: "student" },
+];
+function LazyPreview({ build }: { build: () => ResumeDocument }) {
+  const ref = useRef<HTMLDivElement>(null); const [visible, setVisible] = useState(false);
+  useEffect(() => { const el = ref.current; if (!el) return; const o = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); o.disconnect(); } }, { rootMargin: "300px" }); o.observe(el); return () => o.disconnect(); }, []);
+  return <div ref={ref} className="aspect-[794/1123] overflow-hidden">{visible && <FittedResumePreview doc={build()} firstPageOnly />}</div>;
+}
 type Title = {id:string;occupation_id:string;title:string;industry_id:string;category_id:string;total_count:number};
 export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:LibrarySelection,useMaster:boolean,example?:boolean)=>void;current:ResumeDocument|null;onContinue?:()=>void}) {
   const [search,setSearch]=useState(""); const [debounced,setDebounced]=useState(""); const [industry,setIndustry]=useState(""); const [category,setCategory]=useState(""); const [level,setLevel]=useState(""); const [sort,setSort]=useState("popular"); const [offset,setOffset]=useState(0); const [selected,setSelected]=useState<Title|null>(null); const [preview,setPreview]=useState<Design|null>(null);
@@ -29,10 +44,17 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
     if(!selected)throw new Error("Select a title");
     const [o,l,t]=await Promise.all([supabase.from("resume_occupations").select("*").eq("id",selected.occupation_id).single(),supabase.from("resume_occupation_levels").select("level_id").eq("occupation_id",selected.occupation_id),supabase.from("resume_job_titles").select("id,occupation_id,title,industry_id,category_id").eq("occupation_id",selected.occupation_id).order("popular_rank").limit(8)]);
     if(o.error||l.error||t.error)throw o.error??l.error??t.error;
-    const example = await loadOccupationExample(selected.occupation_id);
+    // Examples only enrich samples; designs must still open if the example file is unavailable.
+    const example = await loadOccupationExample(selected.occupation_id).catch(() => undefined);
     return {occupation:o.data,levels:l.data.map(x=>x.level_id),related:t.data,example};
   }});
   const [roleLevel,setRoleLevel]=useState("");
+  const [catalogCategory,setCatalogCategory]=useState<CatalogCategory>("All"); const [opening,setOpening]=useState<string|null>(null);
+  const openRole=async(title:string)=>{
+    setOpening(title);
+    try{const {data,error}=await supabase.rpc("search_resume_titles",{p_search:title,p_industry:"",p_category:"",p_level:"",p_sort:"popular",p_offset:0});if(error)throw error;const rows=(data??[]) as Title[];const q=title.toLowerCase();const pick=rows.find(r=>r.title.toLowerCase()===q)??[...rows].filter(r=>r.title.toLowerCase().includes(q)).sort((a,b)=>a.title.length-b.title.length)[0]??rows[0];if(pick)setSelected(pick);else setSearch(title);}
+    catch{setSearch(title);}finally{setOpening(null);}
+  };
   useEffect(()=>{if(roleData.data)setRoleLevel(roleData.data.levels.includes(level)?level:roleData.data.levels.includes("experienced")?"experienced":roleData.data.levels[0]??"");},[roleData.data,level]);
   const assignments=useQuery({queryKey:["resume-library-assignments",selected?.occupation_id,roleLevel],enabled:!!selected&&!!roleLevel,queryFn:async()=>{
     if(!selected)return [];
@@ -52,7 +74,14 @@ export function ResumeLibrary({onUse,current,onContinue}:{onUse:(selection:Libra
   const reset=()=>{setSearch("");setIndustry("");setCategory("");setLevel("");setOffset(0);setSelected(null);};
   return <div className="w-full min-w-0 space-y-6">
     <header className="flex items-start justify-between gap-4 flex-wrap"><div><h1 className="text-2xl font-bold">Resume Templates</h1></div>{current&&onContinue&&<Button variant="outline" onClick={onContinue}><FileText className="size-4"/>Continue draft</Button>}</header>
-    {!selected&&<section className="border-b border-border pb-6"><div className="flex items-center gap-2 mb-4 flex-wrap"><LayoutTemplate className="size-4 text-primary"/><h2 className="font-semibold">Design collection</h2><span className="ml-auto text-xs text-muted-foreground">Illustrative examples</span></div><div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">{RESUME_STYLES.map(style=><article key={style.id} className="min-w-0"><div className="bg-surface p-2 border border-border rounded-md"><FittedResumePreview doc={applyVisualLayout(roleExample("Software Engineer","tech"),style.id,true)} firstPageOnly/></div><h3 className="text-sm font-semibold mt-2">{style.label}</h3></article>)}</div></section>}
+    {!selected&&<section aria-label="Template catalog" className="space-y-4 border-b border-border pb-8">
+      <div className="flex items-end justify-between gap-3 flex-wrap"><div><h2 className="text-lg font-semibold flex items-center gap-2"><LayoutTemplate className="size-4 text-primary"/>Curated role templates</h2><p className="text-sm text-muted-foreground">Pick a role to see it in all five designs, or search any of {(results.data?.[0]?.total_count ?? 45808).toLocaleString()} titles below.</p></div><span className="text-xs text-muted-foreground">Illustrative samples</span></div>
+      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Template categories">{CATALOG_CATEGORIES.map(c=><Button key={c} size="sm" role="tab" aria-selected={catalogCategory===c} variant={catalogCategory===c?"default":"outline"} className="rounded-full shrink-0" onClick={()=>setCatalogCategory(c)}>{c}</Button>)}</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">{CURATED.filter(r=>catalogCategory==="All"||r.category===catalogCategory).map(r=>{const arch=classifyRole({title:r.title,levelId:r.level});return <button type="button" key={r.title} onClick={()=>openRole(r.title)} disabled={!!opening} className="group text-left min-w-0 rounded-lg border border-border bg-card p-2 transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <div className="rounded-md bg-secondary p-2"><LazyPreview build={()=>applyVisualLayout(roleExample(r.title,arch),recommendedStyle(arch),true)}/></div>
+        <div className="px-1 pt-2 pb-1 flex items-center justify-between gap-2"><span className="min-w-0"><span className="block text-sm font-semibold truncate">{r.title}</span><span className="block text-xs text-muted-foreground">{r.category}</span></span>{opening===r.title?<Loader2 className="size-4 animate-spin shrink-0"/>:<ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary"/>}</div>
+      </button>;})}</div>
+    </section>}
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1fr]">
       <div className="space-y-2"><Label htmlFor="library-search">Job title</Label><div className="relative"><Search className="absolute left-3 top-3.5 size-4 text-muted-foreground"/><Input id="library-search" className="pl-10 h-11" value={search} maxLength={200} onChange={e=>{setSearch(e.target.value);setSelected(null);}} placeholder="Search a title or synonym"/></div></div>
       <div className="space-y-2"><Label htmlFor="library-industry">Industry</Label><select id="library-industry" className={selectClass} value={industry} onChange={e=>{setIndustry(e.target.value);setCategory("");setOffset(0);setSelected(null);}}><option value="">All industries</option>{meta.data?.industries.map(i=><option key={i.id} value={i.id}>{i.label}</option>)}</select></div>

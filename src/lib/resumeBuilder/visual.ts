@@ -8,8 +8,8 @@ export const PALETTES: { id: ResumePalette; label: string }[] = [
   { id: "crimson", label: "Crimson & Slate" }, { id: "teal", label: "Clinical Teal" },
 ];
 export const FONT_PAIRINGS: { id: FontPairing; label: string }[] = [
-  { id: "modern", label: "Modern Sans" }, { id: "classic", label: "Classic Serif" },
-  { id: "tech", label: "Tech Mono" }, { id: "editorial", label: "Editorial" },
+  { id: "modern", label: "Modern & Clean · Plus Jakarta + Inter" }, { id: "classic", label: "Executive · Playfair + Lora" },
+  { id: "tech", label: "Tech · Space Grotesk + JetBrains Mono" }, { id: "editorial", label: "Contemporary · Outfit + DM Sans" },
 ];
 export const VISUAL_LAYOUTS: { id: RoleArchetype; label: string; palette: ResumePalette; fontPairing: FontPairing; order: SectionType[] }[] = [
   { id: "tech", label: "Tech & Engineering", palette: "slate", fontPairing: "tech", order: ["summary", "skills", "projects", "experience", "education", "certifications", "achievements", "languages", "portfolio", "publications", "additional"] },

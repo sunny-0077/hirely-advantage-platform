@@ -61,6 +61,7 @@ export function splitVisualColumns(blocks: ResumeBlock[], layout: VisualLayout) 
 function Header({ doc }: { doc: ResumeDocument }) {
   const p = doc.content.personal;
   return <header className="resume-header" data-resume-header>
+    <span className="resume-monogram" aria-hidden="true">{(p.name || "Your Name").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("")}</span>
     <h1>{p.name || "Your Name"}</h1>{p.headline && <div className="resume-headline">{p.headline}</div>}
     <div className="resume-contact">{p.email && <a href={`mailto:${p.email}`}><Mail />{p.email}</a>}{p.phone && <span><Phone />{p.phone}</span>}{p.location && <span><MapPin />{p.location}</span>}</div>
     {p.links.length > 0 && <div className="resume-links">{p.links.filter(l => l.url).map((l, i) => <a key={i} className="resume-link-chip" href={safeResumeUrl(l.url)} target="_blank" rel="noreferrer"><ExternalLink />{l.label || l.url}</a>)}</div>}
