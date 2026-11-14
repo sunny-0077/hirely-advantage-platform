@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Briefcase, ExternalLink, Loader2, Mail, MessagesSquare, MapPin, Sparkles, Wallet } from "lucide-react";
+import { ArrowLeft, Search, AlertTriangle, Briefcase, ExternalLink, Loader2, Mail, MessagesSquare, MapPin, Sparkles, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fetchPreferredJobs, useJobPreferences } from "@/hooks/useJobPreferences";
@@ -95,6 +96,11 @@ export default function Jobs() {
     return () => { alive = false; };
   }, [city, prefs.isPending, prefs.data, activeModes.join("|"), myPlaces.join("|")]);
 
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const visibleJobs = jobs.filter(j => !query.trim() || `${j.title} ${j.company_name}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const selected = visibleJobs.find(j => j.id === selectedId) ?? null;
+  const activeJob = selected ?? visibleJobs[0] ?? null;
   const openPicker = () => { setDraftLocations(myPlaces.length ? myPlaces : prefs.data?.locations ?? []); setDraftModes(activeModes.length ? activeModes : [...WORK_MODES]); setEditingLocations(true); };
   const [busyJobId, setBusyJobId] = useState<string | null>(null);
   void setResumes; void setResumeId;
@@ -213,40 +219,55 @@ export default function Jobs() {
       ) : jobs.length === 0 ? (
         <EmptyState icon={Briefcase} title="No matching roles yet" description="New openings are added regularly. Try another location or work mode." />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {jobs.map((j) => (
-            <article key={j.id} className={cn("rounded-lg border border-border bg-card p-6 flex flex-col gap-5")}>
-              <div>
-                <h3 className="font-semibold text-foreground leading-snug">{j.title}</h3>
-                <p className="text-sm text-muted-foreground">{j.company_name}</p>
-                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <MapPin className="size-3.5" />{j.city_hub} · {j.work_mode ?? "On-site"}
-                </p>
-                {j.source && j.source_url && <a href={j.source_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-muted-foreground underline">Source: {j.source}</a>}
+        <div className="grid gap-4 lg:grid-cols-[minmax(300px,380px)_1fr] items-start">
+          <div className={cn("flex flex-col gap-3", selected && "hidden lg:flex")}>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title or company" className="pl-9" aria-label="Search jobs" />
+            </div>
+            <p className="text-xs text-muted-foreground">{visibleJobs.length} jobs</p>
+            <ul className="flex flex-col gap-2 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
+              {visibleJobs.map((j) => (
+                <li key={j.id}>
+                  <button type="button" onClick={() => setSelectedId(j.id)} aria-current={activeJob?.id === j.id}
+                    className={cn("w-full rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary/60",
+                      activeJob?.id === j.id ? "border-primary ring-1 ring-primary" : "border-border")}>
+                    <h3 className="font-semibold text-foreground leading-snug">{j.title}</h3>
+                    <p className="text-sm text-muted-foreground">{j.company_name}</p>
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="size-3.5" />{j.city_hub} · {j.work_mode ?? "On-site"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">{j.truth_card_json?.estimated_ctc_range || "Salary not disclosed"} · {new Date(j.fetched_at).toLocaleDateString()}</p>
+                  </button>
+                </li>
+              ))}
+              {!visibleJobs.length && <li className="text-sm text-muted-foreground p-4">No jobs match your search.</li>}
+            </ul>
+          </div>
+          {activeJob && (
+            <section className={cn("rounded-lg border border-border bg-card p-6 lg:sticky lg:top-4 lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto", !selected && "hidden lg:block")} aria-label="Job details">
+              <Button variant="ghost" size="sm" className="mb-3 -ml-2 lg:hidden" onClick={() => setSelectedId(null)}><ArrowLeft className="size-4" />All jobs</Button>
+              <h2 className="text-xl font-semibold text-foreground leading-snug">{activeJob.title}</h2>
+              <p className="text-sm text-muted-foreground">{activeJob.company_name}</p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><MapPin className="size-3.5" />{activeJob.city_hub} · {activeJob.work_mode ?? "On-site"}</p>
+              {activeJob.source && activeJob.source_url && <a href={activeJob.source_url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-muted-foreground underline">Source: {activeJob.source}</a>}
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button asChild disabled={!activeJob.apply_url}><a href={activeJob.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a></Button>
+                <Button variant="secondary" onClick={() => runTailor(activeJob)} disabled={!!busyJobId || !!letterJobId || !!prepJobId} aria-label={`Tailor Resume for ${activeJob.title}`}>
+                  {busyJobId === activeJob.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}{busyJobId === activeJob.id ? "Tailoring…" : "Tailor Resume · 1 credit"}
+                </Button>
+                <Button variant="outline" onClick={() => runCoverLetter(activeJob)} disabled={!!busyJobId || !!letterJobId || !!prepJobId} aria-label={`Generate Cover Letter for ${activeJob.title}`}>
+                  {letterJobId === activeJob.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}{letterJobId === activeJob.id ? "Writing…" : "Cover Letter"}
+                </Button>
+                <Button variant="outline" onClick={() => runInterviewPrep(activeJob)} disabled={!!busyJobId || !!letterJobId || !!prepJobId} aria-label={`Interview Prep for ${activeJob.title}`}>
+                  {prepJobId === activeJob.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4" />}{prepJobId === activeJob.id ? "Preparing…" : "Interview Prep"}
+                </Button>
               </div>
-              <TruthCardBadge t={j.truth_card_json ?? {}} />
-              <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                <Button size="sm" className="h-9 md:h-8 flex-1 font-semibold text-sm px-2 min-w-0" onClick={() => runTailor(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
-                  aria-label={`Tailor Resume for ${j.title}`}>
-                  {busyJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4 xl:hidden" />}
-                  {busyJobId === j.id ? "Tailoring…" : <span className="truncate">Tailor Resume<span className="hidden 2xl:inline"> · 1 credit</span></span>}
-                </Button>
-                <Button size="sm" variant="secondary" className="h-9 md:h-8 flex-1 font-semibold text-sm px-2 min-w-0" onClick={() => runCoverLetter(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
-                  aria-label={`Generate Cover Letter for ${j.title}`}>
-                  {letterJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4 xl:hidden" />}
-                  {letterJobId === j.id ? "Writing…" : <span className="truncate">Cover Letter<span className="hidden 2xl:inline"> · 1 credit</span></span>}
-                </Button>
-                <Button size="sm" variant="secondary" className="h-9 md:h-8 flex-1 font-semibold text-sm px-2 min-w-0" onClick={() => runInterviewPrep(j)} disabled={!!busyJobId || !!letterJobId || !!prepJobId}
-                  aria-label={`Interview Prep for ${j.title}`}>
-                  {prepJobId === j.id ? <Loader2 className="size-4 animate-spin" /> : <MessagesSquare className="size-4 xl:hidden" />}
-                  {prepJobId === j.id ? "Preparing…" : <span className="truncate">Interview Prep<span className="hidden 2xl:inline"> · 1 credit</span></span>}
-                </Button>
-                <Button asChild size="sm" variant="outline" className="h-9 md:h-8 flex-1 text-sm px-2 min-w-0" disabled={!j.apply_url}>
-                  <a href={j.apply_url ?? "#"} target="_blank" rel="noopener noreferrer">Apply Now<ExternalLink className="size-3.5" /></a>
-                </Button>
-              </div>
-            </article>
-          ))}
+              <div className="mt-6"><TruthCardBadge t={activeJob.truth_card_json ?? {}} /></div>
+              <h3 className="mt-6 text-sm font-semibold text-foreground">About the role</h3>
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{activeJob.raw_description?.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").trim() || "Full description is available on the employer's page."}</p>
+            </section>
+          )}
         </div>
       )}
 
