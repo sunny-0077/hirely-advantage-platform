@@ -11,10 +11,6 @@ import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 
 const DashboardLayout = () => {
   const { pathname } = useLocation();
-  const pageSize = pathname === "/app/home" ? "workspace-page--overview"
-    : pathname === "/app/resume-builder" ? "workspace-page--catalog"
-    : pathname === "/app/profile" ? "workspace-page--profile"
-    : ["/app/master-resume", "/app/cover-letter", "/app/interview-prep", "/app/upgrade", "/app/documents"].includes(pathname) ? "workspace-page--reading" : "";
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, loading, recovering } = useAuth();
   const workspace = useWorkspace();
@@ -33,9 +29,9 @@ const DashboardLayout = () => {
 
         <MobileSidebar open={mobileOpen} onClose={() => setMobileOpen(false)} />
 
-        <main className="flex-1 min-w-0 px-4 sm:px-6 md:px-8 lg:px-10 py-4 md:py-5 bg-background">
+        <main className="flex-1 min-w-0 px-4 md:px-5 lg:px-6 py-4 md:py-5 bg-background">
           {/* Mobile top bar with hamburger */}
-          <div className="workspace-topbar md:hidden flex items-center gap-3 mb-5">
+          <div className="md:hidden flex items-center gap-3 mb-5">
             <Button variant="outline" size="icon"
               type="button"
               onClick={() => setMobileOpen(true)}
@@ -49,7 +45,7 @@ const DashboardLayout = () => {
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}
-          <div key={pathname} className={`workspace-page ${pageSize} animate-fade-in motion-reduce:animate-none`}>
+          <div key={pathname} className="workspace-page animate-fade-in motion-reduce:animate-none">
             <Outlet />
           </div>
         </main>
