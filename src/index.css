@@ -82,7 +82,7 @@
  .logo-lockup { display: inline-flex; }
  .logo-lockup__mark { transition: transform 180ms ease; }
  .logo-lockup:hover .logo-lockup__mark { transform: translateY(-1px); }
- .landing-container { @apply mx-auto w-full max-w-[1440px] px-5 md:px-6 lg:px-8; }
+ .landing-container { @apply mx-auto w-full max-w-[1248px] px-5 md:px-6 lg:px-8; }
  .workspace-shell [class*="rounded-2xl"], .workspace-shell [class*="rounded-3xl"], .workspace-shell [class*="rounded-[2"] { border-radius: 16px; }
  .workspace-shell [class*="backdrop-blur"] { backdrop-filter: none; }
  .workspace-shell [class*="tracking-"] { letter-spacing: 0; }
@@ -93,7 +93,12 @@
  .workspace-shell input:not([type=checkbox]):not([type=radio]),.workspace-shell textarea { background: hsl(var(--card)); }
  .panel-forest { background: hsl(var(--forest)); color: hsl(var(--forest-foreground)); border-radius: 16px; }
  .surface-grey { background: hsl(var(--surface)); border-radius: 20px; }
- .workspace-shell main > * { width: 100%; margin-inline: 0; }
+ .workspace-page { width: 100%; min-width: 0; max-width: 1120px; margin-inline: auto; }
+ .workspace-page--overview { max-width: 1040px; }
+ .workspace-page--catalog { max-width: 1200px; }
+ .workspace-page--reading { max-width: 960px; }
+ .workspace-page--profile { max-width: 880px; }
+ .workspace-topbar { width: 100%; max-width: 1120px; margin-inline: auto; }
  .resume-section { padding: 20px 0; border-bottom: 1px solid hsl(var(--border)); }
  .resume-section > div[class*="border border-border"] { border-width: 0; border-left-width: 2px; border-radius: 0; padding-left: 20px; }
  .auth-page input { border-radius: 6px; background: hsl(var(--card)); border-color: hsl(var(--input)); font-size: 16px; }
@@ -114,8 +119,8 @@
  .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary-bright)); }
 }
 @layer utilities {
- /* Fill the workspace pane, without stretching nested previews or dialogs. */
- .workspace-shell .workspace-page > :first-child { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
+ /* Keep natural page limits and intentional margins; never override document sizing. */
+ .workspace-shell .workspace-page > :first-child { width: 100%; min-width: 0; margin-inline: auto; }
  /* Reference identity: bold black headings everywhere. */
  #root :is(h1,h2,h3) { font-weight: 800; color: hsl(var(--foreground)); }
  #root :is(.panel-forest,.bg-forest) :is(h1,h2,h3) { color: hsl(var(--forest-foreground)); }

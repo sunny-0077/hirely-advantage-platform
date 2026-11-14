@@ -122,7 +122,7 @@ export default function WorkspaceHome() {
       <Button asChild size="sm"><Link to="/app/master-resume">Add master resume<ArrowRight /></Link></Button>
     </div>}
 
-    <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-6 items-start">
+    <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-8 items-start">
     <section aria-labelledby="studio" className="min-w-0 border-t border-border pt-4">
       <div className="flex items-center gap-2 mb-1"><Wand2 className="size-5 text-primary" /><h2 id="studio" className="text-xl font-semibold">Custom Job Studio</h2></div>
       <p className="text-sm text-muted-foreground mb-4">Found a job somewhere else? Paste it here. {resumeSource.data?.available ? `Source: ${resumeSource.data.label}.` : "We'll check your saved resume before generating."}</p>
@@ -143,7 +143,7 @@ export default function WorkspaceHome() {
       <p className="text-xs text-muted-foreground mt-3">If anything fails, your credit is refunded automatically.</p>
     </section>
 
-    <div className="grid min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-1">
+    <div className="grid min-w-0 gap-6 md:grid-cols-2 xl:grid-cols-1">
       <section aria-labelledby="recent" className="border-t border-border pt-5">
         <div className="flex justify-between items-center mb-3"><h2 id="recent" className="text-lg font-semibold">Recent documents</h2><Button asChild variant="link" className="px-0"><Link to="/app/documents">All documents<ArrowRight /></Link></Button></div>
         {q.isPending ? <p role="status" className="py-6 text-sm">Loading…</p> : q.data?.docs.length ? <ul className="divide-y divide-border">{q.data.docs.map(d => { const I = DocIcon[d.kind]; return <li key={`${d.kind}-${d.id}`} className="flex items-center gap-3 py-3">
