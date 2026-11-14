@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { loadResume } from "@/lib/masterResume";
 import { emptyDocument, newId } from "./templates";
-import { APPROVED_SECTION_NAMES, DEFAULT_SECTION_NAME, type ResumeDocument, type ResumeSettings, type SectionType } from "./types";
-import { applyVisualLayout, classifyRole } from "./visual";
+import { APPROVED_SECTION_NAMES, DEFAULT_SECTION_NAME, type FontPairing, type ResumeDocument, type ResumePalette, type ResumeSettings, type RoleArchetype, type SectionType, type VisualLayout } from "./types";
+import { applyVisualLayout, classifyRole, isResumeStyle, layoutMeta, RESUME_STYLES, type RoleContext } from "./visual";
 
 export type Blueprint = { id: string; label: string; version: number; definition: { order: SectionType[]; guidance: string[]; summaryPrompt: string } };
-export type Design = { id: string; label: string; version: number; definition: ResumeSettings & { headerAlign: "left" | "center"; headingRule: boolean; layout?: import("./types").VisualLayout } };
+export type Design = { id: string; label: string; version: number; definition: ResumeSettings & { headerAlign: "left" | "center"; headingRule: boolean; layout?: VisualLayout; archetype?: RoleArchetype; palette?: ResumePalette; fontPairing?: FontPairing } };
 export type LibrarySelection = { titleId: string; title: string; occupationId: string; occupationTitle?: string; industryId?: string; levelId: string; blueprint: Blueprint; design: Design };
 
 const str = z.string().max(10000);
@@ -26,7 +26,7 @@ export const documentSchema = z.object({
     additional: z.array(entry({ id: str, kind: str, title: str, details: str })).max(50).optional(),
   }).passthrough(),
   settings: z.object({ fontFamily: z.enum(["Inter", "Arial", "Georgia", "Times"]), fontSize: z.union([z.literal(10),z.literal(10.5),z.literal(11),z.literal(11.5),z.literal(12)]), spacing: z.enum(["compact", "normal", "relaxed"]), accent: z.string().regex(/^#[0-9a-f]{6}$/i) }),
-  presentation: z.object({ headerAlign: z.enum(["left", "center"]), headingRule: z.boolean(), layout: z.enum(["tech", "creative", "executive", "sales", "healthcare", "student", "ats"]).optional(), palette: z.enum(["navy", "slate", "emerald", "terracotta", "violet", "mono", "crimson", "teal"]).optional(), fontPairing: z.enum(["modern", "classic", "tech", "editorial"]).optional(), example: z.boolean().optional() }).optional(),
+  presentation: z.object({ headerAlign: z.enum(["left", "center"]), headingRule: z.boolean(), layout: z.enum(["tech", "creative", "executive", "sales", "healthcare", "student", "ats", "modern-two-column", "clean-minimalist", "executive-single-column", "bold-accent-header", "compact-high-density"]).optional(), archetype: z.enum(["tech", "creative", "executive", "sales", "healthcare", "student", "ats"]).optional(), palette: z.enum(["navy", "slate", "emerald", "terracotta", "violet", "mono", "crimson", "teal"]).optional(), fontPairing: z.enum(["modern", "classic", "tech", "editorial"]).optional(), example: z.boolean().optional() }).optional(),
   sourceSnapshot: z.unknown().optional(),
 }).passthrough();
 
@@ -53,9 +53,20 @@ export function mapMasterResume(raw: unknown): ResumeDocument {
   return doc;
 }
 
+export function roleStyleDesigns(base: Design, context: RoleContext): Design[] {
+  const archetype = classifyRole(context), role = layoutMeta(archetype);
+  return RESUME_STYLES.map(style => {
+    const fontPairing = style.id === "modern-two-column" || style.id === "compact-high-density" ? role.fontPairing === "tech" ? "tech" : "modern" : style.fontPairing;
+    return { ...base, label: style.label, definition: { ...base.definition, layout: style.id, archetype, palette: role.palette, fontPairing, fontFamily: fontPairing === "classic" || fontPairing === "editorial" ? "Georgia" : "Arial", headerAlign: style.id === "executive-single-column" ? "center" : "left", spacing: style.id === "compact-high-density" ? "compact" : "normal" } };
+  });
+}
+
 export function applyLibraryTemplate(doc: ResumeDocument, selection: LibrarySelection): ResumeDocument {
-  const layout = selection.design.definition.layout ?? classifyRole({ title: selection.title, occupationTitle: selection.occupationTitle, industryId: selection.industryId, blueprintId: selection.blueprint.id, levelId: selection.levelId });
-  const visual = applyVisualLayout(doc, layout, true);
+  const definition = selection.design.definition;
+  const archetype = definition.archetype ?? classifyRole({ title: selection.title, occupationTitle: selection.occupationTitle, industryId: selection.industryId, blueprintId: selection.blueprint.id, levelId: selection.levelId });
+  const layout = definition.layout ?? archetype;
+  const source = isResumeStyle(layout) ? { ...doc, presentation: { headerAlign: "left" as const, headingRule: true, ...doc.presentation, archetype } } : doc;
+  const visual = applyVisualLayout(source, layout, true);
   let order = [...visual.sections.map(s => s.type)];
   if (["student","internship","graduate","fresher","entry-level"].includes(selection.levelId)) order = ["summary","education","skills","projects",...order.filter(t => !["summary","education","skills","projects"].includes(t))];
   const sections = order.map(type => {
@@ -64,7 +75,7 @@ export function applyLibraryTemplate(doc: ResumeDocument, selection: LibrarySele
   });
   for (const s of doc.sections) if (!sections.some(x=>x.type===s.type)) sections.push({...s});
   // Preserve factual content and the import snapshot exactly; only presentation changes.
-  return {...visual,templateId:selection.design.id,sections,settings:{fontFamily:selection.design.definition.fontFamily,fontSize:selection.design.definition.fontSize,spacing:selection.design.definition.spacing,accent:selection.design.definition.accent},presentation:{...visual.presentation,headerAlign:selection.design.definition.headerAlign,headingRule:selection.design.definition.headingRule}};
+  return {...visual,templateId:selection.design.id,sections,settings:{fontFamily:definition.fontFamily,fontSize:definition.fontSize,spacing:definition.spacing,accent:definition.accent},presentation:{...visual.presentation,headerAlign:definition.headerAlign,headingRule:definition.headingRule,...(definition.palette ? {palette:definition.palette} : {}),...(definition.fontPairing ? {fontPairing:definition.fontPairing} : {})}};
 }
 
 export function validBlueprint(raw: Blueprint): boolean {
