@@ -620,6 +620,17 @@ function ExtraFields({doc,update,type}:{doc:ResumeDocument;update:(p:Partial<Res
   return <div className="space-y-3">{items.map((it,i)=><div key={it.id} className="space-y-2"><Input aria-label={`${type} title`} value={it.title} placeholder="Title" onChange={e=>set(items.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/><Textarea aria-label={`${type} details`} value={it.details} placeholder="Details" rows={3} onChange={e=>set(items.map((x,j)=>j===i?{...x,details:e.target.value}:x))}/><Button size="sm" variant="ghost" onClick={()=>set(items.filter((_,j)=>j!==i))}><Trash2 className="size-4"/>Remove</Button></div>)}<Button variant="outline" size="sm" onClick={()=>set([...items,{id:newId(),title:"",details:""}])}><Plus className="size-4"/>Add entry</Button></div>;
 }
 
+function LanguagesFields({ doc, update }: { doc: ResumeDocument; update: (p: Partial<ResumeDocument["content"]>) => void }) {
+  const items = (doc.content.additional ?? []).filter(a => a.kind === "language");
+  const set = (next: typeof items) => update({ additional: [...(doc.content.additional ?? []).filter(a => a.kind !== "language"), ...next] });
+  return <div className="space-y-2">{items.map((it, i) => <div key={it.id} className="flex gap-2"><Input aria-label="Language name" placeholder="Language" value={it.title} onChange={e => set(items.map((x, j) => i === j ? { ...x, title: e.target.value } : x))} /><Input aria-label="Language proficiency" placeholder="Proficiency" value={it.details} onChange={e => set(items.map((x, j) => i === j ? { ...x, details: e.target.value } : x))} /><Button variant="ghost" size="icon" aria-label="Remove language" onClick={() => set(items.filter((_, j) => i !== j))}><Trash2 /></Button></div>)}<Button variant="outline" size="sm" onClick={() => set([...items, { id: newId(), kind: "language", title: "", details: "" }])}><Plus />Add language</Button></div>;
+}
+function PortfolioFields({ doc, update }: { doc: ResumeDocument; update: (p: Partial<ResumeDocument["content"]>) => void }) {
+  const items = doc.content.personal.links;
+  const set = (links: typeof items) => update({ personal: { ...doc.content.personal, links } });
+  return <div className="space-y-2">{items.map((it, i) => <div key={i} className="flex gap-2"><Input aria-label="Portfolio label" placeholder="Portfolio label" value={it.label} onChange={e => set(items.map((x, j) => i === j ? { ...x, label: e.target.value } : x))} /><Input aria-label="Portfolio URL" placeholder="https://…" value={it.url} onChange={e => set(items.map((x, j) => i === j ? { ...x, url: e.target.value } : x))} /><Button variant="ghost" size="icon" aria-label="Remove portfolio link" onClick={() => set(items.filter((_, j) => i !== j))}><Trash2 /></Button></div>)}<Button variant="outline" size="sm" onClick={() => set([...items, { label: "Portfolio", url: "" }])}><Plus />Add portfolio link</Button></div>;
+}
+
 function BulletList({
   bullets,
   onChange,
