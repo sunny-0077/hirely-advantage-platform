@@ -64,7 +64,7 @@ export function SectionsEditor({ doc, setDoc, role }: Props) {
   };
 
   const missingTypes = (
-    ["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional"] as SectionType[]
+    ["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional", "languages", "portfolio"] as SectionType[]
   ).filter((t) => !doc.sections.some((s) => s.type === t));
 
   return (
@@ -91,14 +91,14 @@ export function SectionsEditor({ doc, setDoc, role }: Props) {
             Add section:
           </span>
           {missingTypes.map((t) => (
-            <button
+            <Button variant="outline" size="sm"
               key={t}
               onClick={() => addSection(t)}
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
             >
               <Plus className="w-3 h-3" />
               {APPROVED_SECTION_NAMES[t][0]}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -165,12 +165,12 @@ function SectionCard({
           <IconBtn title="Remove section" onClick={onRemove}>
             <Trash2 className="w-3.5 h-3.5" />
           </IconBtn>
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => setOpen((o) => !o)}
             className="text-[11px] text-foreground/55 hover:text-foreground px-2"
           >
             {open ? "Collapse" : "Expand"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -189,6 +189,8 @@ function SectionCard({
           {section.type === "education" && <EducationFields doc={doc} update={updateContent} />}
           {section.type === "certifications" && <CertFields doc={doc} update={updateContent} />}
           {(section.type === "publications" || section.type === "additional") && <ExtraFields doc={doc} update={updateContent} type={section.type} />}
+          {section.type === "languages" && <LanguagesFields doc={doc} update={updateContent} />}
+          {section.type === "portfolio" && <PortfolioFields doc={doc} update={updateContent} />}
           {section.type === "achievements" && (
             <AchievementsFields doc={doc} update={updateContent} role={role} />
           )}
@@ -210,7 +212,7 @@ function IconBtn({
   disabled?: boolean;
 }) {
   return (
-    <button
+    <Button variant="ghost" size="icon"
       type="button"
       title={title}
       disabled={disabled}
@@ -218,7 +220,7 @@ function IconBtn({
       className="w-7 h-7 rounded-md flex items-center justify-center text-foreground/55 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
