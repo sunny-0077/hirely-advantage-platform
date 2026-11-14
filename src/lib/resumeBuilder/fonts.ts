@@ -2,8 +2,10 @@ import sans from "@/assets/resume-fonts/noto-sans.ttf.asset.json";
 import sansBold from "@/assets/resume-fonts/noto-sans-bold.ttf.asset.json";
 import serif from "@/assets/resume-fonts/noto-serif.ttf.asset.json";
 import serifBold from "@/assets/resume-fonts/noto-serif-bold.ttf.asset.json";
+import mono from "@/assets/resume-fonts/noto-sans-mono.ttf.asset.json";
 import type { ResumeSettings } from "./types";
-export const documentFonts={sans,sansBold,serif,serifBold};
+export const documentFonts={sans,sansBold,serif,serifBold,mono};
+export const documentFontCss = `@font-face{font-family:'Hirely Document Sans';src:url('${sans.url}')}@font-face{font-family:'Hirely Document Sans';font-weight:700;src:url('${sansBold.url}')}@font-face{font-family:'Hirely Document Serif';src:url('${serif.url}')}@font-face{font-family:'Hirely Document Serif';font-weight:700;src:url('${serifBold.url}')}@font-face{font-family:'Hirely Document Mono';src:url('${mono.url}')}`;
 export const documentFontFamily=(font:ResumeSettings["fontFamily"])=>font==="Times"||font==="Georgia"?"Hirely Document Serif":"Hirely Document Sans";
 const cached=new Map<string,Promise<string>>();
 export function fontBase64(url:string) {

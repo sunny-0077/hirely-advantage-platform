@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Download, FileText, Loader2, ShieldCheck, Save, Plus, RotateCcw } from "lucide-react";
+import { ArrowLeft, Download, FileText, Loader2, Save, Plus, RotateCcw } from "lucide-react";
 import { ATS_TEMPLATES, emptyDocument } from "@/lib/resumeBuilder/templates";
 import type { ResumeDocument } from "@/lib/resumeBuilder/types";
 import { ResumeLibrary } from "@/components/dashboard/resumeBuilder/ResumeLibrary";
@@ -8,16 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useSearchParams } from "react-router-dom";
-import { ResumePreview } from "@/components/dashboard/resumeBuilder/ResumePreview";
+import { FittedResumePreview } from "@/components/dashboard/resumeBuilder/ResumePreview";
+import { ResumeToolbar } from "@/components/dashboard/resumeBuilder/ResumeToolbar";
+import { roleExample } from "@/lib/resumeBuilder/examples";
+import { loadOccupationExample } from "@/lib/resumeBuilder/occupationExamples";
+import { layoutMeta, resolvedLayout } from "@/lib/resumeBuilder/visual";
 import { SectionsEditor } from "@/components/dashboard/resumeBuilder/SectionsEditor";
 import { PersonalInfoCard } from "@/components/dashboard/resumeBuilder/PersonalInfoCard";
-import { SettingsCard } from "@/components/dashboard/resumeBuilder/SettingsCard";
-import { AtsScorePanel } from "@/components/dashboard/resumeBuilder/AtsScorePanel";
 import { exportPdf } from "@/lib/resumeBuilder/exportPdf";
 import { exportDocx } from "@/lib/resumeBuilder/exportDocx";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -112,9 +113,9 @@ const ResumeBuilder = () => {
     [doc?.templateId],
   );
 
-  const useTemplate = async (next: LibrarySelection, useMaster: boolean) => {
+  const useTemplate = async (next: LibrarySelection, useMaster: boolean, withExample = false) => {
     try {
-      let source=doc;
+      let source=withExample ? roleExample(next.title, next.design.definition.layout, next.occupationTitle, await loadOccupationExample(next.occupationId)) : doc;
       if(!source && useMaster) {
         if(!user)return;
         const {data,error}=await supabase.from("profiles").select("master_resume_json").eq("user_id",user.id).single();
@@ -191,7 +192,7 @@ const ResumeBuilder = () => {
 
   if(loadingVersion)return <p role="status">Opening resume version…</p>;
   if(versionError)return <div><p role="alert">Couldn't open this resume version.</p><Button onClick={()=>window.location.reload()}>Retry</Button><Button variant="outline" onClick={()=>{setVersionError(false);setPicking(true);}}>Browse templates</Button></div>;
-  if (picking || !doc) return <ResumeLibrary current={doc} onUse={(s,master)=>void useTemplate(s,master)} onContinue={()=>setPicking(false)} />;
+  if (picking || !doc) return <ResumeLibrary current={doc} onUse={(s,master,example)=>void useTemplate(s,master,example)} onContinue={()=>setPicking(false)} />;
 
   // ---------- Editor ----------
   return (
@@ -200,16 +201,15 @@ const ResumeBuilder = () => {
         <Button variant="outline" onClick={()=>setPicking(true)}>
           <ArrowLeft className="w-3.5 h-3.5" /> Templates
         </Button>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 text-xs text-primary">
-          <ShieldCheck className="w-3 h-3" /> {selection?.design.label ?? templateMeta?.name ?? "Resume"}
-        </div>
+        <span className="text-sm font-semibold">{layoutMeta(resolvedLayout(doc)).label}</span>
 
         <div className="ml-auto flex items-center gap-2 flex-wrap">
           <Input
             placeholder="Target role (helps AI tailor rewrites)"
+            aria-label="Target role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="h-9 w-[260px] text-[13px]"
+            className="h-9 w-full sm:w-[260px] text-sm"
           />
           <Button
             onClick={handlePdf}
@@ -245,8 +245,9 @@ const ResumeBuilder = () => {
         <Button variant="ghost" onClick={startOver}><RotateCcw className="size-4"/>Start blank</Button>
         <p role="status" className="text-sm text-muted-foreground w-full">{dirty?"Draft changes not saved to your account":"Version saved"}</p>
       </section>
-      {selection&&<p className="mb-5 text-sm text-muted-foreground">{selection.blueprint.definition.summaryPrompt}</p>}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-6">
+      {doc.presentation?.example && <p role="status" className="mb-4 text-sm text-warning">Illustrative example — names, qualifications and results are samples, not your career facts.</p>}
+      <ResumeToolbar doc={doc} setDoc={setDoc} onExport={()=>void handlePdf()} exporting={exporting !== null} />
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(300px,.85fr)_minmax(0,1.25fr)] gap-6">
         {/* Left: editor */}
         <div className="space-y-4 min-w-0">
           <PersonalInfoCard doc={doc} setDoc={setDoc} />
@@ -254,20 +255,10 @@ const ResumeBuilder = () => {
         </div>
 
         {/* Right: live preview + score + settings */}
-        <div className="space-y-4 min-w-0">
-          
-          <SettingsCard doc={doc} setDoc={setDoc} />
-
-          <div className="rounded-2xl border border-border/60 bg-card/40 p-3 overflow-auto">
-            <div className="text-[10.5px] uppercase tracking-[0.18em] text-foreground/45 mb-2 px-1">
-              Live preview
-            </div>
-            <div
-              className="origin-top-left"
-              style={{ transform: "scale(0.78)", width: "calc(100% / 0.78)" }}
-            >
-              <ResumePreview doc={doc} />
-            </div>
+        <div className="min-w-0 order-first xl:order-last">
+          <div className="bg-surface p-3 sm:p-5 rounded-lg">
+            <div className="flex items-center justify-between text-xs text-muted-foreground mb-4"><span>Live preview</span><span>A4 · 210 × 297 mm</span></div>
+            <FittedResumePreview doc={doc} />
           </div>
         </div>
       </div>

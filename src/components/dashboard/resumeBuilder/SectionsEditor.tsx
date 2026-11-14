@@ -64,7 +64,7 @@ export function SectionsEditor({ doc, setDoc, role }: Props) {
   };
 
   const missingTypes = (
-    ["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional"] as SectionType[]
+    ["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional", "languages", "portfolio"] as SectionType[]
   ).filter((t) => !doc.sections.some((s) => s.type === t));
 
   return (
@@ -91,14 +91,14 @@ export function SectionsEditor({ doc, setDoc, role }: Props) {
             Add section:
           </span>
           {missingTypes.map((t) => (
-            <button
+            <Button variant="outline" size="sm"
               key={t}
               onClick={() => addSection(t)}
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
             >
               <Plus className="w-3 h-3" />
               {APPROVED_SECTION_NAMES[t][0]}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -165,12 +165,12 @@ function SectionCard({
           <IconBtn title="Remove section" onClick={onRemove}>
             <Trash2 className="w-3.5 h-3.5" />
           </IconBtn>
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => setOpen((o) => !o)}
             className="text-[11px] text-foreground/55 hover:text-foreground px-2"
           >
             {open ? "Collapse" : "Expand"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -189,6 +189,8 @@ function SectionCard({
           {section.type === "education" && <EducationFields doc={doc} update={updateContent} />}
           {section.type === "certifications" && <CertFields doc={doc} update={updateContent} />}
           {(section.type === "publications" || section.type === "additional") && <ExtraFields doc={doc} update={updateContent} type={section.type} />}
+          {section.type === "languages" && <LanguagesFields doc={doc} update={updateContent} />}
+          {section.type === "portfolio" && <PortfolioFields doc={doc} update={updateContent} />}
           {section.type === "achievements" && (
             <AchievementsFields doc={doc} update={updateContent} role={role} />
           )}
@@ -210,7 +212,7 @@ function IconBtn({
   disabled?: boolean;
 }) {
   return (
-    <button
+    <Button variant="ghost" size="icon"
       type="button"
       title={title}
       disabled={disabled}
@@ -218,7 +220,7 @@ function IconBtn({
       className="w-7 h-7 rounded-md flex items-center justify-center text-foreground/55 hover:text-foreground hover:bg-foreground/[0.06] disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -273,7 +275,7 @@ function SkillsFields({
   return (
     <div className="space-y-3">
       {groups.map((g, gi) => (
-        <div key={g.id} className="rounded-xl border border-border/40 p-3">
+        <div key={g.id} className="border-t border-border pt-3">
           <div className="flex items-center gap-2 mb-2">
             <Input
               value={g.name}
@@ -283,12 +285,12 @@ function SkillsFields({
               placeholder="Group (e.g. Languages)"
               className="h-8 text-[12.5px] max-w-[220px]"
             />
-            <button
+            <Button variant="ghost" size="sm"
               onClick={() => setGroups(groups.filter((_, i) => i !== gi))}
-              className="ml-auto text-[11px] text-foreground/55 hover:text-rose-400"
+              className="ml-auto text-[11px] text-foreground/55 hover:text-destructive"
             >
               Remove group
-            </button>
+            </Button>
           </div>
           <Input
             placeholder="Comma-separated skills (e.g. Python, SQL, Pandas, Tableau)"
@@ -312,12 +314,12 @@ function SkillsFields({
           />
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() => setGroups([...groups, { id: newId(), name: "Tools", items: [] }])}
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add skill group
-      </button>
+      </Button>
     </div>
   );
 }
@@ -336,7 +338,7 @@ function ExperienceFields({
   return (
     <div className="space-y-3">
       {items.map((it, idx) => (
-        <div key={it.id} className="rounded-xl border border-border/40 p-3 space-y-2">
+        <div key={it.id} className="border-t border-border pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input
               placeholder="Role (e.g. Data Analyst)"
@@ -383,15 +385,15 @@ function ExperienceFields({
             role={role}
           />
 
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-[11px] text-foreground/55 hover:text-rose-400"
+            className="text-[11px] text-foreground/55 hover:text-destructive"
           >
             Remove experience
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() =>
           set([
             ...items,
@@ -401,7 +403,7 @@ function ExperienceFields({
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add experience
-      </button>
+      </Button>
     </div>
   );
 }
@@ -420,7 +422,7 @@ function ProjectsFields({
   return (
     <div className="space-y-3">
       {items.map((it, idx) => (
-        <div key={it.id} className="rounded-xl border border-border/40 p-3 space-y-2">
+        <div key={it.id} className="border-t border-border pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input
               placeholder="Project name"
@@ -446,15 +448,15 @@ function ProjectsFields({
             onChange={(bullets) => set(items.map((x, i) => (i === idx ? { ...x, bullets } : x)))}
             role={role}
           />
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-[11px] text-foreground/55 hover:text-rose-400"
+            className="text-[11px] text-foreground/55 hover:text-destructive"
           >
             Remove project
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() =>
           set([
             ...items,
@@ -464,7 +466,7 @@ function ProjectsFields({
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add project
-      </button>
+      </Button>
     </div>
   );
 }
@@ -481,7 +483,7 @@ function EducationFields({
   return (
     <div className="space-y-3">
       {items.map((it, idx) => (
-        <div key={it.id} className="rounded-xl border border-border/40 p-3 space-y-2">
+        <div key={it.id} className="border-t border-border pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input
               placeholder="Degree (e.g. B.Tech CSE)"
@@ -522,15 +524,15 @@ function EducationFields({
             value={it.details}
             onChange={(e) => set(items.map((x, i) => (i === idx ? { ...x, details: e.target.value } : x)))}
           />
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-[11px] text-foreground/55 hover:text-rose-400"
+            className="text-[11px] text-foreground/55 hover:text-destructive"
           >
             Remove
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() =>
           set([
             ...items,
@@ -540,7 +542,7 @@ function EducationFields({
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add education
-      </button>
+      </Button>
     </div>
   );
 }
@@ -575,20 +577,20 @@ function CertFields({
           />
           <Input aria-label="Certification expiry" placeholder="Expiry (optional)" value={it.expiry ?? ""} onChange={e=>set(items.map((x,i)=>i===idx?{...x,expiry:e.target.value}:x))} />
           <Input aria-label="Credential link" placeholder="Credential link (optional)" value={it.url ?? ""} onChange={e=>set(items.map((x,i)=>i===idx?{...x,url:e.target.value}:x))} />
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-foreground/50 hover:text-rose-400 flex items-center justify-center"
+            className="text-foreground/50 hover:text-destructive flex items-center justify-center"
           >
             <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() => set([...items, { id: newId(), name: "", issuer: "", date: "" }])}
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add certification
-      </button>
+      </Button>
     </div>
   );
 }
@@ -616,6 +618,17 @@ function ExtraFields({doc,update,type}:{doc:ResumeDocument;update:(p:Partial<Res
   const items=doc.content[type]??[];
   const set=(next:typeof items)=>type==="additional"?update({additional:next.map(x=>({...x,kind:"kind" in x?String(x.kind):"other"}))}):update({publications:next});
   return <div className="space-y-3">{items.map((it,i)=><div key={it.id} className="space-y-2"><Input aria-label={`${type} title`} value={it.title} placeholder="Title" onChange={e=>set(items.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/><Textarea aria-label={`${type} details`} value={it.details} placeholder="Details" rows={3} onChange={e=>set(items.map((x,j)=>j===i?{...x,details:e.target.value}:x))}/><Button size="sm" variant="ghost" onClick={()=>set(items.filter((_,j)=>j!==i))}><Trash2 className="size-4"/>Remove</Button></div>)}<Button variant="outline" size="sm" onClick={()=>set([...items,{id:newId(),title:"",details:""}])}><Plus className="size-4"/>Add entry</Button></div>;
+}
+
+function LanguagesFields({ doc, update }: { doc: ResumeDocument; update: (p: Partial<ResumeDocument["content"]>) => void }) {
+  const items = (doc.content.additional ?? []).filter(a => a.kind === "language");
+  const set = (next: typeof items) => update({ additional: [...(doc.content.additional ?? []).filter(a => a.kind !== "language"), ...next] });
+  return <div className="space-y-2">{items.map((it, i) => <div key={it.id} className="flex gap-2"><Input aria-label="Language name" placeholder="Language" value={it.title} onChange={e => set(items.map((x, j) => i === j ? { ...x, title: e.target.value } : x))} /><Input aria-label="Language proficiency" placeholder="Proficiency" value={it.details} onChange={e => set(items.map((x, j) => i === j ? { ...x, details: e.target.value } : x))} /><Button variant="ghost" size="icon" aria-label="Remove language" onClick={() => set(items.filter((_, j) => i !== j))}><Trash2 /></Button></div>)}<Button variant="outline" size="sm" onClick={() => set([...items, { id: newId(), kind: "language", title: "", details: "" }])}><Plus />Add language</Button></div>;
+}
+function PortfolioFields({ doc, update }: { doc: ResumeDocument; update: (p: Partial<ResumeDocument["content"]>) => void }) {
+  const items = doc.content.personal.links;
+  const set = (links: typeof items) => update({ personal: { ...doc.content.personal, links } });
+  return <div className="space-y-2">{items.map((it, i) => <div key={i} className="flex gap-2"><Input aria-label="Portfolio label" placeholder="Portfolio label" value={it.label} onChange={e => set(items.map((x, j) => i === j ? { ...x, label: e.target.value } : x))} /><Input aria-label="Portfolio URL" placeholder="https://…" value={it.url} onChange={e => set(items.map((x, j) => i === j ? { ...x, url: e.target.value } : x))} /><Button variant="ghost" size="icon" aria-label="Remove portfolio link" onClick={() => set(items.filter((_, j) => i !== j))}><Trash2 /></Button></div>)}<Button variant="outline" size="sm" onClick={() => set([...items, { label: "Portfolio", url: "" }])}><Plus />Add portfolio link</Button></div>;
 }
 
 function BulletList({
@@ -649,22 +662,22 @@ function BulletList({
               role={role}
               onApply={(t) => onChange(bullets.map((x, j) => (j === i ? t : x)))}
             />
-            <button
+            <Button variant="ghost" size="sm"
               onClick={() => onChange(bullets.filter((_, j) => j !== i))}
-              className="w-7 h-6 rounded-md text-foreground/45 hover:text-rose-400 flex items-center justify-center"
+              className="w-7 h-6 rounded-md text-foreground/45 hover:text-destructive flex items-center justify-center"
               title="Remove bullet"
             >
               <Trash2 className="w-3 h-3" />
-            </button>
+            </Button>
           </div>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() => onChange([...bullets, ""])}
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add bullet
-      </button>
+      </Button>
     </div>
   );
 }

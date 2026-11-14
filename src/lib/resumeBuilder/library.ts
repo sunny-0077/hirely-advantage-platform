@@ -2,16 +2,17 @@ import { z } from "zod";
 import { loadResume } from "@/lib/masterResume";
 import { emptyDocument, newId } from "./templates";
 import { APPROVED_SECTION_NAMES, DEFAULT_SECTION_NAME, type ResumeDocument, type ResumeSettings, type SectionType } from "./types";
+import { applyVisualLayout, classifyRole } from "./visual";
 
 export type Blueprint = { id: string; label: string; version: number; definition: { order: SectionType[]; guidance: string[]; summaryPrompt: string } };
-export type Design = { id: string; label: string; version: number; definition: ResumeSettings & { headerAlign: "left" | "center"; headingRule: boolean } };
-export type LibrarySelection = { titleId: string; title: string; occupationId: string; levelId: string; blueprint: Blueprint; design: Design };
+export type Design = { id: string; label: string; version: number; definition: ResumeSettings & { headerAlign: "left" | "center"; headingRule: boolean; layout?: import("./types").VisualLayout } };
+export type LibrarySelection = { titleId: string; title: string; occupationId: string; occupationTitle?: string; industryId?: string; levelId: string; blueprint: Blueprint; design: Design };
 
 const str = z.string().max(10000);
 const entry = <T extends z.ZodRawShape>(shape: T) => z.object(shape).passthrough();
 export const documentSchema = z.object({
   templateId: str,
-  sections: z.array(z.object({ id: str, type: z.enum(["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional"]), name: str, enabled: z.boolean() })).max(30),
+  sections: z.array(z.object({ id: str, type: z.enum(["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "publications", "additional", "languages", "portfolio"]), name: str, enabled: z.boolean() })).max(30),
   content: z.object({
     personal: z.object({ name: str, headline: str, email: str, phone: str, location: str, links: z.array(z.object({ label: str, url: str })).max(50) }),
     summary: str,
@@ -25,7 +26,7 @@ export const documentSchema = z.object({
     additional: z.array(entry({ id: str, kind: str, title: str, details: str })).max(50).optional(),
   }).passthrough(),
   settings: z.object({ fontFamily: z.enum(["Inter", "Arial", "Georgia", "Times"]), fontSize: z.union([z.literal(10),z.literal(10.5),z.literal(11),z.literal(11.5),z.literal(12)]), spacing: z.enum(["compact", "normal", "relaxed"]), accent: z.string().regex(/^#[0-9a-f]{6}$/i) }),
-  presentation: z.object({ headerAlign: z.enum(["left", "center"]), headingRule: z.boolean() }).optional(),
+  presentation: z.object({ headerAlign: z.enum(["left", "center"]), headingRule: z.boolean(), layout: z.enum(["tech", "creative", "executive", "sales", "healthcare", "student", "ats"]).optional(), palette: z.enum(["navy", "slate", "emerald", "terracotta", "violet", "mono", "crimson", "teal"]).optional(), fontPairing: z.enum(["modern", "classic", "tech", "editorial"]).optional(), example: z.boolean().optional() }).optional(),
   sourceSnapshot: z.unknown().optional(),
 }).passthrough();
 
@@ -53,7 +54,9 @@ export function mapMasterResume(raw: unknown): ResumeDocument {
 }
 
 export function applyLibraryTemplate(doc: ResumeDocument, selection: LibrarySelection): ResumeDocument {
-  let order = [...selection.blueprint.definition.order];
+  const layout = selection.design.definition.layout ?? classifyRole({ title: selection.title, occupationTitle: selection.occupationTitle, industryId: selection.industryId, blueprintId: selection.blueprint.id, levelId: selection.levelId });
+  const visual = applyVisualLayout(doc, layout, true);
+  let order = [...visual.sections.map(s => s.type)];
   if (["student","internship","graduate","fresher","entry-level"].includes(selection.levelId)) order = ["summary","education","skills","projects",...order.filter(t => !["summary","education","skills","projects"].includes(t))];
   const sections = order.map(type => {
     const existing = doc.sections.find(s=>s.type===type);
@@ -61,7 +64,7 @@ export function applyLibraryTemplate(doc: ResumeDocument, selection: LibrarySele
   });
   for (const s of doc.sections) if (!sections.some(x=>x.type===s.type)) sections.push({...s});
   // Preserve factual content and the import snapshot exactly; only presentation changes.
-  return {...doc,templateId:selection.design.id,sections,settings:{fontFamily:selection.design.definition.fontFamily,fontSize:selection.design.definition.fontSize,spacing:selection.design.definition.spacing,accent:selection.design.definition.accent},presentation:{headerAlign:selection.design.definition.headerAlign,headingRule:selection.design.definition.headingRule}};
+  return {...visual,templateId:selection.design.id,sections,settings:{fontFamily:selection.design.definition.fontFamily,fontSize:selection.design.definition.fontSize,spacing:selection.design.definition.spacing,accent:selection.design.definition.accent},presentation:{...visual.presentation,headerAlign:selection.design.definition.headerAlign,headingRule:selection.design.definition.headingRule}};
 }
 
 export function validBlueprint(raw: Blueprint): boolean {
