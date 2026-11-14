@@ -13,6 +13,7 @@ vi.mock("./ResumePreview", () => ({ FittedResumePreview: () => null }));
 describe("full resume title catalog", () => {
   beforeEach(() => {
     cleanup();
+    Element.prototype.scrollIntoView = vi.fn();
     vi.stubGlobal("IntersectionObserver", class { observe() {} disconnect() {} });
     rpc.mockReset();
     rpc.mockImplementation((_name, args) => Promise.resolve({ error: null, data: Array.from({ length: 24 }, (_, i) => ({
