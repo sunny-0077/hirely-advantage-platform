@@ -1,10 +1,10 @@
 # Roadmap
 
 ## Visual resume engine
-- [ ] Build six role-adaptive A4 layouts, plus retained classic ATS layout, with clearly separated illustrative previews.
-- [ ] Add eight palettes, four font pairings, layout switching, section ordering/visibility and responsive paginated canvas.
-- [ ] Export the same visual pages to high-resolution A4 PDF; preserve account saves, Master Resume facts and export access.
-- [ ] Run focused preservation/mapping/pagination tests and verify real signed-in editing, save/reopen and desktop/mobile exports.
+- [x] Build six role-adaptive A4 layouts, plus retained classic ATS layout, with clearly separated illustrative previews; title aliases reuse attributed duties/skills for 923 canonical occupations, loaded from CDN on selection.
+- [x] Add eight palettes, four font pairings, layout switching, section ordering/visibility and responsive paginated canvas.
+- [x] Export the same visual pages to 300-DPI image-based A4 PDF with clickable links; preserve account saves, Master Resume facts and existing export access. PDF text is not selectable; DOCX remains text-based.
+- [x] Pass 36 preservation/mapping/pagination tests; verify signed-in editing, six role previews, example editing, layout/colour/font/section changes and account save/reopen. Check two-page flow in every design, exported A4 page images, and 593px/390px layouts with no overflow; remove the exact temporary test version. Existing export-access dialog blocks downloads on the test account, so PDF generation was additionally verified directly in-browser without changing permissions.
 
 - [x] Expand free worldwide job sources: Greenhouse, Lever and Arbeitnow Germany/UK; verified 3,906 scanned, 25 inserted, zero failures and no paused AI. Remotive excluded because its free terms forbid gated listings; every-6h scheduler retained.
 - [x] Preserve three onboarding places plus worldwide remote using a shared selector; add Jobs preference editing and verify desktop/mobile selection, 18 tests and real country/city queries. No invented preferences were saved on the requesting account; fresh onboarding completion/save remains unverified.
@@ -16,7 +16,7 @@
 - [x] Inspect existing resume editor, Master Resume storage, exports and occupational data sources; propose the scalable Resume Template Library structure before implementation.
 - [x] Build the occupational catalogue, role/level template browser, Master Resume mapping, editing and saved versions: 45,808 titles, 35 industries, 26 career levels and three reusable designs with seven professional blueprints.
 - [x] Validate catalogue coverage, search, synonyms, pagination, private version CRUD/revisions and Unicode multi-page PDF/DOCX exports; 34 regression tests passed and temporary test versions removed.
-- [ ] Verify library browsing, editing, switching and version reopening through the real desktop/mobile workspace; blocked by the requesting account's unfinished onboarding. No setup bypass or invented profile facts.
+- [x] Verify library browsing, editing, switching and version reopening through the real signed-in desktop/mobile workspace during visual-engine validation; temporary version removed and Master Resume facts unchanged.
 
 - [x] Balance workspace sizing without shrinking body text: compact shared cards and overview tiles, place the home studio beside documents/jobs, retain full-width pages and modest side gutters.
 

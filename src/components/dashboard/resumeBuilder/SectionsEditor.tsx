@@ -275,7 +275,7 @@ function SkillsFields({
   return (
     <div className="space-y-3">
       {groups.map((g, gi) => (
-        <div key={g.id} className="rounded-xl border border-border/40 p-3">
+        <div key={g.id} className="border-t border-border pt-3">
           <div className="flex items-center gap-2 mb-2">
             <Input
               value={g.name}
@@ -285,12 +285,12 @@ function SkillsFields({
               placeholder="Group (e.g. Languages)"
               className="h-8 text-[12.5px] max-w-[220px]"
             />
-            <button
+            <Button variant="ghost" size="sm"
               onClick={() => setGroups(groups.filter((_, i) => i !== gi))}
-              className="ml-auto text-[11px] text-foreground/55 hover:text-rose-400"
+              className="ml-auto text-[11px] text-foreground/55 hover:text-destructive"
             >
               Remove group
-            </button>
+            </Button>
           </div>
           <Input
             placeholder="Comma-separated skills (e.g. Python, SQL, Pandas, Tableau)"
@@ -314,12 +314,12 @@ function SkillsFields({
           />
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() => setGroups([...groups, { id: newId(), name: "Tools", items: [] }])}
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add skill group
-      </button>
+      </Button>
     </div>
   );
 }
@@ -338,7 +338,7 @@ function ExperienceFields({
   return (
     <div className="space-y-3">
       {items.map((it, idx) => (
-        <div key={it.id} className="rounded-xl border border-border/40 p-3 space-y-2">
+        <div key={it.id} className="border-t border-border pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input
               placeholder="Role (e.g. Data Analyst)"
@@ -385,15 +385,15 @@ function ExperienceFields({
             role={role}
           />
 
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-[11px] text-foreground/55 hover:text-rose-400"
+            className="text-[11px] text-foreground/55 hover:text-destructive"
           >
             Remove experience
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() =>
           set([
             ...items,
@@ -403,7 +403,7 @@ function ExperienceFields({
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add experience
-      </button>
+      </Button>
     </div>
   );
 }
@@ -422,7 +422,7 @@ function ProjectsFields({
   return (
     <div className="space-y-3">
       {items.map((it, idx) => (
-        <div key={it.id} className="rounded-xl border border-border/40 p-3 space-y-2">
+        <div key={it.id} className="border-t border-border pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input
               placeholder="Project name"
@@ -448,15 +448,15 @@ function ProjectsFields({
             onChange={(bullets) => set(items.map((x, i) => (i === idx ? { ...x, bullets } : x)))}
             role={role}
           />
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-[11px] text-foreground/55 hover:text-rose-400"
+            className="text-[11px] text-foreground/55 hover:text-destructive"
           >
             Remove project
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() =>
           set([
             ...items,
@@ -466,7 +466,7 @@ function ProjectsFields({
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add project
-      </button>
+      </Button>
     </div>
   );
 }
@@ -483,7 +483,7 @@ function EducationFields({
   return (
     <div className="space-y-3">
       {items.map((it, idx) => (
-        <div key={it.id} className="rounded-xl border border-border/40 p-3 space-y-2">
+        <div key={it.id} className="border-t border-border pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input
               placeholder="Degree (e.g. B.Tech CSE)"
@@ -524,15 +524,15 @@ function EducationFields({
             value={it.details}
             onChange={(e) => set(items.map((x, i) => (i === idx ? { ...x, details: e.target.value } : x)))}
           />
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-[11px] text-foreground/55 hover:text-rose-400"
+            className="text-[11px] text-foreground/55 hover:text-destructive"
           >
             Remove
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() =>
           set([
             ...items,
@@ -542,7 +542,7 @@ function EducationFields({
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add education
-      </button>
+      </Button>
     </div>
   );
 }
@@ -577,20 +577,20 @@ function CertFields({
           />
           <Input aria-label="Certification expiry" placeholder="Expiry (optional)" value={it.expiry ?? ""} onChange={e=>set(items.map((x,i)=>i===idx?{...x,expiry:e.target.value}:x))} />
           <Input aria-label="Credential link" placeholder="Credential link (optional)" value={it.url ?? ""} onChange={e=>set(items.map((x,i)=>i===idx?{...x,url:e.target.value}:x))} />
-          <button
+          <Button variant="ghost" size="sm"
             onClick={() => set(items.filter((_, i) => i !== idx))}
-            className="text-foreground/50 hover:text-rose-400 flex items-center justify-center"
+            className="text-foreground/50 hover:text-destructive flex items-center justify-center"
           >
             <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() => set([...items, { id: newId(), name: "", issuer: "", date: "" }])}
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add certification
-      </button>
+      </Button>
     </div>
   );
 }
@@ -662,22 +662,22 @@ function BulletList({
               role={role}
               onApply={(t) => onChange(bullets.map((x, j) => (j === i ? t : x)))}
             />
-            <button
+            <Button variant="ghost" size="sm"
               onClick={() => onChange(bullets.filter((_, j) => j !== i))}
-              className="w-7 h-6 rounded-md text-foreground/45 hover:text-rose-400 flex items-center justify-center"
+              className="w-7 h-6 rounded-md text-foreground/45 hover:text-destructive flex items-center justify-center"
               title="Remove bullet"
             >
               <Trash2 className="w-3 h-3" />
-            </button>
+            </Button>
           </div>
         </div>
       ))}
-      <button
+      <Button variant="ghost" size="sm"
         onClick={() => onChange([...bullets, ""])}
         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.1] bg-foreground/[0.04] text-[11.5px] text-foreground/75 hover:bg-foreground/[0.07]"
       >
         <Plus className="w-3 h-3" /> Add bullet
-      </button>
+      </Button>
     </div>
   );
 }
