@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Template gallery refinement
-- [ ] Align search and category controls above a compact, consistent resume-preview grid using Hirely colors and fonts; keep catalogue search and template selection intact.
-- [ ] Verify signed-in browsing, role selection and preview at desktop and mobile sizes.
+- [x] Align search and category controls above a compact, consistent resume-preview grid using Hirely colors and fonts; filtered results use the same visual cards and template selection remains intact.
+- [x] Verify signed-in category filtering, catalogue search, role selection and full preview; check desktop, 611px and 390px layouts without horizontal overflow. All 28 focused preservation/style tests passed; build OK.
 
 ## Role-specific template styles
 - [x] Replace industry buckets with Modern Two-Column, Clean Minimalist, Executive Single-Column, Bold Accent Header and Compact High-Density for every selected role; all share that role's canonical duties/skills and career-level priorities.
