@@ -1,6 +1,9 @@
 // Shared factual model for visual and ATS resume presentations.
 
-export type VisualLayout = "tech" | "creative" | "executive" | "sales" | "healthcare" | "student" | "ats";
+export type RoleArchetype = "tech" | "creative" | "executive" | "sales" | "healthcare" | "student" | "ats";
+export type ResumeStyle = "modern-two-column" | "clean-minimalist" | "executive-single-column" | "bold-accent-header" | "compact-high-density";
+// Legacy layouts remain valid so existing account versions do not change on load.
+export type VisualLayout = RoleArchetype | ResumeStyle;
 export type ResumePalette = "navy" | "slate" | "emerald" | "terracotta" | "violet" | "mono" | "crimson" | "teal";
 export type FontPairing = "modern" | "classic" | "tech" | "editorial";
 
@@ -104,6 +107,7 @@ export type ResumeDocument = {
     headerAlign: "left" | "center";
     headingRule: boolean;
     layout?: VisualLayout;
+    archetype?: RoleArchetype;
     palette?: ResumePalette;
     fontPairing?: FontPairing;
     example?: boolean;

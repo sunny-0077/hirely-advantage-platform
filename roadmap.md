@@ -1,5 +1,10 @@
 # Roadmap
 
+## Role-specific template styles
+- [x] Replace industry buckets with Modern Two-Column, Clean Minimalist, Executive Single-Column, Bold Accent Header and Compact High-Density for every selected role; all share that role's canonical duties/skills and career-level priorities.
+- [x] Preserve factual content, original snapshots, hidden/reordered sections, legacy saved layouts, colours/fonts and existing export access; separate occupational archetype from visual style.
+- [x] Pass 58 resume tests; verify signed-in Software Engineer, Nurse and Financial Analyst previews, example editing, every style switch, colour/font/visibility changes and account save/reopen; remove the exact temporary saved version. Check 1153px/390px layouts without overflow and all five multipage A4 PDFs (3–4 pages) without dropped entries/footer overlap. The test account's existing upgrade dialog still gates downloads; PDF generation tested directly without permission changes.
+
 ## Visual resume engine
 - [x] Build six role-adaptive A4 layouts, plus retained classic ATS layout, with clearly separated illustrative previews; title aliases reuse attributed duties/skills for 923 canonical occupations, loaded from CDN on selection.
 - [x] Add eight palettes, four font pairings, layout switching, section ordering/visibility and responsive paginated canvas.

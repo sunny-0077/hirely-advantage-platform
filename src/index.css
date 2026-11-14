@@ -224,6 +224,50 @@
 .resume-layout-student [data-section-type="education"], .resume-layout-student [data-section-type="projects"] { background: hsl(var(--resume-tint)); padding: 16px 18px; border-left: 3px solid hsl(var(--resume-accent)); }
 .resume-layout-ats .resume-contact svg, .resume-layout-ats h2 svg, .resume-layout-ats .resume-link-chip svg { display: none; }
 .resume-layout-ats .resume-link-chip { border: none; padding: 0; }
+/* Role context sets content priorities; these five structures are profession-neutral. */
+.resume-layout-modern-two-column { padding: 0 40px 42px 0; }
+.resume-layout-modern-two-column::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 224px; background: hsl(var(--resume-accent)); }
+.resume-layout-modern-two-column .resume-header { position: relative; margin: 0 0 24px 260px; padding: 40px 0 22px; border-bottom-width: 3px; }
+.resume-layout-modern-two-column .resume-columns { grid-template-columns: 224px minmax(0, 1fr); gap: 36px; }
+.resume-layout-modern-two-column .resume-rail { position: relative; padding: 0 22px 20px; color: hsl(var(--resume-on-accent)); }
+#root .resume-layout-modern-two-column .resume-rail h2, .resume-layout-modern-two-column .resume-rail h2 { color: hsl(var(--resume-on-accent)); border-color: hsl(var(--resume-on-accent) / .35); }
+.resume-layout-modern-two-column .resume-rail :is(.resume-meta,.resume-skill-group-label,.resume-entry-title time) { color: hsl(var(--resume-on-accent) / .85); }
+.resume-layout-modern-two-column .resume-badge { background: hsl(var(--resume-on-accent) / .14); color: hsl(var(--resume-on-accent)); border: 1px solid hsl(var(--resume-on-accent) / .3); }
+.resume-layout-modern-two-column .resume-footer { left: 260px; right: 40px; }
+.resume-layout-modern-two-column .resume-continuation { margin-left: 260px; padding-top: 40px; }
+.resume-layout-modern-two-column .resume-portfolio { background: hsl(var(--resume-on-accent) / .12); border-color: hsl(var(--resume-on-accent) / .5); }
+.resume-layout-clean-minimalist { padding: 56px 60px 42px; }
+.resume-layout-clean-minimalist .resume-header { border-bottom: 1px solid hsl(var(--resume-rule)); padding-bottom: 28px; margin-bottom: 28px; }
+#root .resume-layout-clean-minimalist h1, .resume-layout-clean-minimalist h1 { color: hsl(var(--resume-ink)); font-size: 36px; }
+#root .resume-layout-clean-minimalist h2, .resume-layout-clean-minimalist h2 { border-bottom: none; padding-bottom: 3px; }
+.resume-layout-clean-minimalist :is(h2 svg,.resume-contact svg,.resume-link-chip svg) { display: none; }
+.resume-layout-clean-minimalist .resume-link-chip { border: none; padding: 0; text-decoration: underline; }
+.resume-layout-clean-minimalist .resume-links { gap: 12px; }
+.resume-layout-clean-minimalist .resume-footer { left: 60px; right: 60px; }
+.resume-layout-executive-single-column .resume-header { text-align: center; border-bottom: 2px solid hsl(var(--resume-accent)); padding-bottom: 16px; margin-bottom: 18px; }
+.resume-layout-executive-single-column :is(.resume-contact,.resume-links) { justify-content: center; }
+.resume-layout-executive-single-column :is(h2 svg,.resume-contact svg,.resume-link-chip svg) { display: none; }
+.resume-layout-executive-single-column .resume-link-chip { border: none; padding: 0 4px; }
+.resume-layout-executive-single-column .resume-flow-block { margin-bottom: 10px; }
+#root .resume-layout-executive-single-column h2, .resume-layout-executive-single-column h2 { border-bottom-color: hsl(var(--resume-accent)); }
+.resume-layout-bold-accent-header .resume-header { background: hsl(var(--resume-accent)); margin: -48px -48px 26px; padding: 34px 48px 28px; border-bottom: 0; }
+#root .resume-layout-bold-accent-header .resume-header h1, .resume-layout-bold-accent-header .resume-header h1 { color: hsl(var(--resume-on-accent)); font-size: 38px; }
+.resume-layout-bold-accent-header .resume-header :is(.resume-headline,.resume-contact,.resume-link-chip) { color: hsl(var(--resume-on-accent)); }
+.resume-layout-bold-accent-header .resume-link-chip { border-color: hsl(var(--resume-on-accent) / .45); border-radius: 16px; }
+.resume-layout-bold-accent-header :is([data-section-type="summary"],[data-section-type="achievements"]) { background: hsl(var(--resume-tint)); border-left: 4px solid hsl(var(--resume-accent)); padding: 12px 16px; }
+.resume-layout-bold-accent-header .resume-badge { border-radius: 16px; }
+.resume-layout-compact-high-density { padding: 36px 38px 42px; }
+.resume-layout-compact-high-density .resume-header { padding-bottom: 14px; margin-bottom: 18px; border-bottom-width: 4px; }
+#root .resume-layout-compact-high-density h1, .resume-layout-compact-high-density h1 { font-size: 28px; }
+.resume-layout-compact-high-density .resume-headline { font-size: 14px; }
+.resume-layout-compact-high-density .resume-columns { grid-template-columns: minmax(0, 1fr) 196px; gap: 22px; }
+.resume-layout-compact-high-density .resume-rail { border-left: 1px solid hsl(var(--resume-rule)); padding-left: 16px; }
+.resume-layout-compact-high-density .resume-flow-block { margin-bottom: 8px; }
+.resume-layout-compact-high-density .resume-rail p { font-size: 12px; }
+.resume-layout-compact-high-density .resume-contact { margin-top: 7px; }
+.resume-layout-compact-high-density .resume-links { margin-top: 6px; }
+.resume-layout-compact-high-density .resume-link-chip { padding: 2px 5px; }
+.resume-layout-compact-high-density .resume-footer { left: 38px; right: 38px; }
 .resume-measure { position: absolute; top: 0; left: 0; visibility: hidden; pointer-events: none; z-index: -1; }
 .resume-measure .resume-page { height: auto; min-height: 1123px; box-shadow: none; }
 .resume-canvas-viewport { position: relative; width: 100%; min-width: 0; overflow: hidden; }

@@ -5,3 +5,4 @@
 - Keep marked illustrative examples separate from Master Resume mapping and start sample drafts only on explicit Edit example, because fictional qualifications must not silently become user facts.
 - Load canonical occupation duties and skills from an attributed CDN catalogue only on role selection; reuse them for title aliases, because profession-specific examples must not inflate the frontend bundle.
 - Store languages in existing additional entries and portfolio in existing personal links; section visibility controls rendering without deleting facts, because presentation must not create parallel content stores.
+- Offer five profession-neutral style structures independently of occupational archetypes; keep archetype priorities in document presentation and accept legacy layout IDs, because style switches must not change profession or invalidate saved versions.

@@ -12,7 +12,7 @@ import { FittedResumePreview } from "@/components/dashboard/resumeBuilder/Resume
 import { ResumeToolbar } from "@/components/dashboard/resumeBuilder/ResumeToolbar";
 import { roleExample } from "@/lib/resumeBuilder/examples";
 import { loadOccupationExample } from "@/lib/resumeBuilder/occupationExamples";
-import { layoutMeta, resolvedLayout } from "@/lib/resumeBuilder/visual";
+import { classifyRole, resolvedLayout, styleLabel } from "@/lib/resumeBuilder/visual";
 import { SectionsEditor } from "@/components/dashboard/resumeBuilder/SectionsEditor";
 import { PersonalInfoCard } from "@/components/dashboard/resumeBuilder/PersonalInfoCard";
 import { exportPdf } from "@/lib/resumeBuilder/exportPdf";
@@ -115,7 +115,7 @@ const ResumeBuilder = () => {
 
   const useTemplate = async (next: LibrarySelection, useMaster: boolean, withExample = false) => {
     try {
-      let source=withExample ? roleExample(next.title, next.design.definition.layout, next.occupationTitle, await loadOccupationExample(next.occupationId)) : doc;
+      let source=withExample ? roleExample(next.title, next.design.definition.archetype ?? classifyRole({title:next.title,occupationTitle:next.occupationTitle,industryId:next.industryId,blueprintId:next.blueprint.id,levelId:next.levelId}), next.occupationTitle, await loadOccupationExample(next.occupationId)) : doc;
       if(!source && useMaster) {
         if(!user)return;
         const {data,error}=await supabase.from("profiles").select("master_resume_json").eq("user_id",user.id).single();
@@ -201,7 +201,7 @@ const ResumeBuilder = () => {
         <Button variant="outline" onClick={()=>setPicking(true)}>
           <ArrowLeft className="w-3.5 h-3.5" /> Templates
         </Button>
-        <span className="text-sm font-semibold">{layoutMeta(resolvedLayout(doc)).label}</span>
+        <span className="text-sm font-semibold">{styleLabel(resolvedLayout(doc))}</span>
 
         <div className="ml-auto flex items-center gap-2 flex-wrap">
           <Input

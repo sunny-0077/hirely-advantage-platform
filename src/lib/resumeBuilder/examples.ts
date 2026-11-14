@@ -1,6 +1,6 @@
 import { emptyDocument } from "./templates";
 import { applyVisualLayout, classifyRole } from "./visual";
-import type { ResumeDocument, VisualLayout } from "./types";
+import type { ResumeDocument, RoleArchetype } from "./types";
 import type { OccupationExample } from "./occupationExamples";
 
 // Illustrations only: never called when mapping or switching a user's factual resume.
@@ -22,7 +22,7 @@ const domains: { match: RegExp; skills: string[]; work: string; project: string 
   { match: /research|scien|biotech|chemist/, skills: ["Research methods", "Experimental design", "Data analysis", "Laboratory documentation"], work: "Validated a repeatable study protocol across 120 samples, reducing rework by 15%.", project: "Applied research study" },
   { match: /engineer|architect/, skills: ["CAD", "Technical documentation", "Design validation", "Project coordination"], work: "Coordinated design reviews across 3 workstreams, reducing revision cycles by 20%.", project: "Engineering design validation" },
 ];
-const fallback: Record<VisualLayout, { skills: string[]; work: string; project: string }> = {
+const fallback: Record<RoleArchetype, { skills: string[]; work: string; project: string }> = {
   tech: { skills: ["Systems analysis", "Technical documentation", "Testing", "Problem solving"], work: "Delivered a technical improvement across 3 workstreams, reducing rework by 15%.", project: "Technical improvement initiative" },
   creative: { skills: ["Creative direction", "Visual communication", "Production planning", "Audience research"], work: "Delivered a coordinated creative programme across 3 channels.", project: "Selected creative work" },
   executive: { skills: ["Operational strategy", "Risk management", "Stakeholder engagement", "Process improvement"], work: "Standardised reporting across 4 teams, reducing turnaround time by 20%.", project: "Operational excellence programme" },
@@ -31,7 +31,7 @@ const fallback: Record<VisualLayout, { skills: string[]; work: string; project: 
   student: { skills: ["Research", "Presentation", "Project coordination", "Data analysis"], work: "Coordinated a 4-person academic project and delivered all milestones on schedule.", project: "Capstone research project" },
   ats: { skills: ["Planning", "Analysis", "Communication", "Quality assurance"], work: "Improved a recurring team process, reducing manual work by 4 hours weekly.", project: "Process improvement project" },
 };
-export function roleExample(title: string, layout?: VisualLayout, occupationTitle = "", occupation?: OccupationExample): ResumeDocument {
+export function roleExample(title: string, layout?: RoleArchetype, occupationTitle = "", occupation?: OccupationExample): ResumeDocument {
   const selected = layout ?? classifyRole({ title, occupationTitle });
   const matched = domains.find(d => d.match.test((occupationTitle || title).toLowerCase())) ?? fallback[selected];
   const domain = occupation ? { ...matched, skills: occupation.skills.length ? occupation.skills : matched.skills, work: `Key contribution: ${occupation.tasks[0] ?? matched.work}`, project: `${title} practice project` } : matched;

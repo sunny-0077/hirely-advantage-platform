@@ -3,7 +3,7 @@ import { Award, BriefcaseBusiness, Code2, ExternalLink, GraduationCap, Languages
 import type { ResumeDocument, SectionType, VisualLayout } from "@/lib/resumeBuilder/types";
 import { buildRenderModel, dateRange, type RenderedSection } from "@/lib/resumeBuilder/render";
 import { splitResumeText } from "@/lib/resumeBuilder/pagination";
-import { resolvedLayout, resolvedPairing, resolvedPalette, safeResumeUrl } from "@/lib/resumeBuilder/visual";
+import { resolvedArchetype, resolvedLayout, resolvedPairing, resolvedPalette, safeResumeUrl } from "@/lib/resumeBuilder/visual";
 
 export type ResumeBlock = { id: string; type: SectionType; node: ReactNode };
 const icons: Record<SectionType, typeof Award> = { summary: UserRound, skills: Code2, experience: BriefcaseBusiness, projects: Layers, education: GraduationCap, certifications: Award, achievements: Award, publications: BookOpen, additional: UserRound, languages: Languages, portfolio: LinkIcon };
@@ -11,14 +11,14 @@ function MetricText({ text, highlight }: { text: string; highlight: boolean }) {
   if (!highlight) return <>{text}</>;
   return <>{text.split(/((?:[$€£₹]\s*)?\d[\d,.]*(?:\s?%|\s?[kKmM])?)/g).map((part, i) => /\d/.test(part) ? <mark key={i}>{part}</mark> : part)}</>;
 }
-function Bullet({ text, layout }: { text: string; layout: VisualLayout }) { return <p className="resume-bullet"><span><MetricText text={text} highlight={layout === "executive" || layout === "sales"} /></span></p>; }
+function Bullet({ text, layout }: { text: string; layout: VisualLayout }) { return <p className="resume-bullet"><span><MetricText text={text} highlight={["executive", "sales", "executive-single-column", "bold-accent-header"].includes(layout)} /></span></p>; }
 function Title({ title, dates }: { title: string; dates?: string }) { return <div className="resume-entry-title"><h3>{title}</h3>{dates && <time>{dates}</time>}</div>; }
 function ItemNodes(sec: RenderedSection, layout: VisualLayout): ReactNode[] {
   switch (sec.type) {
     case "summary": return splitResumeText(sec.text, 600).map((text, i) => <p key={i}>{text}</p>);
     case "skills": return sec.groups.flatMap((g, gi) => {
       const chunks = Array.from({ length: Math.ceil(g.items.length / 12) }, (_, i) => g.items.slice(i * 12, i * 12 + 12));
-      return chunks.map((items, i) => <div key={`${gi}-${i}`}><div className="resume-skill-group-label">{g.name}{i > 0 ? " · continued" : ""}</div>{layout === "ats" || layout === "executive" ? <p>{items.join(" · ")}</p> : <div className="resume-badges">{items.map((item, n) => <span key={n} className="resume-badge">{item}</span>)}</div>}</div>);
+      return chunks.map((items, i) => <div key={`${gi}-${i}`}><div className="resume-skill-group-label">{g.name}{i > 0 ? " · continued" : ""}</div>{["ats", "executive", "executive-single-column", "clean-minimalist", "compact-high-density"].includes(layout) ? <p>{items.join(" · ")}</p> : <div className="resume-badges">{items.map((item, n) => <span key={n} className="resume-badge">{item}</span>)}</div>}</div>);
     });
     case "experience": return sec.items.flatMap(it => {
       const bullets = it.bullets.filter(Boolean).flatMap(b => splitResumeText(b));
@@ -44,17 +44,18 @@ function ItemNodes(sec: RenderedSection, layout: VisualLayout): ReactNode[] {
 }
 export function buildVisualBlocks(doc: ResumeDocument): ResumeBlock[] {
   const layout = resolvedLayout(doc);
+  const archetype = resolvedArchetype(doc);
   return buildRenderModel(doc).flatMap((sec, index) => {
     const Icon = icons[sec.type];
     // Only default section names adapt; deliberate user heading choices stay intact.
-    const defaultNames: Partial<Record<SectionType, string>> = layout === "tech" ? { skills: "Technical Stack & Tools", projects: "Key Projects" } : layout === "sales" ? { achievements: "Key Impact & KPI Highlights", skills: "Core Competencies" } : layout === "healthcare" ? { certifications: "Licenses & Certifications" } : layout === "student" ? { projects: "Academic Projects", achievements: "Awards & Leadership" } : {};
+    const defaultNames: Partial<Record<SectionType, string>> = archetype === "tech" ? { skills: "Technical Stack & Tools", projects: "Key Projects" } : archetype === "sales" ? { achievements: "Key Impact & KPI Highlights", skills: "Core Competencies" } : archetype === "healthcare" ? { certifications: "Licenses & Certifications" } : archetype === "student" ? { projects: "Academic Projects", achievements: "Awards & Leadership" } : {};
     const name = defaultNames[sec.type] && ["Skills", "Projects", "Achievements", "Certifications"].includes(sec.name) ? defaultNames[sec.type] : sec.name;
     return ItemNodes(sec, layout).map((node, i) => ({ id: `${index}-${sec.type}-${i}`, type: sec.type, node: <>{i === 0 && <h2><Icon size={13} />{name}</h2>}{node}</> }));
   });
 }
 export function splitVisualColumns(blocks: ResumeBlock[], layout: VisualLayout) {
   const railTypes: SectionType[] = layout === "creative" ? ["skills", "education", "certifications", "languages", "additional"] : ["skills", "education", "certifications", "languages", "portfolio", "additional"];
-  const columns = layout === "tech" || layout === "creative";
+  const columns = ["tech", "creative", "modern-two-column", "compact-high-density"].includes(layout);
   return { main: blocks.filter(b => !columns || !railTypes.includes(b.type)), rail: columns ? blocks.filter(b => railTypes.includes(b.type)) : [] };
 }
 function Header({ doc }: { doc: ResumeDocument }) {
@@ -73,7 +74,7 @@ function PageFrame({ doc, main, rail, page = 0, total = 1, measure = false }: Pa
   const layout = resolvedLayout(doc);
   return <article className={`resume-page resume-layout-${layout}`} data-resume-page={measure ? undefined : page + 1} data-resume-layout={layout} data-resume-palette={resolvedPalette(doc)} data-font-pairing={resolvedPairing(doc)} data-spacing={doc.settings.spacing} style={{ "--resume-font-size": `${doc.settings.fontSize * 4 / 3}px` } as React.CSSProperties}>
     {page === 0 ? <Header doc={doc} /> : <div className="resume-continuation" data-resume-header>{doc.content.personal.name || "Resume"} · {doc.content.personal.headline}</div>}
-    <div className="resume-columns">{(layout === "tech" || layout === "creative") && <Flow blocks={rail} rail />}<Flow blocks={main} /></div>
+    <div className="resume-columns">{["tech", "creative", "modern-two-column"].includes(layout) && <Flow blocks={rail} rail />}<Flow blocks={main} />{layout === "compact-high-density" && <Flow blocks={rail} rail />}</div>
     {!measure && <footer className="resume-footer"><span>{doc.presentation?.example ? "Illustrative example" : doc.content.personal.name}</span><span>{page + 1} / {total}</span></footer>}
   </article>;
 }
@@ -85,6 +86,6 @@ export const SalesResume = (props: PageProps) => <PageFrame {...props} />;
 export const HealthcareResume = (props: PageProps) => <PageFrame {...props} />;
 export const StudentResume = (props: PageProps) => <PageFrame {...props} />;
 export function VisualResumePage(props: PageProps) {
-  const layouts = { tech: TechResume, creative: CreativeResume, executive: ExecutiveResume, sales: SalesResume, healthcare: HealthcareResume, student: StudentResume, ats: PageFrame };
+  const layouts: Record<VisualLayout, typeof PageFrame> = { tech: TechResume, creative: CreativeResume, executive: ExecutiveResume, sales: SalesResume, healthcare: HealthcareResume, student: StudentResume, ats: PageFrame, "modern-two-column": PageFrame, "clean-minimalist": PageFrame, "executive-single-column": PageFrame, "bold-accent-header": PageFrame, "compact-high-density": PageFrame };
   const Component = layouts[resolvedLayout(props.doc)]; return <Component {...props} />;
 }
