@@ -1,5 +1,9 @@
 # Roadmap
 
+## Full template catalog
+- [x] Replace the 28 curated tiles with live paginated job-title cards across all 45,808 catalog titles; retain search, industry/category/level filters, samples and role design selection.
+- [x] Verify signed-in default catalog, different page-two titles, industry filtering, Electrician search and five role styles/full preview; check desktop, 611px and 390px without overflow or runtime errors. All 60 resume/catalog tests passed; build OK. Existing five visual structures remain unchanged.
+
 ## Template gallery refinement
 - [x] Align search and category controls above a compact, consistent resume-preview grid using Hirely colors and fonts; filtered results use the same visual cards and template selection remains intact.
 - [x] Verify signed-in category filtering, catalogue search, role selection and full preview; check desktop, 611px and 390px layouts without horizontal overflow. All 28 focused preservation/style tests passed; build OK.

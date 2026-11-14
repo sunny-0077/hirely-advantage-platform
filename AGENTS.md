@@ -4,7 +4,7 @@
 - Workspace page roots use the shared full-width layout with responsive gutters; constrain only inner reading and document surfaces, because page-level width caps leave large unused margins.
 - Workspace home uses an adaptive studio/activity split and compact shared card spacing without reducing body text, because dense layouts should use available width without stretching every tool across it.
 - Sidebar motion uses Motion with reduced-motion support and existing semantic colours; collapsed navigation retains named icon links, because animation must preserve accessibility and routing.
-- Resume library catalogue data is server-paginated and imported through an admin-validated batch function; occupational blueprints and visual designs are separate from owner-scoped resume snapshots, because extensive titles must not inflate frontend bundles or replace Master Resume facts.
+- Default and filtered resume galleries use real server-paginated titles, never a curated frontend subset. Admin-validated imports keep occupational blueprints and designs separate from owner snapshots, because large catalogs must not inflate bundles or replace Master Resume facts.
 - Resume library template switching preserves factual content; builder versions use validated documents and optimistic revision checks, because presentation changes and stale tabs must not destroy edits.
 - Resume previews and PDFs use CDN-hosted document fonts with Unicode support; account-version loading blocks draft persistence until resolved, because exports and loading races must preserve readable facts and local edits.
 
