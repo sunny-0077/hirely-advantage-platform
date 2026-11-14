@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Mail, Mic, Briefcase, X, FolderOpen, UserRound, ClipboardList, ShieldCheck, FileUser, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -42,13 +43,13 @@ const SidebarBody = ({ onNavigate, collapsed = false, onToggle }: { onNavigate?:
    {!collapsed && <div className="px-3"><LogoLockup size="text-2xl" /></div>}
    {onToggle && <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" onClick={onToggle} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} className="size-8 shrink-0 text-muted-foreground">{collapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}</Button></TooltipTrigger><TooltipContent side="right">{collapsed ? "Expand sidebar" : "Collapse sidebar"}</TooltipContent></Tooltip>}
  </div>{!collapsed && <SectionLabel>Workspace</SectionLabel>}{group(workspaceLinks)}{!collapsed && <SectionLabel>My career</SectionLabel>}{group(careerLinks)}
- <AnimatePresence initial={false}>{!collapsed && <motion.div key="details" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.15 }} className="min-w-[204px]"><div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></motion.div>}</AnimatePresence><SidebarSignOut collapsed={collapsed} /></LayoutGroup>;
+ <AnimatePresence initial={false}>{!collapsed && <motion.div key="details" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.15 }} className="min-w-[204px]"><div className="border-t border-border pt-[8.4px] mb-[12.6px]"><PlatformFeedbackButton />{isAdmin&&<NavLink to="/app/admin/feedback" onClick={onNavigate} className="flex items-center gap-2.5 px-3 py-[6.3px] text-[13px] text-muted-foreground"><ShieldCheck className="size-4" />Admin Feedback</NavLink>}</div><UpgradeCard onNavigate={onNavigate} /></motion.div>}</AnimatePresence><div className="mt-[12.6px] flex flex-col"><ThemeToggle withLabel={!collapsed} className={collapsed ? "" : "w-full"} /><SidebarSignOut collapsed={collapsed} /></div></LayoutGroup>;
 };
 
 const SidebarSignOut = ({ collapsed = false }: { collapsed?: boolean }) => {
   const [busy, setBusy] = useState(false);
   const queryClient = useQueryClient();
-  return <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="sm" aria-label="Sign out" className="mt-[12.6px] justify-start gap-2.5 px-3 text-[13px] text-muted-foreground" disabled={busy} onClick={async () => {
+  return <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="sm" aria-label="Sign out" className="justify-start gap-2.5 px-3 text-[13px] text-muted-foreground" disabled={busy} onClick={async () => {
     setBusy(true);
     try {
       const { error } = await supabase.auth.signOut();
