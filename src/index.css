@@ -114,8 +114,8 @@
  .panel-forest .text-primary, .bg-forest .text-primary { color: hsl(var(--primary-bright)); }
 }
 @layer utilities {
- /* Fill the workspace pane, without stretching nested previews or dialogs. */
- .workspace-shell .workspace-page > :first-child { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
+ /* Centered, capped content column: leave calm side margins instead of stretching to fill wide screens. */
+ .workspace-shell .workspace-page > :first-child { width: 100%; min-width: 0; max-width: 1180px; margin-inline: auto; }
  /* Reference identity: bold black headings everywhere. */
  #root :is(h1,h2,h3) { font-weight: 800; color: hsl(var(--foreground)); }
  #root :is(.panel-forest,.bg-forest) :is(h1,h2,h3) { color: hsl(var(--forest-foreground)); }
