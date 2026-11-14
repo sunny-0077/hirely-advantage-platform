@@ -71,7 +71,10 @@ describe("role-specific design styles", () => {
     }
   });
   it("keeps section reordering when switching among the five styles", () => {
-    const doc = moveResumeSection(roleExample("Software Engineer", "tech"), "visual-projects", -1);
+    const source = roleExample("Software Engineer", "tech");
+    const projects = source.sections.find(s => s.type === "projects");
+    if (!projects) throw new Error("Missing projects section");
+    const doc = moveResumeSection(source, projects.id, -1);
     for (const style of RESUME_STYLES) expect(applyVisualLayout(doc, style.id).sections).toEqual(doc.sections);
     expect(doc.sections[1].type).toBe("projects");
   });

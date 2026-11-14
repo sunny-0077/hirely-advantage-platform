@@ -231,7 +231,7 @@
 .resume-layout-modern-two-column .resume-columns { grid-template-columns: 224px minmax(0, 1fr); gap: 36px; }
 .resume-layout-modern-two-column .resume-rail { position: relative; padding: 0 22px 20px; color: hsl(var(--resume-on-accent)); }
 #root .resume-layout-modern-two-column .resume-rail h2, .resume-layout-modern-two-column .resume-rail h2 { color: hsl(var(--resume-on-accent)); border-color: hsl(var(--resume-on-accent) / .35); }
-.resume-layout-modern-two-column .resume-rail :is(.resume-meta,.resume-skill-group-label) { color: hsl(var(--resume-on-accent) / .85); }
+.resume-layout-modern-two-column .resume-rail :is(.resume-meta,.resume-skill-group-label,.resume-entry-title time) { color: hsl(var(--resume-on-accent) / .85); }
 .resume-layout-modern-two-column .resume-badge { background: hsl(var(--resume-on-accent) / .14); color: hsl(var(--resume-on-accent)); border: 1px solid hsl(var(--resume-on-accent) / .3); }
 .resume-layout-modern-two-column .resume-footer { left: 260px; right: 40px; }
 .resume-layout-modern-two-column .resume-continuation { margin-left: 260px; padding-top: 40px; }
