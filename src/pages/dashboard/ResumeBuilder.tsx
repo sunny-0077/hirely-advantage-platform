@@ -198,7 +198,7 @@ const ResumeBuilder = () => {
 
   // ---------- Editor ----------
   return (
-    <div className="flex h-[calc(100dvh-104px)] md:h-[calc(100dvh-40px)] w-full min-w-0 flex-col overflow-hidden" aria-label="Resume editor workspace">
+    <div className="workspace-wide flex h-[calc(100dvh-104px)] md:h-[calc(100dvh-40px)] w-full min-w-0 flex-col overflow-hidden" aria-label="Resume editor workspace">
       <header className="flex shrink-0 items-center gap-2 border-b border-border pb-3">
         <Button variant="ghost" size="icon" title="Browse templates" aria-label="Browse templates" onClick={()=>setPicking(true)}><ArrowLeft className="size-4"/></Button>
         <div className="min-w-0 flex-1">
