@@ -1,5 +1,8 @@
-// Data model for the ATS-safe Resume Builder.
-// Single-column, plain-text-friendly. No icons / no images / no tables.
+// Shared factual model for visual and ATS resume presentations.
+
+export type VisualLayout = "tech" | "creative" | "executive" | "sales" | "healthcare" | "student" | "ats";
+export type ResumePalette = "navy" | "slate" | "emerald" | "terracotta" | "violet" | "mono" | "crimson" | "teal";
+export type FontPairing = "modern" | "classic" | "tech" | "editorial";
 
 export type SectionType =
   | "summary"
@@ -10,7 +13,9 @@ export type SectionType =
   | "certifications"
   | "achievements"
   | "publications"
-  | "additional";
+  | "additional"
+  | "languages"
+  | "portfolio";
 
 export type Section = {
   id: string;
@@ -95,7 +100,14 @@ export type ResumeDocument = {
   sections: Section[];
   content: ResumeContent;
   settings: ResumeSettings;
-  presentation?: { headerAlign: "left" | "center"; headingRule: boolean };
+  presentation?: {
+    headerAlign: "left" | "center";
+    headingRule: boolean;
+    layout?: VisualLayout;
+    palette?: ResumePalette;
+    fontPairing?: FontPairing;
+    example?: boolean;
+  };
   sourceSnapshot?: unknown;
 };
 
@@ -122,6 +134,8 @@ export const APPROVED_SECTION_NAMES: Record<SectionType, string[]> = {
   achievements: ["Achievements", "Awards", "Honors & Awards", "Recognition"],
   publications: ["Publications", "Research Publications"],
   additional: ["Additional Information", "Languages & Volunteering"],
+  languages: ["Languages"],
+  portfolio: ["Portfolio", "Selected Work", "Portfolio & Links"],
 };
 
 export const DEFAULT_SECTION_NAME: Record<SectionType, string> = {
@@ -134,4 +148,6 @@ export const DEFAULT_SECTION_NAME: Record<SectionType, string> = {
   achievements: "Achievements",
   publications: "Publications",
   additional: "Additional Information",
+  languages: "Languages",
+  portfolio: "Portfolio",
 };
