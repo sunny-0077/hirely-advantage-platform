@@ -13,7 +13,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
   useEffect(() => {
     let active = true;
     const measure = async () => {
-      await Promise.all([document.fonts.load('14px "Hirely Document Sans"'), document.fonts.load('700 14px "Hirely Document Sans"'), document.fonts.load('14px "Hirely Document Serif"'), document.fonts.load('700 14px "Hirely Document Serif"'), document.fonts.load('14px "Hirely Document Mono"')]);
+      await Promise.allSettled([document.fonts.load('14px "Hirely Document Sans"'), document.fonts.load('700 14px "Hirely Document Sans"'), document.fonts.load('14px "Hirely Document Serif"'), document.fonts.load('700 14px "Hirely Document Serif"'), document.fonts.load('14px "Hirely Document Mono"')]);
       if (!active || !measureRef.current) return;
       const page = measureRef.current.querySelector<HTMLElement>(".resume-page"); if (!page) return;
       const main = page.querySelector<HTMLElement>('[data-resume-flow="main"]'); if (!main) return;
