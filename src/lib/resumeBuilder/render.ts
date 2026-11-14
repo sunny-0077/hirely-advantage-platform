@@ -15,6 +15,8 @@ export type RenderedSection =
   | { type: "education"; name: string; items: EducationItem[] }
   | { type: "certifications"; name: string; items: CertificationItem[] }
   | { type: "achievements"; name: string; items: string[] }
+  | { type: "portfolio"; name: string; items: { label: string; url: string }[] }
+  | { type: "languages"; name: string; items: { id: string; title: string; details: string }[] }
   | { type: "publications" | "additional"; name: string; items: { id: string; title: string; details: string }[] };
 
 /** Returns the resume as an ordered list of populated, enabled sections. */
@@ -55,8 +57,16 @@ function renderSection(s: Section, doc: ResumeDocument): RenderedSection | null 
     }
     case "publications":
     case "additional": {
-      const items = (c[s.type] ?? []).filter(a => a.title || a.details);
+      const items = (c[s.type] ?? []).filter(a => (a.title || a.details) && (s.type !== "additional" || a.kind !== "language" || !doc.sections.some(x => x.type === "languages")));
       return items.length ? {type:s.type,name:s.name,items} : null;
+    }
+    case "languages": {
+      const items = (c.additional ?? []).filter(a => a.kind === "language" && (a.title || a.details));
+      return items.length ? { type: "languages", name: s.name, items } : null;
+    }
+    case "portfolio": {
+      const items = c.personal.links.filter(l => l.url && /portfolio|website|work|behance|dribbble|github/i.test(`${l.label} ${l.url}`));
+      return items.length ? { type: "portfolio", name: s.name, items } : null;
     }
   }
 }
