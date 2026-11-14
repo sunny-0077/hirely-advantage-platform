@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ResumeDocument } from "@/lib/resumeBuilder/types";
-import { documentFontCss } from "@/lib/resumeBuilder/fonts";
+import { documentFontCss, documentWebFontFaces, documentWebFontUrl } from "@/lib/resumeBuilder/fonts";
 import { A4_HEIGHT, A4_WIDTH, paginateMeasurements } from "@/lib/resumeBuilder/pagination";
 import { resolvedLayout } from "@/lib/resumeBuilder/visual";
 import { buildVisualBlocks, splitVisualColumns, VisualResumePage } from "./VisualResumePage";
@@ -13,7 +13,8 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
   useEffect(() => {
     let active = true;
     const measure = async () => {
-      await Promise.allSettled([document.fonts.load('14px "Hirely Document Sans"'), document.fonts.load('700 14px "Hirely Document Sans"'), document.fonts.load('14px "Hirely Document Serif"'), document.fonts.load('700 14px "Hirely Document Serif"'), document.fonts.load('14px "Hirely Document Mono"')]);
+      await Promise.allSettled([document.fonts.load('14px "Hirely Document Sans"'), document.fonts.load('700 14px "Hirely Document Sans"'), document.fonts.load('14px "Hirely Document Serif"'), document.fonts.load('700 14px "Hirely Document Serif"'), document.fonts.load('14px "Hirely Document Mono"'), ...documentWebFontFaces.flatMap(f => [document.fonts.load(`400 14px "${f}"`), document.fonts.load(`700 14px "${f}"`)])]);
+      await document.fonts.ready;
       if (!active || !measureRef.current) return;
       const page = measureRef.current.querySelector<HTMLElement>(".resume-page"); if (!page) return;
       const main = page.querySelector<HTMLElement>('[data-resume-flow="main"]'); if (!main) return;
@@ -32,6 +33,7 @@ export function ResumePreview({ doc }: { doc: ResumeDocument }) {
   }, [doc, blocks]);
   const total = Math.max(plans.main.length, plans.rail.length);
   return <div className="relative resume-preview" data-resume-ready={readyDoc === doc ? "true" : "false"}>
+    <link rel="stylesheet" href={documentWebFontUrl} crossOrigin="anonymous" />
     <style>{documentFontCss}</style>
     <div className="resume-measure" aria-hidden="true" ref={measureRef}><VisualResumePage doc={doc} main={blocks.main} rail={blocks.rail} measure /></div>
     <div className="resume-pages">{Array.from({ length: total }, (_, i) => <VisualResumePage key={i} doc={doc} page={i} total={total} main={blocks.main.filter(b => plans.main[i]?.includes(b.id))} rail={blocks.rail.filter(b => plans.rail[i]?.includes(b.id))} />)}</div>
