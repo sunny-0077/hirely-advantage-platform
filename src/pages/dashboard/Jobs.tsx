@@ -265,7 +265,7 @@ export default function Jobs() {
               </div>
               <div className="mt-6"><TruthCardBadge t={activeJob.truth_card_json ?? {}} /></div>
               <h3 className="mt-6 text-sm font-semibold text-foreground">About the role</h3>
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{activeJob.raw_description?.trim() || "Full description is available on the employer's page."}</p>
+              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{activeJob.raw_description?.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").trim() || "Full description is available on the employer's page."}</p>
             </section>
           )}
         </div>
